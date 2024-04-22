@@ -1,17 +1,22 @@
-# Entity Diagram for User and Login History
+# 🗃️ Entity-Relationship Diagram Overview 🗂️
 
-This entity diagram illustrates the structure and relationships of the 'USER', 'DEPARTMENT', and 'LOGIN_HISTORY' entities.
+This diagram offers a visual representation of a database's structure. It highlights the tables/entities, their attributes (fields), and relationships.
 
-## Diagram
+## Entities and Relationships
 
-![Entity Diagram](https://github.com/qorebacemabr/QoreTracking/assets/75340391/e55ca8b0-818b-461a-94af-3e982647e9f4)
+- 🧑‍💼 **USER**: Central entity storing personal and login information.
+- 🗝️ **TOKEN_DETAILS**: Holds access tokens and multi-factor authentication secrets.
+- ⏰ **WORK_HOURS**: Records the check-in/out times and duration of employee shifts.
+- 🏢 **DEPARTMENT**: Represents different business or organizational units.
+- 🧑‍💼 **SUPERVISOR**: Contains details of each department's supervisory staff.
+- 📅 **LOGIN_HISTORY**: Tracks user authentication instances.
 
-## Description
+![Entity Relationship Diagram Version 2](https://github.com/qorebacemabr/QoreTracking/assets/75340391/2938bebb-ed03-4d3e-ab06-b02460b0f971)
 
-- The `USER` table holds essential information about users including authentication details, personal information, and references to their department and supervisor.
-- The `DEPARTMENT` table contains details about the various departments within the organization to which users can belong.
-- The `LOGIN_HISTORY` table tracks each user's login activities, providing a log of authentication events by user ID.
+# 🆕 Key Updates in the Revised Diagram 🔄
 
-Please review the diagram to ensure that all entities are correctly represented and that the relationships align with our system's data model.
+- 🌐 **TOKEN_DETAILS Separation**: Access-related attributes have been extracted from the USER entity to form a dedicated TOKEN_DETAILS table, enhancing security and normalization.
+- ⌛ **WORK_HOURS Table Addition**: A new WORK_HOURS entity has been introduced, which includes check-in, check-out, and duration of work, allowing for a detailed tracking of employee hours.
+- 👨‍🏫 **Supervisor Relationship Change**: Instead of directly linking to users, supervisors are now associated with departments, streamlining the hierarchy and clarity in supervision.
+- 🔍 **Detailed Work Hour Fields**: The WORK_HOURS table now potentially captures the type of work, location, and any comments, offering a comprehensive view of the employee's work schedule.
 
-Feedback and suggestions for improvements are welcome and can be added to the discussion in this pull request. :pray:
