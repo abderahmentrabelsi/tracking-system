@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # MySQL Database Service
   mysql:
     image: mysql:latest
     container_name: QoreContainerSQL
@@ -11,20 +12,22 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
-      - "${DB_PORT}:3306"
+      - "${DB_PORT}:3306" # Exposes MySQL port
     networks:
       - qore_network
     volumes:
       - qore_volume:/var/lib/mysql
 
+  # Adminer Database Management Tool
   adminer:
-    image: adminer
+    image: adminer:latest
     container_name: QoreContainerViZ
     ports:
-      - "8989:8080"
+      - "8989:8080" # Exposes Adminer UI port
     networks:
       - qore_network
 
+  # Backend Service
   back:
     restart: on-failure
     container_name: Backend_Container
@@ -32,7 +35,7 @@ services:
       context: ./back
       dockerfile: Dockerfile
     ports:
-      - "8383:8383"
+      - "8383:8383" # Exposes backend service port
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
@@ -46,21 +49,28 @@ services:
       - qore_network
 
 
+  # Frontend Service
   client:
     container_name: Frontend_Container
     build:
       context: ./client
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3000:3000" # Exposes frontend service port
     volumes:
-      - ./client/src:/app/src
+      - ./client/src:/app/src # Mounts volume for development convenience
+    restart: on-failure
+    depends_on:
+      - back # Depends on the backend service
     environment:
-      API_URL: "http://back:8383"
+      API_URL: "http://back:8383" # Specifies the API URL for communication with backend
 
+
+# Volume for persistent data storage
 volumes:
   qore_volume:
 
+# Network for inter-service communication
 networks:
   qore_network:
 
