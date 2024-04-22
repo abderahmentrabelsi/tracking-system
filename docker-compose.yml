@@ -3,42 +3,64 @@ version: '3.8'
 services:
   mysql:
     image: mysql:latest
+    container_name: QoreContainerSQL
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
       - "${DB_PORT}:3306"
+    networks:
+      - qore_network
     volumes:
-      - mysql_volume:/var/lib/mysql
+      - qore_volume:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    container_name: QoreContainerViZ
+    ports:
+      - "8989:8080"
+    networks:
+      - qore_network
 
   back:
+    restart: on-failure
+    container_name: Backend_Container
     build:
       context: ./back
       dockerfile: Dockerfile
     ports:
-      - "8086:8086"
+      - "8383:8383"
     environment:
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
       DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     depends_on:
       - mysql
+    networks:
+      - qore_network
 
 
   client:
-    container_name: qoretracking-client
+    container_name: Frontend_Container
     build:
       context: ./client
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
-      - ./client:/app
-      - /app/node_modules
+      - ./client/src:/app/src
     environment:
-      API_URL: "http://back:8086"
-
-
+      API_URL: "http://back:8383"
 
 volumes:
-  mysql_volume:
+  qore_volume:
+
+networks:
+  qore_network:
+
