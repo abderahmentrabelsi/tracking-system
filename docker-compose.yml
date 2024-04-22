@@ -26,15 +26,19 @@ services:
 
 
   client:
+    container_name: qoretracking-client
     build:
       context: ./client
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
-      - ./client/src:/app/src
+      - ./client:/app
+      - /app/node_modules
     environment:
-      API_URL: "http://back:8080"
+      API_URL: "http://back:8086"
+
+
 
 volumes:
   mysql_volume:
