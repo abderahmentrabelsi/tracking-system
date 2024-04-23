@@ -2,7 +2,8 @@
 
 The following diagram represents the database schema for QoreTracking, outlining the relationships between users, their login history, work hours, token details, and departments.
 
-![Entity Relationship Diagram](https://github.com/qorebacemabr/QoreTracking/assets/75340391/a5bbad58-1d1f-407e-9007-dd659d05ff50)
+![diagram (2)](https://github.com/qorebacemabr/QoreTracking/assets/75340391/915046bf-99b6-455c-afd7-2adb4be7ff37)
+
 
 ## Description of Entities and Relationships
 
