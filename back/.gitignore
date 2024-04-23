@@ -21,9 +21,10 @@ tmp/
 # IDE specific files
 .vscode
 .idea
+../.idea
 
 # .env file
-.env
+#.env
 
 # Project build
 main
