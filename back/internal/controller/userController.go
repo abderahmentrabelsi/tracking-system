@@ -7,10 +7,10 @@ import (
 	"github.com/pquerna/otp/totp"
 	"github.com/skip2/go-qrcode"
 	"golang.org/x/crypto/bcrypt"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 )
 
 func SignUp(c *gin.Context) {
@@ -95,10 +95,10 @@ func SignUp(c *gin.Context) {
 
 // generateRandomPassword generates a random password of a specified length.
 func generateRandomPassword(length int) string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+,.?/:;{}[]`~"
 	b := make([]byte, length)
 	for i := range b {
-		b[i] = charset[time.Now().UnixNano()%int64(len(charset))]
+		b[i] = charset[rand.Intn(len(charset))]
 	}
 	return string(b)
 }
