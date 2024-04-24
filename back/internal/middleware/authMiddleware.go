@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"back/internal/store"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -9,26 +8,35 @@ import (
 	"strings"
 )
 
+type JWTClaims struct {
+	UserID string `json:"userId"`
+	Role   string `json:"role"`
+	jwt.StandardClaims
+}
+
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := getTokenFromRequest(c)
-		if tokenString == "" || store.IsTokenRevoked(tokenString) {
+		if tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			c.Abort()
 			return
 		}
 
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 
-		if err != nil || !token.Valid {
+		if claims, ok := token.Claims.(*JWTClaims); ok && token.Valid {
+			// Now you have a valid token and can extract the UserID and Role
+			c.Set("userID", claims.UserID)
+			c.Set("userRole", claims.Role)
+			c.Next()
+		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			c.Abort()
 			return
 		}
-
-		c.Next()
 	}
 }
 
