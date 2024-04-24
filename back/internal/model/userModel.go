@@ -1,8 +1,16 @@
 package models
 
 import (
+	"back/internal/orm"
 	"gorm.io/gorm"
 	"time"
+)
+
+type Role string
+
+const (
+	Admin    Role = "Admin"
+	Employee Role = "Employee"
 )
 
 type User struct {
@@ -10,6 +18,7 @@ type User struct {
 	Username     string         `json:"username"`
 	Password     string         `json:"password"`
 	Email        string         `json:"email"`
+	role         Role           `json:"role"`
 	FirstName    string         `json:"firstName"`
 	LastName     string         `json:"lastName"`
 	Picture      string         `json:"picture"`
@@ -49,4 +58,20 @@ type TokenDetails struct {
 	RefreshToken string    `json:"refreshToken"`
 	TokenExpiry  time.Time `json:"tokenExpiry"`
 	TOTPSecret   string    `json:"totpSecret"`
+}
+
+func GetUserByEmail(email string) (*User, error) {
+	var user User
+	err := orm.DB.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+func CreateUser(user *User) error {
+	return orm.DB.Create(user).Error
 }
