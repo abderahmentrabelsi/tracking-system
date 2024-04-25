@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
-	"strings"
 )
 
 type JWTClaims struct {
@@ -41,14 +40,10 @@ func AuthMiddleware() gin.HandlerFunc {
 }
 
 func getTokenFromRequest(c *gin.Context) string {
-	bearerToken := c.GetHeader("Authorization")
-	if len(bearerToken) > 7 && strings.ToUpper(bearerToken[0:7]) == "BEARER " {
-		return bearerToken[7:]
+	// Attempt to retrieve the access token from cookies
+	token, err := c.Cookie("access_token")
+	if err != nil {
+		return ""
 	}
-
-	// Attempt to retrieve the access token from cookies if not found in header
-	if cookie, err := c.Cookie("access_token"); err == nil {
-		return cookie
-	}
-	return ""
+	return token
 }
