@@ -32,6 +32,19 @@ func SignUp(c *gin.Context) {
 		return
 	}
 
+	// Retrieve the department by ID
+	department, err := models.GetDepartmentByID(body.DepartmentID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Department does not exist"})
+		return
+	}
+
+	// Check if the role is valid
+	if body.Role != string(models.Admin) && body.Role != string(models.Employee) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
+		return
+	}
+
 	defaultPassword := "defaultPassword"
 	hash, err := bcrypt.GenerateFromPassword([]byte(defaultPassword), bcrypt.DefaultCost)
 	if err != nil {
@@ -40,13 +53,13 @@ func SignUp(c *gin.Context) {
 	}
 
 	user := models.User{
-		FirstName:    body.FirstName,
-		LastName:     body.LastName,
-		PhoneNumber:  body.PhoneNumber,
-		Email:        body.Email,
-		DepartmentID: body.DepartmentID,
-		Role:         body.Role,
-		Password:     string(hash),
+		FirstName:   body.FirstName,
+		LastName:    body.LastName,
+		PhoneNumber: body.PhoneNumber,
+		Email:       body.Email,
+		Department:  *department,
+		Role:        body.Role,
+		Password:    string(hash),
 	}
 
 	if err := models.CreateUser(&user); err != nil {

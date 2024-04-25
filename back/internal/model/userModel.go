@@ -15,18 +15,18 @@ const (
 
 type User struct {
 	gorm.Model
-	Username     string         `json:"username"`
-	Password     string         `json:"password"`
-	Email        string         `json:"email"`
-	role         Role           `json:"role"`
-	FirstName    string         `json:"firstName"`
-	LastName     string         `json:"lastName"`
-	Picture      string         `json:"picture"`
-	Role         string         `json:"role"`
-	PhoneNumber  string         `json:"phoneNumber"`
-	Address      string         `json:"address"`
-	DepartmentID uint           `json:"departmentId"`
-	Department   Department     `gorm:"foreignKey:DepartmentID" json:"department"`
+	Username     string `json:"username"`
+	Password     string `json:"password"`
+	Email        string `json:"email"`
+	role         Role   `json:"role"`
+	FirstName    string `json:"firstName"`
+	LastName     string `json:"lastName"`
+	Picture      string `json:"picture"`
+	Role         string `json:"role"`
+	PhoneNumber  string `json:"phoneNumber"`
+	Address      string `json:"address"`
+	DepartmentID uint
+	Department   Department     `gorm:"foreignKey:DepartmentID"`
 	LoginHistory []LoginHistory `gorm:"foreignKey:UserID" json:"loginHistory"`
 	WorkHours    []WorkHours    `gorm:"foreignKey:UserID" json:"workHours"`
 	TokenDetails TokenDetails   `gorm:"foreignKey:UserID" json:"tokenDetails"`
