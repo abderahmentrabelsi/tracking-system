@@ -40,7 +40,8 @@ func SignUp(c *gin.Context) {
 	}
 
 	// Check if the role is valid
-	if body.Role != string(models.Admin) && body.Role != string(models.Employee) {
+	userRole := models.Role(body.Role)
+	if userRole != models.Admin && userRole != models.Employee {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
 		return
 	}
@@ -58,7 +59,7 @@ func SignUp(c *gin.Context) {
 		PhoneNumber: body.PhoneNumber,
 		Email:       body.Email,
 		Department:  *department,
-		Role:        body.Role,
+		Role:        userRole,
 		Password:    string(hash),
 	}
 
