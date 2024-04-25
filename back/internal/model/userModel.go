@@ -72,5 +72,8 @@ func GetUserByEmail(email string) (*User, error) {
 }
 
 func CreateUser(user *User) error {
-	return orm.DB.Create(user).Error
+	if err := orm.DB.Create(user).Error; err != nil {
+		return err
+	}
+	return nil
 }
