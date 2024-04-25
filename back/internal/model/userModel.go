@@ -22,7 +22,6 @@ type User struct {
 	FirstName    string `json:"firstName"`
 	LastName     string `json:"lastName"`
 	Picture      string `json:"picture"`
-	Role         string `json:"role"`
 	PhoneNumber  string `json:"phoneNumber"`
 	Address      string `json:"address"`
 	DepartmentID uint
