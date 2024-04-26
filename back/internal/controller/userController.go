@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"back/internal/middleware"
 	models "back/internal/model"
 	"back/internal/store"
 	"github.com/dgrijalva/jwt-go"
@@ -12,6 +13,14 @@ import (
 )
 
 func SignUp(c *gin.Context) {
+	// Authenticate the request and check the role
+	middleware.AuthMiddleware()(c)
+	role, exists := c.Get("userRole")
+	if !exists || role != string(models.Admin) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
 	var body struct {
 		FirstName    string `json:"FirstName"`
 		LastName     string `json:"LastName"`
@@ -89,7 +98,7 @@ func LoginHandler(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
-	accessToken, err := generateToken(user.Email, 7*24*time.Hour)
+	accessToken, err := generateToken(user.Email, string(user.Role), 7*24*time.Hour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
 		return
@@ -116,11 +125,12 @@ func LogoutHandler(c *gin.Context) {
 		"message": "Logout successful",
 	})
 }
-func generateToken(email string, duration time.Duration) (string, error) {
+func generateToken(email string, role string, duration time.Duration) (string, error) {
 	exp := time.Now().Add(duration)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": email,
-		"exp":   exp.Unix(),
+		"UserID": email,
+		"Role":   role,
+		"exp":    exp.Unix(),
 	})
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }

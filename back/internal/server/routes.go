@@ -2,9 +2,9 @@ package server
 
 import (
 	"back/internal/controller"
-	"net/http"
-
+	"back/internal/middleware"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
@@ -14,10 +14,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.GET("/health", s.healthHandler)
 
-	r.POST("/signup", controller.SignUp)
-
+	r.POST("/signup", middleware.AuthMiddleware(), controller.SignUp)
 	r.POST("/login", controller.LoginHandler)
-
 	r.POST("/logout", controller.LogoutHandler)
 
 	return r
