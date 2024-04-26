@@ -119,7 +119,7 @@ func LogoutHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No access token provided"})
 		return
 	}
-	store.RevokeToken(token)
+	store.RevokeToken(token) // Add this line to blacklist the token
 	c.SetCookie("access_token", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Logout successful",

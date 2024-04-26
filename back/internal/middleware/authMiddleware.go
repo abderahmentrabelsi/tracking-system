@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"back/internal/store"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -16,7 +17,7 @@ type JWTClaims struct {
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := getTokenFromRequest(c)
-		if tokenString == "" {
+		if tokenString == "" || store.IsTokenRevoked(tokenString) { // Check if the token is in the blacklist
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			c.Abort()
 			return
