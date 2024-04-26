@@ -22,9 +22,15 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		token, _ := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while parsing the token"})
+			c.Abort()
+			return
+		}
 
 		if claims, ok := token.Claims.(*JWTClaims); ok && token.Valid {
 			// Now you have a valid token and can extract the UserID and Role
