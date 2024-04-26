@@ -2,9 +2,12 @@ package controller
 
 import (
 	models "back/internal/model"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"os"
+	"time"
 )
 
 func SignUp(c *gin.Context) {
@@ -73,4 +76,62 @@ func SignUp(c *gin.Context) {
 		"default_password": defaultPassword,
 		"message":          "User created successfully",
 	})
+}
+
+func LoginHandler(c *gin.Context) {
+	var body struct {
+		Email    string `json:"Email"`
+		Password string `json:"Password"`
+	}
+
+	if err := c.Bind(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	// Capture IP and Device
+	clientIP := c.ClientIP()
+	userAgent := c.GetHeader("User-Agent")
+
+	user, err := models.GetUserByEmail(body.Email)
+	if err != nil || user == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	// Access token expires in 1 week
+	accessToken, err := generateToken(user.Email, 7*24*time.Hour)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
+		return
+	}
+
+	// Set the access token as a cookie
+	c.SetCookie("access_token", accessToken, int(7*24*time.Hour.Seconds()), "/", "", false, true)
+
+	// Create a login history record
+	err = user.CreateLoginHistory(clientIP, userAgent)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create login history"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login successful",
+	})
+}
+func generateToken(email string, duration time.Duration) (string, error) {
+	exp := time.Now().Add(duration)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"email": email,
+		"exp":   exp.Unix(),
+	})
+
+	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }

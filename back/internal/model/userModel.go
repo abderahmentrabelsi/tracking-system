@@ -77,3 +77,18 @@ func CreateUser(user *User) error {
 	}
 	return nil
 }
+
+func (u *User) CreateLoginHistory(clientIP string, userAgent string) error {
+	history := LoginHistory{
+		UserID:      u.ID,
+		LoginIP:     clientIP,
+		LoginDevice: userAgent,
+		LoginTime:   time.Now(),
+	}
+
+	if err := orm.DB.Create(&history).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
