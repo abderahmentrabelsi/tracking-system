@@ -18,6 +18,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.POST("/login", controller.LoginHandler)
 
+	r.POST("/logout", controller.LogoutHandler)
+
 	return r
 }
 
