@@ -20,6 +20,12 @@ const Login=()=>{
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Check if the email ends with "@qorevirtual.com"
+        if (!email.endsWith("@qorevirtual.com")) {
+            setError("INVALID EMAIL");
+            return;
+        }
+
         try {
             const response = await fetch("http://localhost:4040/auth/login", {
                 method: "POST",
