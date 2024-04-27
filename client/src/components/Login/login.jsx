@@ -1,10 +1,20 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import { FaUser } from "react-icons/fa";
 import { RiLockPasswordFill } from "react-icons/ri";
-import "./Login.css";
-import { Link, useNavigate } from "react-router-dom";
+import "./login.css";
 
 const Login=()=>{
+    useEffect(() => {
+        // Add class to body element when component mounts
+        document.body.classList.add("login-body");
+
+        // Remove class from body element when component unmounts
+        return () => {
+            document.body.classList.remove("login-body");
+        };
+    }, []);
+
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -50,10 +60,10 @@ const Login=()=>{
         }
     };
     return (
-        <div className="base-container">
+        <form className="base-container" onSubmit={handleSubmit}>
             <div className="header">QORE VIRTUAL</div>
             <div className="content">
-                <form className="form" onSubmit={handleSubmit}>
+                <div className="form">
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
                         <input
@@ -82,9 +92,10 @@ const Login=()=>{
                     </div>
                     <div className="remember">
                         <label>
-                            <input type="checkbox" />Remember me
+                            <input type="checkbox" />Remember me  
                         </label>
-                        <a href="#"> Issue to connect ? </a>
+                        <p> </p>
+                        <a href="/report-issue" className="pass-txt"> Issue to connect ?   </a>
                     </div>
                     {error && <div className="error">{error}</div>}
                     <div className="footer">
@@ -92,9 +103,9 @@ const Login=()=>{
                             Login
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
-        </div>
+        </form>
     );
 };
 export default Login;
