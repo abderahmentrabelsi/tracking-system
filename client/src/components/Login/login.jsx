@@ -30,35 +30,31 @@ const Login=()=>{
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Check if the email ends with "@qorevirtual.com"
-        if (!email.endsWith("@qorevirtual.com")) {
-            setError("INVALID EMAIL");
-            return;
-        }
-
         try {
-            const response = await fetch("http://localhost:4040/auth/login", {
+            const response = await fetch("http://localhost:8383/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ Email: email, Password: password })
             });
 
             if (response.ok) {
                 // Login successful, extract JWT token from response and store it
-                const { token } = await response.json();
-                localStorage.setItem("token", token); // Store token in localStorage or sessionStorage
+                const { access_token } = await response.json();
+                document.cookie = `access_token=${access_token}; path=/`; // Store token in cookies
                 // Navigate to the dashboard page if login correct
             } else {
                 // Login failed, display error message
-                const { message } = await response.json();
-                setError(message);
+                const { error } = await response.json();
+                setError(error);
             }
         } catch (error) {
             console.error("Error:", error);
         }
     };
+
+
     return (
         <form className="base-container" onSubmit={handleSubmit}>
             <div className="header">QORE VIRTUAL</div>

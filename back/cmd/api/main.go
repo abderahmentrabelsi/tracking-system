@@ -5,6 +5,7 @@ import (
 	"back/internal/orm" // Import the orm package
 	"back/internal/server"
 	"fmt"
+	"github.com/rs/cors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
@@ -16,13 +17,19 @@ func main() {
 	initializeORM()
 
 	// Create a new server instance
-	server := server.NewServer()
+	srv := server.NewServer()
+
+	// Get the router from the server
+	router := srv.Handler // Assuming your server has a Handler field that is the router
+
+	// Wrap the router with CORS middleware
+	handler := cors.Default().Handler(router)
+
+	// Replace the server's handler with the CORS handler
+	srv.Handler = handler
 
 	// Start the server
-	err := server.ListenAndServe()
-	if err != nil {
-		panic(fmt.Sprintf("cannot start server: %s", err))
-	}
+	log.Fatal(srv.ListenAndServe())
 }
 
 // initializeORM initializes the orm.DB instance
