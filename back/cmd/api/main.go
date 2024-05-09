@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
@@ -23,7 +24,14 @@ func main() {
 	router := srv.Handler // Assuming your server has a Handler field that is the router
 
 	// Wrap the router with CORS middleware
-	handler := cors.Default().Handler(router)
+	corsConfig := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"}, // Replace with the origin of your client application
+		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowedHeaders:   []string{"Origin", "Content-Length", "Content-Type", "Authorization"}, // Add "Authorization"
+		MaxAge:           int(12 * time.Hour / time.Second),
+	})
+	handler := corsConfig.Handler(router)
 
 	// Replace the server's handler with the CORS handler
 	srv.Handler = handler
