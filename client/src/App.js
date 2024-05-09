@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Dashboard from "./components/Dashboard/dashboard.jsx";
 import Login from "./components/Login/login.jsx";
 import SurveyComponent from "./components/Reporting/SurveyComponent.jsx";
+import Register from "./components/Register/register.jsx";
 
 const App=()=> {
   // Ignoring unused variable warning for setIsAuthenticated
@@ -18,6 +19,7 @@ const App=()=> {
 
         {/* Nested route for the Login component */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />}  />
 
         {/* Protected route for Dashboard, redirects to Login if not authenticated */}
         <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
