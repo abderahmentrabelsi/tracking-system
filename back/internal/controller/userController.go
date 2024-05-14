@@ -103,7 +103,7 @@ func LoginHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
 		return
 	}
-	c.SetCookie("access_token", accessToken, int(7*24*time.Hour.Seconds()), "/", "", false, true)
+	// c.SetCookie("access_token", accessToken, int(7*24*time.Hour.Seconds()), "/", "", false, true) // Comment this line
 	err = user.CreateLoginHistory(clientIP, userAgent)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create login history"})
@@ -111,6 +111,7 @@ func LoginHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successful",
+		"access_token": accessToken, // Add this line
 	})
 }
 func LogoutHandler(c *gin.Context) {
