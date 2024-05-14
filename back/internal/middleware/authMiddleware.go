@@ -3,6 +3,7 @@ package middleware
 import (
 	"back/internal/store"
 	"github.com/dgrijalva/jwt-go"
+	_ "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
