@@ -5,6 +5,7 @@ import (
 	"back/internal/orm" // Import the orm package
 	"back/internal/server"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
@@ -14,6 +15,8 @@ import (
 func main() {
 	// Initialize the orm.DB instance
 	initializeORM()
+
+	gin.SetMode(gin.ReleaseMode)
 
 	// Create a new server instance
 	server := server.NewServer()
@@ -27,9 +30,15 @@ func main() {
 
 // initializeORM initializes the orm.DB instance
 func initializeORM() {
-	// Use the correct DSN format for MySQL connection string for GORM
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_DATABASE"))
+
+	// Load environment variables
+	dbUser := os.Getenv("DB_USERNAME")
+	dbPass := os.Getenv("DB_PASSWORD")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_DATABASE")
+	dbHost := os.Getenv("DB_HOST")
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPass, dbHost, dbPort, dbName)
 
 	// Open a new GORM connection
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
