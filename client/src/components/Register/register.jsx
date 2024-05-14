@@ -37,11 +37,12 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('backend_api_url', {
+            const response = await fetch('http://localhost:8383/signup', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
+                credentials: 'include', // Include cookies in the request
                 body: JSON.stringify({
                     FirstName: firstName,
                     LastName: lastName,
@@ -51,6 +52,9 @@ const Register = () => {
                     Role: role
                 })
             });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             // Handle response as needed (e.g., show success message)
             alert("Account created!");
             clearForm();
@@ -59,7 +63,6 @@ const Register = () => {
             console.error('Error registering:', error);
         }
     };
-
     return (
         <div className="App">
             <form onSubmit={handleSubmit}>

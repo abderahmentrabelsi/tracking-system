@@ -5,35 +5,46 @@ import (
 	"back/internal/orm" // Import the orm package
 	"back/internal/server"
 	"fmt"
+	"github.com/rs/cors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
 	// Initialize the orm.DB instance
 	initializeORM()
+
 	// Create a new server instance
-	server := server.NewServer()
+	srv := server.NewServer()
+
+	// Get the router from the server
+	router := srv.Handler // Assuming your server has a Handler field that is the router
+
+	// Wrap the router with CORS middleware
+	corsConfig := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"}, // Replace with the origin of your client application
+		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowedHeaders:   []string{"Origin", "Content-Length", "Content-Type", "Authorization"}, // Add "Authorization"
+		MaxAge:           int(12 * time.Hour / time.Second),
+	})
+	handler := corsConfig.Handler(router)
+
+	// Replace the server's handler with the CORS handler
+	srv.Handler = handler
+
 	// Start the server
-	err := server.ListenAndServe()
-	if err != nil {
-		panic(fmt.Sprintf("cannot start server: %s", err))
-	}
+	log.Fatal(srv.ListenAndServe())
 }
 
 // initializeORM initializes the orm.DB instance
 func initializeORM() {
-
-	// Load environment variables
-	dbUser := os.Getenv("DB_USERNAME")
-	dbPass := os.Getenv("DB_PASSWORD")
-	dbPort := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_DATABASE")
-	dbHost := os.Getenv("DB_HOST")
-
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPass, dbHost, dbPort, dbName)
+	// Use the correct DSN format for MySQL connection string for GORM
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_DATABASE"))
 
 	// Open a new GORM connection
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
