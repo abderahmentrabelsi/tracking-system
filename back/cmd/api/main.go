@@ -5,7 +5,6 @@ import (
 	"back/internal/orm" // Import the orm package
 	"back/internal/server"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
@@ -15,12 +14,8 @@ import (
 func main() {
 	// Initialize the orm.DB instance
 	initializeORM()
-
-	gin.SetMode(gin.ReleaseMode)
-
 	// Create a new server instance
 	server := server.NewServer()
-
 	// Start the server
 	err := server.ListenAndServe()
 	if err != nil {
