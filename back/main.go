@@ -9,6 +9,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
+	"net/http"
 	"os"
 	"time"
 )
@@ -17,11 +18,13 @@ func main() {
 	// Initialize the orm.DB instance
 	initializeORM()
 
+	//gin.SetMode(gin.ReleaseMode)
+
 	// Create a new server instance
 	srv := server.NewServer()
 
 	// Get the router from the server
-	router := srv.Handler // Assuming your server has a Handler field that is the router
+	router := srv.RegisterRoutes()
 
 	// Wrap the router with CORS middleware
 	corsConfig := cors.New(cors.Options{
@@ -33,11 +36,8 @@ func main() {
 	})
 	handler := corsConfig.Handler(router)
 
-	// Replace the server's handler with the CORS handler
-	srv.Handler = handler
-
 	// Start the server
-	log.Fatal(srv.ListenAndServe())
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
 
 // initializeORM initializes the orm.DB instance

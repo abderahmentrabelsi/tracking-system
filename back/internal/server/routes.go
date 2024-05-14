@@ -1,33 +1,29 @@
 package server
 
 import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
 	"back/internal/controller"
 	"back/internal/middleware"
-	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
 
-	r.GET("/", s.HelloWorldHandler)
+	// User routes
+	userController := controller.NewUserController(s.userService)
+	r.POST("/user/signup", middleware.AuthMiddleware(), userController.SignUp)
+	r.POST("/user/login", userController.LoginHandler)
+	r.POST("/user/logout", userController.LogoutHandler)
 
-	r.GET("/health", s.healthHandler)
-
-	r.POST("/signup", middleware.AuthMiddleware(), controller.SignUp)
-	r.POST("/login", controller.LoginHandler)
-	r.POST("/logout", controller.LogoutHandler)
+	// Department routes
+	departmentController := controller.NewDepartmentController(s.departmentService)
+	r.POST("/department/create", middleware.AuthMiddleware(), departmentController.CreateDepartment)
+	r.GET("/department/:id", middleware.AuthMiddleware(), departmentController.GetDepartmentByID)
+	r.PUT("/department/update/:id", middleware.AuthMiddleware(), departmentController.UpdateDepartment)
+	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(), departmentController.DeleteDepartment)
 
 	return r
-}
-
-func (s *Server) HelloWorldHandler(c *gin.Context) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
-
-	c.JSON(http.StatusOK, resp)
-}
-
-func (s *Server) healthHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, s.db.Health())
 }

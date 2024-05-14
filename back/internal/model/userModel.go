@@ -1,7 +1,6 @@
 package models
 
 import (
-	"back/internal/orm"
 	"gorm.io/gorm"
 	"time"
 )
@@ -57,38 +56,4 @@ type TokenDetails struct {
 	RefreshToken string    `json:"refreshToken"`
 	TokenExpiry  time.Time `json:"tokenExpiry"`
 	TOTPSecret   string    `json:"totpSecret"`
-}
-
-func GetUserByEmail(email string) (*User, error) {
-	var user User
-	err := orm.DB.Where("email = ?", email).First(&user).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &user, nil
-}
-
-func CreateUser(user *User) error {
-	if err := orm.DB.Create(user).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-func (u *User) CreateLoginHistory(clientIP string, userAgent string) error {
-	history := LoginHistory{
-		UserID:      u.ID,
-		LoginIP:     clientIP,
-		LoginDevice: userAgent,
-		LoginTime:   time.Now(),
-	}
-
-	if err := orm.DB.Create(&history).Error; err != nil {
-		return err
-	}
-
-	return nil
 }
