@@ -14,9 +14,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// User routes
 	userController := controller.NewUserController(s.userService)
-	r.POST("/user/signup", middleware.AuthMiddleware(), userController.SignUp)
-	r.POST("/user/login", userController.LoginHandler)
-	r.POST("/user/logout", userController.LogoutHandler)
+	r.POST("/signup", middleware.AuthMiddleware(), userController.SignUp)
+	r.POST("/login", userController.LoginHandler)
+	r.POST("/logout", userController.LogoutHandler)
 
 	// Department routes
 	departmentController := controller.NewDepartmentController(s.departmentService)
