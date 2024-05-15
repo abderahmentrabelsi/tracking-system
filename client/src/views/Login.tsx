@@ -48,7 +48,7 @@ const MaskImg = styled('img')({
 
 
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
-  const serverUrl = process.env.REACT_APP_SERVER_URL;
+  //const serverUrl = process.env.REACT_APP_SERVER_URL;
   const [isPasswordShown, setIsPasswordShown] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -72,7 +72,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${serverUrl}/login`, { Email: email, Password: password });
+      const response = await axios.post(`http://localhost:8383/login`, { Email: email, Password: password });
       const { access_token } = response.data;
 
 
