@@ -36,8 +36,9 @@ func main() {
 	})
 	handler := corsConfig.Handler(router)
 
+	PORT := os.Getenv("PORT")
 	// Start the server
-	log.Fatal(http.ListenAndServe(":8080", handler))
+	log.Fatal(http.ListenAndServe(":"+PORT, handler))
 }
 
 // initializeORM initializes the orm.DB instance
