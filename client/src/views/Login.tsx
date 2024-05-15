@@ -45,7 +45,10 @@ const MaskImg = styled('img')({
   zIndex: -1
 });
 
+
+
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
+  const serverUrl = process.env.REACT_APP_SERVER_URL;
   const [isPasswordShown, setIsPasswordShown] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -65,11 +68,13 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show);
 
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8383/login', { Email: email, Password: password });
+      const response = await axios.post(`${serverUrl}/login`, { Email: email, Password: password });
       const { access_token } = response.data;
+
 
       // Set the access token in a cookie
       document.cookie = `access_token=${access_token}; path=/`;
