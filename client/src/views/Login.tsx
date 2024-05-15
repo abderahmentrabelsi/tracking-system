@@ -1,41 +1,27 @@
 'use client'
 
-// React Imports
-import { useState } from 'react'
+import axios from 'axios';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { styled, useTheme } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Checkbox from '@mui/material/Checkbox';
+import Button from '@mui/material/Button';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Divider from '@mui/material/Divider';
+import Alert from '@mui/material/Alert';
+import classnames from 'classnames';
+import type { SystemMode } from '@core/types';
+import Link from '@components/Link';
+import Logo from '@components/layout/shared/Logo';
+import CustomTextField from '@core/components/mui/TextField';
+import themeConfig from '@configs/themeConfig';
+import { useImageVariant } from '@core/hooks/useImageVariant';
+import { useSettings } from '@core/hooks/useSettings';
 
-// Next Imports
-import { useRouter } from 'next/navigation'
-
-// MUI Imports
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { styled, useTheme } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-import InputAdornment from '@mui/material/InputAdornment'
-import Checkbox from '@mui/material/Checkbox'
-import Button from '@mui/material/Button'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
-
-// Third-party Imports
-import classnames from 'classnames'
-
-// Type Imports
-import type { SystemMode } from '@core/types'
-
-// Component Imports
-import Link from '@components/Link'
-import Logo from '@components/layout/shared/Logo'
-import CustomTextField from '@core/components/mui/TextField'
-
-// Config Imports
-import themeConfig from '@configs/themeConfig'
-
-// Hook Imports
-import { useImageVariant } from '@core/hooks/useImageVariant'
-import { useSettings } from '@core/hooks/useSettings'
-
-// Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,
   blockSize: 'auto',
@@ -48,7 +34,7 @@ const LoginIllustration = styled('img')(({ theme }) => ({
   [theme.breakpoints.down('lg')]: {
     maxBlockSize: 450
   }
-}))
+}));
 
 const MaskImg = styled('img')({
   blockSize: 'auto',
@@ -57,37 +43,43 @@ const MaskImg = styled('img')({
   position: 'absolute',
   insetBlockEnd: 0,
   zIndex: -1
-})
+});
 
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
-  // States
-  const [isPasswordShown, setIsPasswordShown] = useState(false)
-
-  // Vars
-  const darkImg = '/images/pages/auth-mask-dark.png'
-  const lightImg = '/images/pages/auth-mask-light.png'
-  const darkIllustration = '/images/illustrations/auth/v2-login-dark.png'
-  const lightIllustration = '/images/illustrations/auth/v2-login-light.png'
-  const borderedDarkIllustration = '/images/illustrations/auth/v2-login-dark-border.png'
-  const borderedLightIllustration = '/images/illustrations/auth/v2-login-light-border.png'
-
-  // Hooks
-  const router = useRouter()
-  const { settings } = useSettings()
-  const theme = useTheme()
-  const hidden = useMediaQuery(theme.breakpoints.down('md'))
-  const authBackground = useImageVariant(mode, lightImg, darkImg)
-
+  const [isPasswordShown, setIsPasswordShown] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState(''); // Add state for error message
+  const router = useRouter();
+  const { settings } = useSettings();
+  const theme = useTheme();
+  const hidden = useMediaQuery(theme.breakpoints.down('md'));
+  const authBackground = useImageVariant(mode, '/images/pages/auth-mask-light.png', '/images/pages/auth-mask-dark.png');
   const characterIllustration = useImageVariant(
     mode,
-    lightIllustration,
-    darkIllustration,
-    borderedLightIllustration,
-    borderedDarkIllustration
-  )
+    '/images/illustrations/auth/v2-login-light.png',
+    '/images/illustrations/auth/v2-login-dark.png',
+    '/images/illustrations/auth/v2-login-light-border.png',
+    '/images/illustrations/auth/v2-login-dark-border.png'
+  );
 
-  const handleClickShowPassword = () => setIsPasswordShown(show => !show)
+  const handleClickShowPassword = () => setIsPasswordShown(show => !show);
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:8383/login', { Email: email, Password: password });
+      const { access_token } = response.data;
+
+      // Set the access token in a cookie
+      document.cookie = `access_token=${access_token}; path=/`;
+
+      router.push('/');
+    } catch (error) {
+      console.error('Failed to login', error);
+      setErrorMessage('Invalid credentials'); // Set the error message
+    }
+  };
   return (
     <div className='flex bs-full justify-center'>
       <div
@@ -119,19 +111,25 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
           <form
             noValidate
             autoComplete='off'
-            onSubmit={e => {
-              e.preventDefault()
-              router.push('/')
-            }}
+            onSubmit={handleLogin}
             className='flex flex-col gap-5'
           >
-            <CustomTextField autoFocus fullWidth label='Email or Username' placeholder='Enter your email or username' />
+            <CustomTextField
+              autoFocus
+              fullWidth
+              label='Email or Username'
+              placeholder='Enter your email or username'
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
             <CustomTextField
               fullWidth
               label='Password'
               placeholder='············'
               id='outlined-adornment-password'
               type={isPasswordShown ? 'text' : 'password'}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -151,6 +149,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
             <Button fullWidth variant='contained' type='submit'>
               Login
             </Button>
+            {errorMessage && <Alert severity='error'>{errorMessage}</Alert>} {/* Display the error message */}
             <div className='flex justify-center items-center flex-wrap gap-2'>
               <Typography>New on our platform?</Typography>
               <Typography component={Link} color='primary'>
@@ -176,7 +175,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginV2
+export default LoginV2;

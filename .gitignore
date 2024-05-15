@@ -1,2 +1,4 @@
 .idea
 back/.env
+client/node_modules
+full-version/node_modules
