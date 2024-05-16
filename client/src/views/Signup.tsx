@@ -102,6 +102,10 @@ const StepperCustomVertical = () => {
   const [firstName, setFirstName] = useState<string>('')
   const [activeStep, setActiveStep] = useState<number>(0)
   const [language, setLanguage] = useState<string[]>([])
+  const [phoneNumber, setPhoneNumber] = useState<string>('')
+  const [departmentId, setDepartmentId] = useState<string>('')
+  const [role, setRole] = useState<string>('Employee')
+
 
   const [state, setState] = useState<State>({
     password: '',
@@ -169,10 +173,19 @@ const StepperCustomVertical = () => {
             <Grid item xs={12} sm={6}>
               <CustomTextField
                 fullWidth
-                label='Username'
-                value={username}
-                placeholder='JohnDoe'
-                onChange={e => setUsername(e.target.value)}
+                label='First Name'
+                value={firstName}
+                placeholder='John'
+                onChange={e => setFirstName(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                fullWidth
+                label='Last Name'
+                value={lastName}
+                placeholder='Doe'
+                onChange={e => setLastName(e.target.value)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -181,8 +194,17 @@ const StepperCustomVertical = () => {
                 type='email'
                 label='Email'
                 value={email}
-                placeholder='johndoe@gmail.com'
+                placeholder='johndoe@example.com'
                 onChange={e => setEmail(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                fullWidth
+                label='Phone Number'
+                value={phoneNumber}
+                placeholder='1234567890'
+                onChange={e => setPhoneNumber(e.target.value)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -243,19 +265,19 @@ const StepperCustomVertical = () => {
             <Grid item xs={12} sm={6}>
               <CustomTextField
                 fullWidth
-                value={firstName}
-                label='First Name'
-                placeholder='John'
-                onChange={e => setFirstName(e.target.value)}
+                label='Department ID'
+                value={departmentId}
+                placeholder='Enter Department ID'
+                onChange={e => setDepartmentId(e.target.value)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <CustomTextField
                 fullWidth
-                value={lastName}
-                label='Last Name'
-                placeholder='Doe'
-                onChange={e => setLastName(e.target.value)}
+                label='Role'
+                value={role}
+                placeholder='Employee'
+                onChange={e => setRole(e.target.value)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
