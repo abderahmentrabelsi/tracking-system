@@ -28,7 +28,6 @@ func NewUserController(userService *service.UserService, departmentService *serv
 }
 
 func (uc *UserController) SignUp(c *gin.Context) {
-	// Authenticate the request and check the role
 	middleware.AuthMiddleware()(c)
 	role, exists := c.Get("userRole")
 	if !exists {
@@ -53,7 +52,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		PhoneNumber  string `json:"PhoneNumber"`
 		Email        string `json:"Email"`
 		DepartmentID uint   `json:"DepartmentID"`
-		RoleName     string `json:"RoleName"`  // Use role name instead of ID
+		RoleName     string `json:"RoleName"`
 	}
 	if err := c.Bind(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
@@ -89,7 +88,6 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		return
 	}
 
-	// Create user entity
 	user := &models.User{
 		FirstName:    body.FirstName,
 		LastName:     body.LastName,
@@ -100,7 +98,6 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		Password:     string(hash),
 	}
 
-	// Call service to create user
 	if err := uc.userService.CreateUser(user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating user"})
 		return
@@ -112,6 +109,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		"message":          "User created successfully",
 	})
 }
+
 
 func (uc *UserController) LoginHandler(c *gin.Context) {
 	var body struct {
@@ -134,11 +132,20 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
-	accessToken, err := generateToken(user.Email, user.Role.Name, 7*24*time.Hour)
+
+	roleEntity, err := uc.roleService.GetRoleByID(user.RoleID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user role"})
+		return
+	}
+
+	accessToken, err := generateToken(user.Email, roleEntity.Name, 7*24*time.Hour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
 		return
 	}
+	c.SetCookie("access_token", accessToken, int(7*24*time.Hour.Seconds()), "/", "", false, true)
+
 	err = uc.userService.CreateLoginHistory(user.ID, clientIP, userAgent)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create login history"})
@@ -149,6 +156,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		"access_token": accessToken,
 	})
 }
+
 
 func (uc *UserController) LogoutHandler(c *gin.Context) {
 	token, err := c.Cookie("access_token")
