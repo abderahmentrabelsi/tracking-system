@@ -11,11 +11,13 @@ import (
 
 type UserService struct {
 	userRepository *repository.UserRepository
+	roleRepository *repository.RoleRepository // Add this line
 }
 
-func NewUserService(userRepository *repository.UserRepository) *UserService {
+func NewUserService(userRepository *repository.UserRepository, roleRepository *repository.RoleRepository) *UserService {
 	return &UserService{
 		userRepository: userRepository,
+		roleRepository: roleRepository, // Initialize roleRepository
 	}
 }
 
@@ -50,4 +52,8 @@ func (us *UserService) GenerateToken(email string, role string, duration time.Du
 		"exp":    exp.Unix(),
 	})
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+}
+
+func (us *UserService) GetRoleByID(roleID uint) (*models.Role, error) {
+	return us.roleRepository.GetRoleByID(roleID)
 }

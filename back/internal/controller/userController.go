@@ -15,13 +15,15 @@ import (
 
 type UserController struct {
 	userService       *service.UserService
-	departmentService *service.DepartmentService  // Add this line
+	departmentService *service.DepartmentService
+	roleService       *service.RoleService
 }
 
-func NewUserController(userService *service.UserService, departmentService *service.DepartmentService) *UserController {  // Add departmentService as a parameter
+func NewUserController(userService *service.UserService, departmentService *service.DepartmentService, roleService *service.RoleService) *UserController {
 	return &UserController{
 		userService:       userService,
-		departmentService: departmentService,  // Initialize the departmentService
+		departmentService: departmentService,
+		roleService:       roleService,
 	}
 }
 
@@ -29,7 +31,18 @@ func (uc *UserController) SignUp(c *gin.Context) {
 	// Authenticate the request and check the role
 	middleware.AuthMiddleware()(c)
 	role, exists := c.Get("userRole")
-	if !exists || role != string(models.Admin) {
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	adminRole, err := uc.roleService.GetRoleByName("Admin")
+	if err != nil || adminRole == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Admin role not found"})
+		return
+	}
+
+	if role != adminRole.Name {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
@@ -40,7 +53,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		PhoneNumber  string `json:"PhoneNumber"`
 		Email        string `json:"Email"`
 		DepartmentID uint   `json:"DepartmentID"`
-		Role         string `json:"Role"`
+		RoleName     string `json:"RoleName"`  // Use role name instead of ID
 	}
 	if err := c.Bind(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
@@ -57,15 +70,15 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		return
 	}
 
-	department, err := uc.departmentService.GetDepartmentByID(body.DepartmentID)  // Change this line
+	department, err := uc.departmentService.GetDepartmentByID(body.DepartmentID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Department does not exist"})
 		return
 	}
 
-	userRole := models.Role(body.Role)
-	if userRole != models.Admin && userRole != models.Employee {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
+	roleEntity, err := uc.roleService.GetRoleByName(body.RoleName)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Role does not exist"})
 		return
 	}
 
@@ -78,13 +91,13 @@ func (uc *UserController) SignUp(c *gin.Context) {
 
 	// Create user entity
 	user := &models.User{
-		FirstName:   body.FirstName,
-		LastName:    body.LastName,
-		PhoneNumber: body.PhoneNumber,
-		Email:       body.Email,
+		FirstName:    body.FirstName,
+		LastName:     body.LastName,
+		PhoneNumber:  body.PhoneNumber,
+		Email:        body.Email,
 		DepartmentID: department.ID,
-		Role:        userRole,
-		Password:    string(hash),
+		RoleID:       roleEntity.ID,
+		Password:     string(hash),
 	}
 
 	// Call service to create user
@@ -121,12 +134,11 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
-	accessToken, err := generateToken(user.Email, string(user.Role), 7*24*time.Hour)
+	accessToken, err := generateToken(user.Email, user.Role.Name, 7*24*time.Hour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
 		return
 	}
-	// c.SetCookie("access_token", accessToken, int(7*24*time.Hour.Seconds()), "/", "", false, true) // Comment this line
 	err = uc.userService.CreateLoginHistory(user.ID, clientIP, userAgent)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create login history"})
@@ -134,7 +146,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message":      "Login successful",
-		"access_token": accessToken, // Add this line
+		"access_token": accessToken,
 	})
 }
 
@@ -144,7 +156,7 @@ func (uc *UserController) LogoutHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No access token provided"})
 		return
 	}
-	store.RevokeToken(token) // Add this line to blacklist the token
+	store.RevokeToken(token)
 	c.SetCookie("access_token", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Logout successful",
