@@ -13,7 +13,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
 
 	// User routes
-	userController := controller.NewUserController(s.userService)
+	userController := controller.NewUserController(s.userService, s.departmentService) // Update this line
 	r.POST("/signup", middleware.AuthMiddleware(), userController.SignUp)
 	r.POST("/login", userController.LoginHandler)
 	r.POST("/logout", userController.LogoutHandler)

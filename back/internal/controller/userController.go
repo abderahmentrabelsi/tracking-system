@@ -14,12 +14,14 @@ import (
 )
 
 type UserController struct {
-	userService *service.UserService
+	userService       *service.UserService
+	departmentService *service.DepartmentService  // Add this line
 }
 
-func NewUserController(userService *service.UserService) *UserController {
+func NewUserController(userService *service.UserService, departmentService *service.DepartmentService) *UserController {  // Add departmentService as a parameter
 	return &UserController{
-		userService: userService,
+		userService:       userService,
+		departmentService: departmentService,  // Initialize the departmentService
 	}
 }
 
@@ -55,14 +57,34 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		return
 	}
 
+	department, err := uc.departmentService.GetDepartmentByID(body.DepartmentID)  // Change this line
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Department does not exist"})
+		return
+	}
+
+	userRole := models.Role(body.Role)
+	if userRole != models.Admin && userRole != models.Employee {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
+		return
+	}
+
+	defaultPassword := "defaultPassword"
+	hash, err := bcrypt.GenerateFromPassword([]byte(defaultPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing password"})
+		return
+	}
+
 	// Create user entity
 	user := &models.User{
 		FirstName:   body.FirstName,
 		LastName:    body.LastName,
 		PhoneNumber: body.PhoneNumber,
 		Email:       body.Email,
-		DepartmentID: body.DepartmentID, // You can add this if needed
-	    Role:        models.Role(body.Role), // Convert string to models.Role
+		DepartmentID: department.ID,
+		Role:        userRole,
+		Password:    string(hash),
 	}
 
 	// Call service to create user
@@ -72,8 +94,9 @@ func (uc *UserController) SignUp(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"email":   body.Email,
-		"message": "User created successfully",
+		"email":            body.Email,
+		"default_password": defaultPassword,
+		"message":          "User created successfully",
 	})
 }
 
