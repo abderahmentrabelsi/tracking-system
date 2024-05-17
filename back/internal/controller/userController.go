@@ -61,8 +61,8 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		LastName:    body.LastName,
 		PhoneNumber: body.PhoneNumber,
 		Email:       body.Email,
-		// DepartmentID: body.DepartmentID, // You can add this if needed
-		// Role:        body.Role,          // You can add this if needed
+		DepartmentID: body.DepartmentID, // You can add this if needed
+	    Role:        models.Role(body.Role), // Convert string to models.Role
 	}
 
 	// Call service to create user
