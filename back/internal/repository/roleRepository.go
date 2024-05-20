@@ -26,3 +26,11 @@ func (rr *RoleRepository) GetRoleByName(name string) (*models.Role, error) {
 	}
 	return &role, nil
 }
+
+func (rr *RoleRepository) GetAllRoles() ([]*models.Role, error) {
+    var roles []*models.Role
+    if err := orm.DB.Find(&roles).Error; err != nil {
+        return nil, err
+    }
+    return roles, nil
+}

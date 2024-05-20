@@ -22,3 +22,7 @@ func (rs *RoleService) GetRoleByID(roleID uint) (*models.Role, error) {
 func (rs *RoleService) GetRoleByName(name string) (*models.Role, error) {
 	return rs.roleRepository.GetRoleByName(name)
 }
+
+func (rs *RoleService) GetAllRoles() ([]*models.Role, error) {
+    return rs.roleRepository.GetAllRoles()
+}

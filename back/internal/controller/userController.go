@@ -180,3 +180,13 @@ func generateToken(email string, role string, duration time.Duration) (string, e
 	})
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
+
+func (uc *UserController) GetAllRoles(c *gin.Context) {
+    roles, err := uc.roleService.GetAllRoles()
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching roles"})
+        return
+    }
+
+    c.JSON(http.StatusOK, roles)
+}
