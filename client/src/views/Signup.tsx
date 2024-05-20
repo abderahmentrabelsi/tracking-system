@@ -13,21 +13,18 @@ import Typography from '@mui/material/Typography'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
-import InputAdornment from '@mui/material/InputAdornment'
-import IconButton from '@mui/material/IconButton'
-import Alert from '@mui/material/Alert';
-import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
 
 // Components Imports
 import CustomTextField from '@core/components/mui/TextField'
-import { string } from 'prop-types'
 
 type FormDataType = {
   firstName: string
   lastName: string
   phoneNumber: string
   email: string
-  departmentID: string | number // Allow departmentID to be number
+  departmentID: string | number
   roleName: string | null
 }
 
@@ -37,20 +34,18 @@ type RoleType = {
 }
 
 const FormLayoutsSeparator = () => {
-  // States
   const [formData, setFormData] = useState<FormDataType>({
     firstName: '',
     lastName: '',
     phoneNumber: '',
     email: '',
     departmentID: '',
-    roleName: null // Initialize roleName with null
+    roleName: null
   })
 
-  const [open, setOpen] = useState(false);
-  const [alert, setAlert] = useState({severity: "", message: ""});
-
-  const [roles, setRoles] = useState<RoleType[]>([]) // State to store the roles
+  const [open, setOpen] = useState(false)
+  const [alert, setAlert] = useState({severity: "", message: ""})
+  const [roles, setRoles] = useState<RoleType[]>([])
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -75,39 +70,29 @@ const FormLayoutsSeparator = () => {
       roleName: ''
     })
   }
+
   const handleSignup = async (event: React.FormEvent) => {
-    event.preventDefault(); // Prevent form from submitting by default
+    event.preventDefault()
 
     try {
       const response = await axios.post('http://localhost:8383/signup', formData, { withCredentials: true })
       if (response.status === 200) {
-        console.log('User created successfully')
-        setAlert({severity: "success", message: response.data.message});
-        setOpen(true);
-        // Handle successful signup
+        setAlert({severity: "success", message: `User created successfully. <br />Email: ${response.data.email}<br />Password: ${response.data.default_password}`})
       } else {
-        console.log('Error creating user')
-        setAlert({severity: "error", message: response.data.error});
-        setOpen(true);
-        // Handle error
+        setAlert({severity: "error", message: response.data.error})
       }
+      setOpen(true)
     } catch (error) {
-      console.error('Failed to signup', error)
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        setAlert({severity: "error", message: error.response.data.error});
+        setAlert({severity: "error", message: error.response.data.error})
       } else if (error.request) {
-        // The request was made but no response was received
-        setAlert({severity: "error", message: "No response from server"});
+        setAlert({severity: "error", message: "No response from server"})
       } else {
-        // Something happened in setting up the request that triggered an Error
-        setAlert({severity: "error", message: "Failed to send request"});
+        setAlert({severity: "error", message: "Failed to send request"})
       }
-      setOpen(true);
+      setOpen(true)
     }
   }
-
 
   return (
     <Card>
@@ -157,8 +142,6 @@ const FormLayoutsSeparator = () => {
                 value={formData.email}
                 placeholder="john.doe@example.com"
                 onChange={e => setFormData({ ...formData, email: e.target.value })}
-                error={alert.severity === "error" && alert.message === "User already exists"}
-                helperText={alert.severity === "error" && alert.message === "User already exists" ? "Email already exists" : ""}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -167,23 +150,22 @@ const FormLayoutsSeparator = () => {
                 label="Department"
                 value={formData.departmentID}
                 onChange={e => setFormData({ ...formData, departmentID: Number(e.target.value) })}
-                error={alert.severity === "error" && alert.message === "Department does not exist"}
-                helperText={alert.severity === "error" && alert.message === "Department does not exist" ? "Department does not exist" : ""}
               />
-            </Grid> <Grid item xs={12} sm={6}>
-            <CustomTextField
-              select
-              fullWidth
-              label="Role"
-              value={formData.roleName}
-              onChange={e => setFormData({ ...formData, roleName: e.target.value })}
-            >
-              <MenuItem value="">Select Role</MenuItem>
-              {roles.map(role => (
-                <MenuItem key={role.ID} value={role.name}>{role.name}</MenuItem>
-              ))}
-            </CustomTextField>
-          </Grid>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                select
+                fullWidth
+                label="Role"
+                value={formData.roleName}
+                onChange={e => setFormData({ ...formData, roleName: e.target.value })}
+              >
+                <MenuItem value="">Select Role</MenuItem>
+                {roles.map(role => (
+                  <MenuItem key={role.ID} value={role.name}>{role.name}</MenuItem>
+                ))}
+              </CustomTextField>
+            </Grid>
           </Grid>
         </CardContent>
         <Divider />
@@ -207,7 +189,7 @@ const FormLayoutsSeparator = () => {
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert onClose={() => setOpen(false)} severity={alert.severity} sx={{ width: '100%' }}>
-          {alert.message}
+          <span dangerouslySetInnerHTML={{ __html: alert.message }} />
         </Alert>
       </Snackbar>
     </Card>
