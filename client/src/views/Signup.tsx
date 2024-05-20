@@ -15,6 +15,8 @@ import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
 import InputAdornment from '@mui/material/InputAdornment'
 import IconButton from '@mui/material/IconButton'
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 
 // Components Imports
 import CustomTextField from '@core/components/mui/TextField'
@@ -45,6 +47,9 @@ const FormLayoutsSeparator = () => {
     roleName: null // Initialize roleName with null
   })
 
+  const [open, setOpen] = useState(false);
+  const [alert, setAlert] = useState({severity: "", message: ""});
+
   const [roles, setRoles] = useState<RoleType[]>([]) // State to store the roles
 
   useEffect(() => {
@@ -70,21 +75,39 @@ const FormLayoutsSeparator = () => {
       roleName: ''
     })
   }
-  const handleSignup = async () => {
+  const handleSignup = async (event: React.FormEvent) => {
+    event.preventDefault(); // Prevent form from submitting by default
+
     try {
       const response = await axios.post('http://localhost:8383/signup', formData, { withCredentials: true })
       if (response.status === 200) {
         console.log('User created successfully')
+        setAlert({severity: "success", message: response.data.message});
+        setOpen(true);
         // Handle successful signup
       } else {
         console.log('Error creating user')
+        setAlert({severity: "error", message: response.data.error});
+        setOpen(true);
         // Handle error
       }
     } catch (error) {
       console.error('Failed to signup', error)
-      // Handle error
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setAlert({severity: "error", message: error.response.data.error});
+      } else if (error.request) {
+        // The request was made but no response was received
+        setAlert({severity: "error", message: "No response from server"});
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setAlert({severity: "error", message: "Failed to send request"});
+      }
+      setOpen(true);
     }
   }
+
 
   return (
     <Card>
@@ -92,73 +115,77 @@ const FormLayoutsSeparator = () => {
       <Divider />
       <form onSubmit={handleSignup}>
         <CardContent>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Typography variant="body2" className="font-medium">
-              1. Personal Info
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid container spacing={6}>
+            <Grid item xs={12}>
+              <Typography variant="body2" className="font-medium">
+                1. Personal Info
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                fullWidth
+                label="First Name"
+                placeholder="John"
+                value={formData.firstName}
+                onChange={e => setFormData({ ...formData, firstName: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                fullWidth
+                label="Last Name"
+                placeholder="Doe"
+                value={formData.lastName}
+                onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                fullWidth
+                label="Phone Number"
+                type="text"
+                placeholder="1234567890"
+                value={formData.phoneNumber}
+                onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                fullWidth
+                type="email"
+                label="Email"
+                value={formData.email}
+                placeholder="john.doe@example.com"
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                error={alert.severity === "error" && alert.message === "User already exists"}
+                helperText={alert.severity === "error" && alert.message === "User already exists" ? "Email already exists" : ""}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                fullWidth
+                label="Department"
+                value={formData.departmentID}
+                onChange={e => setFormData({ ...formData, departmentID: Number(e.target.value) })}
+                error={alert.severity === "error" && alert.message === "Department does not exist"}
+                helperText={alert.severity === "error" && alert.message === "Department does not exist" ? "Department does not exist" : ""}
+              />
+            </Grid> <Grid item xs={12} sm={6}>
             <CustomTextField
+              select
               fullWidth
-              label="First Name"
-              placeholder="John"
-              value={formData.firstName}
-              onChange={e => setFormData({ ...formData, firstName: e.target.value })}
-            />
+              label="Role"
+              value={formData.roleName}
+              onChange={e => setFormData({ ...formData, roleName: e.target.value })}
+            >
+              <MenuItem value="">Select Role</MenuItem>
+              {roles.map(role => (
+                <MenuItem key={role.ID} value={role.name}>{role.name}</MenuItem>
+              ))}
+            </CustomTextField>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <CustomTextField
-              fullWidth
-              label="Last Name"
-              placeholder="Doe"
-              value={formData.lastName}
-              onChange={e => setFormData({ ...formData, lastName: e.target.value })}
-            />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <CustomTextField
-              fullWidth
-              label="Phone Number"
-              type="text"
-              placeholder="1234567890"
-              value={formData.phoneNumber}
-              onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <CustomTextField
-              fullWidth
-              type="email"
-              label="Email"
-              value={formData.email}
-              placeholder="john.doe@example.com"
-              onChange={e => setFormData({ ...formData, email: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <CustomTextField
-              fullWidth
-              label="Department"
-              value={formData.departmentID}
-              onChange={e => setFormData({ ...formData, departmentID: Number(e.target.value) })}
-            />
-          </Grid> <Grid item xs={12} sm={6}>
-          <CustomTextField
-            select
-            fullWidth
-            label="Role"
-            value={formData.roleName}
-            onChange={e => setFormData({ ...formData, roleName: e.target.value })}
-          >
-            <MenuItem value="">Select Role</MenuItem>
-            {roles.map(role => (
-              <MenuItem key={role.ID} value={role.name}>{role.name}</MenuItem>
-            ))}
-          </CustomTextField>
-        </Grid>
-        </Grid>
-      </CardContent>
+        </CardContent>
         <Divider />
         <CardActions>
           <Button type="submit" variant="contained" className="mie-2">
@@ -174,6 +201,15 @@ const FormLayoutsSeparator = () => {
           </Button>
         </CardActions>
       </form>
+      <Snackbar
+        open={open}
+        onClose={() => setOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setOpen(false)} severity={alert.severity} sx={{ width: '100%' }}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </Card>
   )
 }
