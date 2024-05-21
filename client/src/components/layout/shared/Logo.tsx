@@ -4,7 +4,6 @@
 import { useEffect, useRef } from 'react'
 
 // Next Imports
-// import Img from 'next/image'
 import Link from 'next/link'
 
 // Third-party Imports
@@ -12,9 +11,6 @@ import styled from '@emotion/styled'
 
 // Type Imports
 import type { VerticalNavContextProps } from '@menu/contexts/verticalNavContext'
-
-// Component Imports
-import VuexyLogo from '@core/svg/Logo'
 
 // Config Imports
 import themeConfig from '@configs/themeConfig'
@@ -40,6 +36,14 @@ const LogoText = styled.span<LogoTextProps>`
 
   ${({ isHovered, isCollapsed }) =>
     isCollapsed && !isHovered ? 'opacity: 0; margin-inline-start: 0;' : 'opacity: 1; margin-inline-start: 12px;'}
+`
+
+const LogoWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  .logo-svg {
+    color: var(--primary-color);
+  }
 `
 
 const Logo = () => {
@@ -68,11 +72,11 @@ const Logo = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHovered, layout])
 
-  // You may return any JSX here to display a logo in the sidebar header
-  // return <Img src='/next.svg' width={100} height={25} alt='logo' /> // for example
   return (
     <Link href='/' className='flex items-center'>
-      <VuexyLogo className='text-2xl text-primary' />
+      <LogoWrapper>
+        <img src='/u.svg' alt='Logo' className='logo-svg' width={40} height={40} />
+      </LogoWrapper>
       <LogoText
         ref={logoTextRef}
         isHovered={isHovered}
