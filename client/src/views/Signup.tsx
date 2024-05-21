@@ -1,6 +1,6 @@
 'use client'
-// React Imports
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+
 import axios from 'axios' // Import axios to make HTTP requests
 
 // MUI Imports
@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
-import Alert from '@mui/material/Alert'
+import Alert, { AlertColor } from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
 
 // Components Imports
@@ -45,7 +45,7 @@ const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
   })
 
   const [open, setOpen] = useState(false)
-  const [alert, setAlert] = useState({severity: "", message: ""})
+  const [alert, setAlert] = useState<{ severity: AlertColor, message: string }>({ severity: "info", message: "" })
   const [roles, setRoles] = useState<RoleType[]>([])
 
   useEffect(() => {
@@ -78,25 +78,29 @@ const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
     try {
       const response = await axios.post('http://localhost:8383/signup', formData, { withCredentials: true })
       if (response.status === 200) {
-        setAlert({severity: "success", message: `User created successfully. <br />Email: ${response.data.email}<br />Password: ${response.data.default_password}`})
+        setAlert({ severity: "success", message: `User created successfully. <br />Email: ${response.data.email}<br />Password: ${response.data.default_password}` })
       } else {
-        setAlert({severity: "error", message: response.data.error})
+        setAlert({ severity: "error", message: response.data.error })
       }
       setOpen(true)
     } catch (error) {
-      if (error.response) {
-        setAlert({severity: "error", message: error.response.data.error})
-      } else if (error.request) {
-        setAlert({severity: "error", message: "No response from server"})
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          setAlert({ severity: "error", message: error.response.data.error })
+        } else if (error.request) {
+          setAlert({ severity: "error", message: "No response from server" })
+        } else {
+          setAlert({ severity: "error", message: "Failed to send request" })
+        }
       } else {
-        setAlert({severity: "error", message: "Failed to send request"})
+        setAlert({ severity: "error", message: "An unknown error occurred" })
       }
       setOpen(true)
     }
   }
 
   return (
-    <Card style={{width:"50%"}}>
+    <Card style={{ width: "50%" }}>
       <CardHeader title="Add user" />
       <Divider />
       <form onSubmit={handleSignup}>
