@@ -16,7 +16,7 @@ const RegisterPage = () => {
   // Vars
   const mode = getServerMode()
 
-  return <Register mode={mode} />
+  return <Register mode={mode}  />
 }
 
 export default RegisterPage

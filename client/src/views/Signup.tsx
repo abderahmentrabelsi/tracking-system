@@ -18,6 +18,7 @@ import Snackbar from '@mui/material/Snackbar'
 
 // Components Imports
 import CustomTextField from '@core/components/mui/TextField'
+import type { SystemMode } from '@core/types'
 
 type FormDataType = {
   firstName: string
@@ -33,7 +34,7 @@ type RoleType = {
   name: string
 }
 
-const FormLayoutsSeparator = () => {
+const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
   const [formData, setFormData] = useState<FormDataType>({
     firstName: '',
     lastName: '',
@@ -95,7 +96,7 @@ const FormLayoutsSeparator = () => {
   }
 
   return (
-    <Card>
+    <Card style={{width:"50%"}}>
       <CardHeader title="Add user" />
       <Divider />
       <form onSubmit={handleSignup}>
