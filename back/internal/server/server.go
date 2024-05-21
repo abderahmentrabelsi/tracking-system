@@ -17,6 +17,7 @@ type Server struct {
 	db                database.Service
 	userService       *service.UserService
 	departmentService *service.DepartmentService
+	roleService       *service.RoleService
 }
 
 func NewServer() *Server {
@@ -24,9 +25,11 @@ func NewServer() *Server {
 	db := database.New()
 
 	userRepository := repository.NewUserRepository()
-	userService := service.NewUserService(userRepository)
-
+	roleRepository := repository.NewRoleRepository()
 	departmentRepository := repository.NewDepartmentRepository()
+
+	roleService := service.NewRoleService(roleRepository)
+	userService := service.NewUserService(userRepository, roleRepository)
 	departmentService := service.NewDepartmentService(departmentRepository)
 
 	return &Server{
@@ -34,6 +37,7 @@ func NewServer() *Server {
 		db:                db,
 		userService:       userService,
 		departmentService: departmentService,
+		roleService:       roleService,
 	}
 }
 

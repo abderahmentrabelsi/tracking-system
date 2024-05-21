@@ -14,20 +14,34 @@ import (
 )
 
 type UserController struct {
-	userService *service.UserService
+	userService       *service.UserService
+	departmentService *service.DepartmentService
+	roleService       *service.RoleService
 }
 
-func NewUserController(userService *service.UserService) *UserController {
+func NewUserController(userService *service.UserService, departmentService *service.DepartmentService, roleService *service.RoleService) *UserController {
 	return &UserController{
-		userService: userService,
+		userService:       userService,
+		departmentService: departmentService,
+		roleService:       roleService,
 	}
 }
 
 func (uc *UserController) SignUp(c *gin.Context) {
-	// Authenticate the request and check the role
 	middleware.AuthMiddleware()(c)
 	role, exists := c.Get("userRole")
-	if !exists || role != string(models.Admin) {
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	adminRole, err := uc.roleService.GetRoleByName("Admin")
+	if err != nil || adminRole == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Admin role not found"})
+		return
+	}
+
+	if role != adminRole.Name {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
@@ -38,7 +52,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		PhoneNumber  string `json:"PhoneNumber"`
 		Email        string `json:"Email"`
 		DepartmentID uint   `json:"DepartmentID"`
-		Role         string `json:"Role"`
+		RoleName     string `json:"RoleName"`
 	}
 	if err := c.Bind(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
@@ -55,27 +69,47 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		return
 	}
 
-	// Create user entity
-	user := &models.User{
-		FirstName:   body.FirstName,
-		LastName:    body.LastName,
-		PhoneNumber: body.PhoneNumber,
-		Email:       body.Email,
-		// DepartmentID: body.DepartmentID, // You can add this if needed
-		// Role:        body.Role,          // You can add this if needed
+	department, err := uc.departmentService.GetDepartmentByID(body.DepartmentID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Department does not exist"})
+		return
 	}
 
-	// Call service to create user
+	roleEntity, err := uc.roleService.GetRoleByName(body.RoleName)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Role does not exist"})
+		return
+	}
+
+	defaultPassword := "defaultPassword"
+	hash, err := bcrypt.GenerateFromPassword([]byte(defaultPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing password"})
+		return
+	}
+
+	user := &models.User{
+		FirstName:    body.FirstName,
+		LastName:     body.LastName,
+		PhoneNumber:  body.PhoneNumber,
+		Email:        body.Email,
+		DepartmentID: department.ID,
+		RoleID:       roleEntity.ID,
+		Password:     string(hash),
+	}
+
 	if err := uc.userService.CreateUser(user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating user"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"email":   body.Email,
-		"message": "User created successfully",
+		"email":            body.Email,
+		"default_password": defaultPassword,
+		"message":          "User created successfully",
 	})
 }
+
 
 func (uc *UserController) LoginHandler(c *gin.Context) {
 	var body struct {
@@ -98,12 +132,20 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
-	accessToken, err := generateToken(user.Email, string(user.Role), 7*24*time.Hour)
+
+	roleEntity, err := uc.roleService.GetRoleByID(user.RoleID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user role"})
+		return
+	}
+
+	accessToken, err := generateToken(user.Email, roleEntity.Name, 7*24*time.Hour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
 		return
 	}
-	// c.SetCookie("access_token", accessToken, int(7*24*time.Hour.Seconds()), "/", "", false, true) // Comment this line
+	c.SetCookie("access_token", accessToken, int(7*24*time.Hour.Seconds()), "/", "", false, true)
+
 	err = uc.userService.CreateLoginHistory(user.ID, clientIP, userAgent)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create login history"})
@@ -111,9 +153,10 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message":      "Login successful",
-		"access_token": accessToken, // Add this line
+		"access_token": accessToken,
 	})
 }
+
 
 func (uc *UserController) LogoutHandler(c *gin.Context) {
 	token, err := c.Cookie("access_token")
@@ -121,7 +164,7 @@ func (uc *UserController) LogoutHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No access token provided"})
 		return
 	}
-	store.RevokeToken(token) // Add this line to blacklist the token
+	store.RevokeToken(token)
 	c.SetCookie("access_token", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Logout successful",
@@ -136,4 +179,14 @@ func generateToken(email string, role string, duration time.Duration) (string, e
 		"exp":    exp.Unix(),
 	})
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+}
+
+func (uc *UserController) GetAllRoles(c *gin.Context) {
+    roles, err := uc.roleService.GetAllRoles()
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching roles"})
+        return
+    }
+
+    c.JSON(http.StatusOK, roles)
 }

@@ -29,3 +29,11 @@ func (ur *UserRepository) CreateUser(user *models.User) error {
 	}
 	return nil
 }
+
+func (ur *UserRepository) GetRoleByID(roleID uint) (*models.Role, error) {
+	var role models.Role
+	if err := orm.DB.First(&role, roleID).Error; err != nil {
+		return nil, err
+	}
+	return &role, nil
+}

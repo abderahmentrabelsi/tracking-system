@@ -3,6 +3,8 @@ import Button from '@mui/material/Button'
 
 // Type Imports
 import type { ChildrenType } from '@core/types'
+import Customizer from '@core/components/customizer'
+
 
 // Layout Imports
 import LayoutWrapper from '@layouts/LayoutWrapper'
@@ -51,6 +53,8 @@ const Layout = async ({ children }: ChildrenType) => {
           <i className='tabler-arrow-up' />
         </Button>
       </ScrollToTop>
+      <Customizer dir={direction} />
+
     </Providers>
   )
 }
