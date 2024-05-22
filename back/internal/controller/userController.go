@@ -185,16 +185,17 @@ func (uc *UserController) SignUp(c *gin.Context) {
 
 func (uc *UserController) LoginHandler(c *gin.Context) {
 	var body struct {
-		Email    string `json:"Email"`
-		Password string `json:"Password"`
+		Email       string `json:"Email"`
+		Password    string `json:"Password"`
+		RedirectURI string `json:"RedirectURI"` //  URI in login payload
 	}
 	if err := c.Bind(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"msg":   "Invalid request body",
 				"error": err.Error(),
+				"msg":   "Invalid request body",
 			},
 		})
 		return
@@ -211,6 +212,8 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 				"msg":   "Invalid credentials",
 			},
 		})
+		// Redirect to login page with original URI included
+		c.Redirect(http.StatusTemporaryRedirect, "/login?uri="+body.RedirectURI)
 		return
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
@@ -223,6 +226,8 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 				"msg":   "Invalid credentials",
 			},
 		})
+		// Redirect to login page with original URI included
+		c.Redirect(http.StatusTemporaryRedirect, "/login?uri="+body.RedirectURI)
 		return
 	}
 
@@ -232,8 +237,8 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"msg":   "Failed to fetch user role",
 				"error": err.Error(),
+				"msg":   "Failed to fetch user role",
 			},
 		})
 		return
@@ -245,8 +250,8 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"msg":   "Failed to generate access token",
 				"error": err.Error(),
+				"msg":   "Failed to generate access token",
 			},
 		})
 		return
@@ -259,14 +264,18 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"msg":   "Failed to create login history",
 				"error": err.Error(),
+				"msg":   "Failed to create login history",
 			},
 		})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"data":   gin.H{"access_token": accessToken},
+		"data": gin.H{
+			"access_token": accessToken,
+			"redirect_uri": body.RedirectURI,
+		},
 		"status": "success",
 		"message": gin.H{
 			"error": nil,
