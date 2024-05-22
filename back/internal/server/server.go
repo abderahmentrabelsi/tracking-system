@@ -40,7 +40,6 @@ func NewServer() *Server {
 		roleService:       roleService,
 	}
 }
-
 func (s *Server) Start() error {
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", s.port),

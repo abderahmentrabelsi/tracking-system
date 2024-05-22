@@ -7,16 +7,16 @@ import (
 
 type User struct {
 	gorm.Model
-	Username     string    `json:"username"`
-	Password     string    `json:"password"`
-	Email        string    `json:"email"`
-	RoleID       uint      `json:"roleId"`
-	Role         Role      `gorm:"foreignKey:RoleID"`
-	FirstName    string    `json:"firstName"`
-	LastName     string    `json:"lastName"`
-	Picture      string    `json:"picture"`
-	PhoneNumber  string    `json:"phoneNumber"`
-	Address      string    `json:"address"`
+	Username     string `json:"username"`
+	Password     string `json:"password"`
+	Email        string `json:"email"`
+	RoleID       uint   `json:"roleId"`
+	Role         Role   `gorm:"foreignKey:RoleID"`
+	FirstName    string `json:"firstName"`
+	LastName     string `json:"lastName"`
+	Picture      string `json:"picture"`
+	PhoneNumber  string `json:"phoneNumber"`
+	Address      string `json:"address"`
 	DepartmentID uint
 	Department   Department     `gorm:"foreignKey:DepartmentID"`
 	LoginHistory []LoginHistory `gorm:"foreignKey:UserID" json:"loginHistory"`
@@ -26,7 +26,20 @@ type User struct {
 
 type Role struct {
 	gorm.Model
-	Name string `json:"name"`
+	Name        string       `json:"name"`
+	Permissions []Permission `gorm:"many2many:role_permissions"`
+}
+
+type Permission struct {
+	gorm.Model
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type RolePermission struct {
+	gorm.Model
+	RoleID       uint `json:"roleId"`
+	PermissionID uint `json:"permissionId"`
 }
 
 type LoginHistory struct {

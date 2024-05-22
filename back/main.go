@@ -39,7 +39,7 @@ func initializeORM() {
 		log.Fatalf("Failed to initialize GORM: %v", err)
 	}
 	orm.DB = db
-	err = db.AutoMigrate(&models.User{}, &models.Department{}, &models.LoginHistory{}, &models.WorkHours{}, &models.TokenDetails{})
+	err = db.AutoMigrate(&models.User{}, &models.Department{}, &models.LoginHistory{}, &models.WorkHours{}, &models.TokenDetails{}, &models.Role{}, &models.Permission{}, &models.RolePermission{})
 	if err != nil {
 		log.Fatalf("Failed to migrate database models: %v", err)
 	}

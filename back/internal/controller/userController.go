@@ -5,6 +5,7 @@ import (
 	models "back/internal/model"
 	"back/internal/service"
 	"back/internal/store"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -30,6 +31,7 @@ func NewUserController(userService *service.UserService, departmentService *serv
 func (uc *UserController) SignUp(c *gin.Context) {
 	middleware.AuthMiddleware()(c)
 	role, exists := c.Get("userRole")
+	fmt.Println("Role from context:", role)
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
@@ -41,8 +43,17 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		return
 	}
 
-	if role != adminRole.Name {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	// Check for the CREATE permission
+	hasCreatePermission := false
+	for _, permission := range adminRole.Permissions {
+		if permission.Name == "CREATE" {
+			hasCreatePermission = true
+			break
+		}
+	}
+
+	if !hasCreatePermission {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
 		return
 	}
 
@@ -110,7 +121,6 @@ func (uc *UserController) SignUp(c *gin.Context) {
 	})
 }
 
-
 func (uc *UserController) LoginHandler(c *gin.Context) {
 	var body struct {
 		Email    string `json:"Email"`
@@ -157,7 +167,6 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 	})
 }
 
-
 func (uc *UserController) LogoutHandler(c *gin.Context) {
 	token, err := c.Cookie("access_token")
 	if err != nil {
@@ -182,11 +191,11 @@ func generateToken(email string, role string, duration time.Duration) (string, e
 }
 
 func (uc *UserController) GetAllRoles(c *gin.Context) {
-    roles, err := uc.roleService.GetAllRoles()
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching roles"})
-        return
-    }
+	roles, err := uc.roleService.GetAllRoles()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching roles"})
+		return
+	}
 
-    c.JSON(http.StatusOK, roles)
+	c.JSON(http.StatusOK, roles)
 }
