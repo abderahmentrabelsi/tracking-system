@@ -20,6 +20,7 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := getTokenFromRequest(c)
 		if tokenString == "" || store.IsTokenRevoked(tokenString) { // Check if the token is in the blacklist
+			c.Redirect(http.StatusFound, "/login?redirect="+c.Request.RequestURI)
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			c.Abort()
 			return
