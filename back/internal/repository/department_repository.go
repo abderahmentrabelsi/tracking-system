@@ -45,13 +45,17 @@ func (r *DepartmentRepositoryImpl) GetDepartmentByID(id uint) (*models.Departmen
 func (r *DepartmentRepositoryImpl) UpdateDepartment(id uint, name string, supervisorID uint) error {
 	department, err := r.GetDepartmentByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to find department: %v", err)
 	}
+	fmt.Printf("Found department: %v\n", department) // Log department before updating
+
 	department.Name = name
 	department.SupervisorID = supervisorID
-	if err := orm.DB.Save(&department).Error; err != nil {
+
+	if err := orm.DB.Save(department).Error; err != nil {
 		return fmt.Errorf("failed to update department: %v", err)
 	}
+	fmt.Printf("Updated department: %v\n", department) // Log department after updating
 	return nil
 }
 
