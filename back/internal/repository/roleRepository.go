@@ -34,3 +34,29 @@ func (rr *RoleRepository) GetAllRoles() ([]*models.Role, error) {
 	}
 	return roles, nil
 }
+
+// back/internal/repository/roleRepository.go
+
+func (rr *RoleRepository) CreateRole(name string) (*models.Role, error) {
+	role := &models.Role{Name: name}
+	if err := orm.DB.Create(role).Error; err != nil {
+		return nil, err
+	}
+	return role, nil
+}
+
+func (rr *RoleRepository) CreatePermission(name string, description string) (*models.Permission, error) {
+	permission := &models.Permission{Name: name, Description: description}
+	if err := orm.DB.Create(permission).Error; err != nil {
+		return nil, err
+	}
+	return permission, nil
+}
+
+func (rr *RoleRepository) CreateRolePermission(roleID uint, permissionID uint) (*models.RolePermission, error) {
+	rolePermission := &models.RolePermission{RoleID: roleID, PermissionID: permissionID}
+	if err := orm.DB.Create(rolePermission).Error; err != nil {
+		return nil, err
+	}
+	return rolePermission, nil
+}
