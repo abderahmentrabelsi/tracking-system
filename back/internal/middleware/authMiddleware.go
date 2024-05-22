@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"back/internal/store"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	_ "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			// Now you have a valid token and can extract the UserID and Role
 			c.Set("userID", claims.UserID)
 			c.Set("userRole", claims.Role)
+			fmt.Println("Role set in context:", claims.Role)
 			c.Next()
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})

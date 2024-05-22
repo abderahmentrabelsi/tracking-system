@@ -5,12 +5,14 @@ import (
 	models "back/internal/model"
 	"back/internal/service"
 	"back/internal/store"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserController struct {
@@ -30,6 +32,7 @@ func NewUserController(userService *service.UserService, departmentService *serv
 func (uc *UserController) SignUp(c *gin.Context) {
 	middleware.AuthMiddleware()(c)
 	role, exists := c.Get("userRole")
+	fmt.Println("Role from context:", role)
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"data":   nil,
@@ -55,7 +58,16 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		return
 	}
 
-	if role != adminRole.Name {
+	// Check for the CREATE permission
+	hasCreatePermission := false
+	for _, permission := range adminRole.Permissions {
+		if permission.Name == "CREATE" {
+			hasCreatePermission = true
+			break
+		}
+	}
+
+	if !hasCreatePermission {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"data":   nil,
 			"status": "error",

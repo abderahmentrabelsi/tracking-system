@@ -10,7 +10,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import type { VerticalMenuContextProps } from '@menu/components/vertical-menu/Menu'
 
 // Component Imports
-import { Menu, MenuItem } from '@menu/vertical-menu'
+import { Menu, MenuItem, SubMenu } from '@menu/vertical-menu'
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
@@ -82,6 +82,14 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         <MenuItem href='/signup' icon={<i className='tabler-users-plus' />}>
           Signup
         </MenuItem>
+        <SubMenu label="Roles & Permissions" icon={<i className='tabler-lock' />}>
+          <MenuItem href='/roles' icon={<i className='tabler-user' />}>
+            Role
+          </MenuItem>
+          <MenuItem href='/permissions' icon={<i className='tabler-shield-check' />}>
+            Permissions
+          </MenuItem>
+        </SubMenu>
       </Menu>
       {/* <Menu
         popoutMenuOffset={{ mainAxis: 23 }}
