@@ -16,7 +16,19 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
     label: 'Sign Up',
     href: '/signup',
     icon: 'tabler-user-plus'
-  }
+  },
+  //for role
+  {
+    label: 'Role',
+    href: '/roles',
+    icon: 'tabler-user'
+  },
+  //for permissions
+  {
+    label: 'Permissions',
+    href: '/permissions',
+    icon: 'tabler-shield-check'
+  },
 ]
 
 export default verticalMenuData

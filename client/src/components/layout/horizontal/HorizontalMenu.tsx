@@ -25,6 +25,7 @@ import menuRootStyles from '@core/styles/horizontal/menuRootStyles'
 import verticalNavigationCustomStyles from '@core/styles/vertical/navigationCustomStyles'
 import verticalMenuItemStyles from '@core/styles/vertical/menuItemStyles'
 import verticalMenuSectionStyles from '@core/styles/vertical/menuSectionStyles'
+import { SubMenu } from '@menu/vertical-menu'
 
 type RenderExpandIconProps = {
   level?: number
@@ -94,6 +95,14 @@ const HorizontalMenu = () => {
         <MenuItem href='/signup' icon={<i className='tabler-users-plus' />}>
           Signup
         </MenuItem>
+        <SubMenu label="Roles & Permissions" icon={<i className='tabler-lock' />}>
+          <MenuItem href='/roles' icon={<i className='tabler-user' />}>
+            Role
+          </MenuItem>
+          <MenuItem href='/permissions' icon={<i className='tabler-shield-check' />}>
+            Permissions
+          </MenuItem>
+        </SubMenu>
       </Menu>
       {/* <Menu
         rootStyles={menuRootStyles(theme)}
