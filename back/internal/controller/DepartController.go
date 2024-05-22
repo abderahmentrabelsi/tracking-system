@@ -53,7 +53,7 @@ func (dc *DepartmentController) CreateDepartment(c *gin.Context) {
 		"data":   department,
 		"status": "success",
 		"message": gin.H{
-			"error": nil,
+			"error": "",
 			"msg":   "Department created successfully",
 		},
 	})
@@ -90,7 +90,7 @@ func (dc *DepartmentController) GetDepartmentByID(c *gin.Context) {
 		"data":   department,
 		"status": "success",
 		"message": gin.H{
-			"error": nil,
+			"error": "",
 			"msg":   "Department retrieved successfully",
 		},
 	})
@@ -148,7 +148,7 @@ func (dc *DepartmentController) UpdateDepartment(c *gin.Context) {
 		"data":   nil,
 		"status": "success",
 		"message": gin.H{
-			"error": nil,
+			"error": "",
 			"msg":   "Department updated successfully",
 		},
 	})
@@ -185,7 +185,7 @@ func (dc *DepartmentController) DeleteDepartment(c *gin.Context) {
 		"data":   nil,
 		"status": "success",
 		"message": gin.H{
-			"error": nil,
+			"error": "",
 			"msg":   "Department deleted successfully",
 		},
 	})

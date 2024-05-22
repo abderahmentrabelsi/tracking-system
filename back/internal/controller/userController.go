@@ -117,8 +117,8 @@ func (uc *UserController) SignUp(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"error": "Department does not exist",
-				"msg":   err.Error(),
+				"msg":   "Department does not exist",
+				"error": err.Error(),
 			},
 		})
 		return
@@ -130,8 +130,8 @@ func (uc *UserController) SignUp(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"error": "Role does not exist",
-				"msg":   err.Error(),
+				"msg":   "Role does not exist",
+				"error": err.Error(),
 			},
 		})
 		return
@@ -144,8 +144,8 @@ func (uc *UserController) SignUp(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"error": "Error hashing password",
-				"msg":   err.Error(),
+				"msg":   "Error hashing password",
+				"error": err.Error(),
 			},
 		})
 		return
@@ -166,8 +166,8 @@ func (uc *UserController) SignUp(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"error": "Error creating user",
-				"msg":   err.Error(),
+				"msg":   "Error creating user",
+				"error": err.Error(),
 			},
 		})
 		return
@@ -177,7 +177,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		"data":   gin.H{"email": body.Email, "default_password": defaultPassword},
 		"status": "success",
 		"message": gin.H{
-			"error": nil,
+			"error": "",
 			"msg":   "User created successfully",
 		},
 	})
@@ -278,7 +278,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		},
 		"status": "success",
 		"message": gin.H{
-			"error": nil,
+			"error": "",
 			"msg":   "Login successful",
 		},
 	})
@@ -303,7 +303,7 @@ func (uc *UserController) LogoutHandler(c *gin.Context) {
 		"data":   nil,
 		"status": "success",
 		"message": gin.H{
-			"error": nil,
+			"error": "",
 			"msg":   "Logout successful",
 		},
 	})
@@ -337,7 +337,7 @@ func (uc *UserController) GetAllRoles(c *gin.Context) {
 		"data":   roles,
 		"status": "success",
 		"message": gin.H{
-			"error": nil,
+			"error": "",
 			"msg":   "Roles retrieved successfully",
 		},
 	})
