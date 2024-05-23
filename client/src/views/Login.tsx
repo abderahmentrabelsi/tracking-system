@@ -73,7 +73,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
     e.preventDefault();
     try {
       const response = await axios.post(`http://localhost:8383/login`, { Email: email, Password: password });
-      const { access_token } = response.data;
+      const { access_token } = response.data.data;
 
 
       // Set the access token in a cookie
