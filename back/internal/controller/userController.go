@@ -84,6 +84,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		LastName     string `json:"LastName"`
 		PhoneNumber  string `json:"PhoneNumber"`
 		Email        string `json:"Email"`
+		Username     string `json:"Username"` // Add this line
 		DepartmentID uint   `json:"DepartmentID"`
 		RoleName     string `json:"RoleName"`
 	}
@@ -118,6 +119,29 @@ func (uc *UserController) SignUp(c *gin.Context) {
 			"message": gin.H{
 				"error": "User already exists",
 				"msg":   "User already exists",
+			},
+		})
+		return
+	}
+	existingUserByUsername, err := uc.userService.GetUserByUsername(body.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Error checking user existence",
+				"error": err.Error(),
+			},
+		})
+		return
+	}
+	if existingUserByUsername != nil {
+		c.JSON(http.StatusConflict, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": "Username already exists",
+				"msg":   "Username already exists",
 			},
 		})
 		return
@@ -168,6 +192,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		LastName:     body.LastName,
 		PhoneNumber:  body.PhoneNumber,
 		Email:        body.Email,
+		Username:     body.Username, // Add this line
 		DepartmentID: department.ID,
 		RoleID:       roleEntity.ID,
 		Password:     string(hash),
@@ -186,7 +211,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   gin.H{"email": body.Email, "default_password": defaultPassword},
+		"data":   gin.H{"email": body.Email, "default_password": defaultPassword, "username": body.Username}, // Add username to response
 		"status": "success",
 		"message": gin.H{
 			"error": "",
@@ -197,7 +222,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 
 func (uc *UserController) LoginHandler(c *gin.Context) {
 	var body struct {
-		Email       string `json:"Email"`
+		Identifier  string `json:"Identifier"` // rename Email to Identifier
 		Password    string `json:"Password"`
 		RedirectURI string `json:"RedirectURI"` //  URI in login payload
 	}
@@ -214,7 +239,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 	}
 	clientIP := c.ClientIP()
 	userAgent := c.GetHeader("User-Agent")
-	user, err := uc.userService.GetUserByEmail(body.Email)
+	user, err := uc.userService.GetUserByEmailOrUsername(body.Identifier) // rename GetUserByEmail to GetUserByEmailOrUsername
 	if err != nil || user == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"data":   nil,

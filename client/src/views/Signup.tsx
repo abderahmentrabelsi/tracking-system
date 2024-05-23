@@ -1,9 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-
-import axios from 'axios' // Import axios to make HTTP requests
-
-// MUI Imports
+import axios from 'axios'
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
@@ -15,8 +12,6 @@ import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
 import Alert, { AlertColor } from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
-
-// Components Imports
 import CustomTextField from '@core/components/mui/TextField'
 import type { SystemMode } from '@core/types'
 
@@ -27,6 +22,7 @@ type FormDataType = {
   email: string
   departmentID: string | number
   roleName: string | null
+  username : string
 }
 
 type RoleType = {
@@ -40,8 +36,9 @@ const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
     lastName: '',
     phoneNumber: '',
     email: '',
+    username: '', // Add this line
     departmentID: '',
-    roleName: null
+    roleName: ''
   })
 
   const [open, setOpen] = useState(false)
@@ -68,120 +65,131 @@ const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
       phoneNumber: '',
       email: '',
       departmentID: '',
-      roleName: ''
+      roleName: '',
+      username: '', // Add this line
     })
   }
 
   const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault()
+    const departmentID = parseInt(formData.departmentID as string)
 
     try {
-      const response = await axios.post('http://localhost:8383/signup', formData, { withCredentials: true })
+      const response = await axios.post('http://localhost:8383/signup', { ...formData, departmentID }, { withCredentials: true })
       if (response.status === 200) {
-        setAlert({ severity: "success", message: `User created successfully. <br />Email: ${response.data.email}<br />Password: ${response.data.default_password}` })
-      } else {
-        setAlert({ severity: "error", message: response.data.error })
+        setAlert({
+          severity: "success",
+          message: `User created successfully.<br/>Email: ${response.data.data.email}<br/>Username: ${response.data.data.username}<br/>Default Password: ${response.data.data.default_password}`
+        })
+        setOpen(true)
+        setTimeout(() => setOpen(false), 90000) // Close the alert after 1 minute and 30 seconds
       }
-      setOpen(true)
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error.response) {
-          setAlert({ severity: "error", message: error.response.data.error })
-        } else if (error.request) {
-          setAlert({ severity: "error", message: "No response from server" })
+        if (error.response?.data?.message?.error === "Username already exists") {
+          setAlert({
+            severity: "error",
+            message: "Username already exists"
+          })
+        } else if (error.response?.data?.message?.error === "User already exists") {
+          setAlert({
+            severity: "error",
+            message: "User already exists"
+          })
         } else {
-          setAlert({ severity: "error", message: "Failed to send request" })
+          setAlert({
+            severity: "error",
+            message: "An error occurred while creating the user"
+          })
         }
-      } else {
-        setAlert({ severity: "error", message: "An unknown error occurred" })
       }
       setOpen(true)
+      setTimeout(() => setOpen(false), 90000) // Close the alert after 1 minute and 30 seconds
     }
   }
-
   return (
     <Card style={{ width: "50%" }}>
       <CardHeader title="Add user" />
       <Divider />
       <form onSubmit={handleSignup}>
         <CardContent>
-          <Grid container spacing={6}>
-            <Grid item xs={12}>
-              <Typography variant="body2" className="font-medium">
-                1. Personal Info
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                label="First Name"
-                placeholder="John"
-                value={formData.firstName}
-                onChange={e => setFormData({ ...formData, firstName: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                label="Last Name"
-                placeholder="Doe"
-                value={formData.lastName}
-                onChange={e => setFormData({ ...formData, lastName: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                label="Phone Number"
-                type="text"
-                placeholder="1234567890"
-                value={formData.phoneNumber}
-                onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                type="email"
-                label="Email"
-                value={formData.email}
-                placeholder="john.doe@example.com"
-                onChange={e => setFormData({ ...formData, email: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                label="Department"
-                value={formData.departmentID}
-                onChange={e => setFormData({ ...formData, departmentID: Number(e.target.value) })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                select
-                fullWidth
-                label="Role"
-                value={formData.roleName}
-                onChange={e => setFormData({ ...formData, roleName: e.target.value })}
-              >
-                <MenuItem value="">Select Role</MenuItem>
-                {roles.map(role => (
-                  <MenuItem key={role.ID} value={role.name}>{role.name}</MenuItem>
-                ))}
-              </CustomTextField>
-            </Grid>
-          </Grid>
+          <CustomTextField
+            required
+            fullWidth
+            label='First Name'
+            placeholder='Enter your first name'
+            value={formData.firstName}
+            onChange={e => setFormData({ ...formData, firstName: e.target.value })}
+          />
+          <CustomTextField
+            required
+            fullWidth
+            label='Last Name'
+            placeholder='Enter your last name'
+            value={formData.lastName}
+            onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+          />
+          <CustomTextField
+            fullWidth
+            label="Username"
+            placeholder="Enter your username"
+            variant="outlined"
+            value={formData.username}
+            onChange={e => setFormData({ ...formData, username: e.target.value })}
+            required
+          />
+          <CustomTextField
+            required
+            fullWidth
+            label='Phone Number'
+            placeholder='Enter your phone number'
+            value={formData.phoneNumber}
+            onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
+          />
+          <CustomTextField
+            required
+            fullWidth
+            label='Email'
+            placeholder='Enter your email'
+            value={formData.email}
+            onChange={e => setFormData({ ...formData, email: e.target.value })}
+          />
+          <CustomTextField
+            required
+            fullWidth
+            label='Department ID'
+            placeholder='Enter your department ID'
+            value={formData.departmentID}
+            onChange={e => setFormData({ ...formData, departmentID: e.target.value })}
+          />
+          <CustomTextField
+            required
+            fullWidth
+            select
+            label='Role'
+            placeholder='Select your role'
+            value={formData.roleName}
+            onChange={e => setFormData({ ...formData, roleName: e.target.value })}
+          >
+            {roles.map((role) => (
+              <MenuItem key={role.ID} value={role.name}>
+                {role.name}
+              </MenuItem>
+            ))}
+          </CustomTextField>
         </CardContent>
         <Divider />
         <CardActions>
-          <Button type="submit" variant="contained" className="mie-2">
+          <Button
+            color='primary'
+            variant='contained'
+            type='submit'
+          >
             Submit
           </Button>
           <Button
-            type="reset"
-            variant="tonal"
-            color="secondary"
+            color='secondary'
+            variant='outlined'
             onClick={handleReset}
           >
             Reset
