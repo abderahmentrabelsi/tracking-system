@@ -26,6 +26,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/department/:id", middleware.AuthMiddleware(), departmentController.GetDepartmentByID)
 	r.PUT("/department/update/:id", middleware.AuthMiddleware(), departmentController.UpdateDepartment)
 	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(), departmentController.DeleteDepartment)
+	r.GET("/departments", middleware.AuthMiddleware(), departmentController.GetAllDepartments)
 
 	// Role routes
 	roleController := controller.NewRoleController(s.roleService) // Update this line

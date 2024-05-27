@@ -30,3 +30,7 @@ func (s *DepartmentService) UpdateDepartment(id uint, name string, supervisorID 
 func (s *DepartmentService) DeleteDepartment(id uint) error {
 	return s.departmentRepo.DeleteDepartment(id)
 }
+
+func (s *DepartmentService) GetAllDepartments() ([]*models.Department, error) {
+	return s.departmentRepo.GetAllDepartments()
+}
