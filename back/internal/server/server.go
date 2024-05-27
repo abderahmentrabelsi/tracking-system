@@ -33,12 +33,15 @@ func NewServer() *Server {
 	userService := service.NewUserService(userRepository, roleRepository)
 	departmentService := service.NewDepartmentService(departmentRepository)
 
+	fileService := service.NewFileService(repository.NewFileRepository())
+
 	return &Server{
 		port:              port,
 		db:                db,
 		userService:       userService,
 		departmentService: departmentService,
 		roleService:       roleService,
+		fileService:       fileService,
 	}
 }
 func (s *Server) Start() error {

@@ -27,6 +27,9 @@ func (hc *HookController) UploadHook(c *gin.Context) {
 		return
 	}
 
+	log.Printf("Received file upload data: %+v", fileUpload) // Log the received data
+
+	// Call the SaveFile function
 	err := hc.fileService.SaveFile(fileUpload.FileName, fileUpload.FilePath, fileUpload.Size)
 	if err != nil {
 		log.Printf("Error saving file info to database: %v", err)
