@@ -1,5 +1,5 @@
 curl -X POST -H "Content-Type: application/json" -d '{
->> >>   "fileName": "file-sample_150kB",
->> >>   "filePath": "C:\Users\MSI\Desktop\file-sample_150kB.pdf",
->> >>   "size": 143,360
->> >> }' http://localhost:8383/hooks/upload -v
+>>   "fileName": "file-sample_150kB.pdf",
+>>   "filePath": "C:\\Users\\MSI\\Desktop\\file-sample_150kB.pdf",
+>>   "size": 143360
+>> }' http://localhost:8383/hooks/upload -v
