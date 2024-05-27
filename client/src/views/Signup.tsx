@@ -30,6 +30,11 @@ type RoleType = {
   name: string
 }
 
+type DepartmentType = {
+  ID: number
+  name: string
+}
+
 const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
   const [formData, setFormData] = useState<FormDataType>({
     firstName: '',
@@ -44,6 +49,8 @@ const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
   const [open, setOpen] = useState(false)
   const [alert, setAlert] = useState<{ severity: AlertColor, message: string }>({ severity: "info", message: "" })
   const [roles, setRoles] = useState<RoleType[]>([])
+  const [departments, setDepartments] = useState<DepartmentType[]>([])
+
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -57,6 +64,20 @@ const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
 
     fetchRoles()
   }, [])
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await axios.get('http://localhost:8383/departments', { withCredentials: true })
+        setDepartments(response.data.data)
+      } catch (error) {
+        console.error('Failed to fetch departments', error)
+      }
+    }
+
+    fetchDepartments()
+  }, [])
+
 
   const handleReset = () => {
     setFormData({
@@ -157,11 +178,18 @@ const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
           <CustomTextField
             required
             fullWidth
-            label='Department ID'
-            placeholder='Enter your department ID'
+            select
+            label='Department'
+            placeholder='Select your department'
             value={formData.departmentID}
             onChange={e => setFormData({ ...formData, departmentID: e.target.value })}
-          />
+          >
+            {departments.map((department) => (
+              <MenuItem key={department.ID} value={department.ID}>
+                {department.name} {/* Change this line */}
+              </MenuItem>
+            ))}
+          </CustomTextField>
           <CustomTextField
             required
             fullWidth
