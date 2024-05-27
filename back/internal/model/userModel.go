@@ -22,6 +22,8 @@ type User struct {
 	LoginHistory []LoginHistory `gorm:"foreignKey:UserID" json:"loginHistory"`
 	WorkHours    []WorkHours    `gorm:"foreignKey:UserID" json:"workHours"`
 	TokenDetails TokenDetails   `gorm:"foreignKey:UserID" json:"tokenDetails"`
+	Salary       Salary         `gorm:"foreignKey:UserID" json:"salary"`
+	Contract     Contract       `gorm:"foreignKey:UserID" json:"contract"`
 }
 
 type Role struct {
@@ -68,4 +70,33 @@ type TokenDetails struct {
 	RefreshToken string    `json:"refreshToken"`
 	TokenExpiry  time.Time `json:"tokenExpiry"`
 	TOTPSecret   string    `json:"totpSecret"`
+}
+
+type Salary struct {
+	gorm.Model
+	UserID                uint    `json:"userId"`
+	Base                  int64   `json:"base"`
+	Subsidy               int64   `json:"subsidy"`
+	Bonus                 int64   `json:"bonus"`
+	Commission            int64   `json:"commission"`
+	Other                 int64   `json:"other"`
+	Fund                  int64   `json:"fund"`
+	PensionInsurance      float64 `json:"pension_insurance"`
+	UnemploymentInsurance float64 `json:"unemployment_insurance"`
+	MedicalInsurance      float64 `json:"medical_insurance"`
+	HousingFund           float64 `json:"housing_fund"`
+	Tax                   float64 `json:"tax"`
+	Overtime              int64   `json:"overtime"`
+	Total                 float64 `json:"total"`
+	IsPay                 int64   `json:"is_pay"`
+	SalaryDate            string  `json:"salary_date"`
+}
+
+type Contract struct {
+	gorm.Model
+	UserID         uint      `json:"userId"`
+	ContractType   string    `json:"contractType"` // e.g., CDI, CDD
+	StartDate      time.Time `json:"startDate"`
+	EndDate        time.Time `json:"endDate,omitempty"`
+	ContractStatus string    `json:"contractStatus"` // e.g., Active, Terminated
 }
