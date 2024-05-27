@@ -18,6 +18,7 @@ type Server struct {
 	userService       *service.UserService
 	departmentService *service.DepartmentService
 	roleService       *service.RoleService
+	fileService       *service.FileService
 }
 
 func NewServer() *Server {

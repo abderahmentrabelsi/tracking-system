@@ -34,5 +34,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/permission", middleware.AuthMiddleware(), roleController.CreatePermission)
 	r.POST("/role_permission", middleware.AuthMiddleware(), roleController.CreateRolePermission)
 
+	// Hook routes
+	hookController := controller.NewHookController(s.fileService)
+	r.POST("/hooks/upload", hookController.UploadHook)
+
 	return r
 }
