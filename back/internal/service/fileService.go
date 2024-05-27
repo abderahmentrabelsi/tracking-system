@@ -16,8 +16,6 @@ func NewFileService(fileRepository *repository.FileRepository) *FileService {
 	return &FileService{fileRepository: fileRepository}
 }
 
-//TODO
-
 func (fs *FileService) SaveFile(fileName string, filePath string, size int64) error {
 	log.Printf("Starting SaveFile with fileName: %s, filePath: %s, size: %d", fileName, filePath, size)
 

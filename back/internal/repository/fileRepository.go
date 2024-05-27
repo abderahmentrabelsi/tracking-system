@@ -13,7 +13,6 @@ func NewFileRepository() *FileRepository {
 	return &FileRepository{}
 }
 
-// TODO
 func (fr *FileRepository) SaveFileUpload(fileUpload *model.FileUpload) error {
 	log.Printf("Attempting to save to database: %+v", fileUpload) // Log before saving to the database
 
