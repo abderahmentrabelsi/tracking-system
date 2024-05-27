@@ -3,3 +3,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
 >>   "filePath": "C:\\Users\\MSI\\Desktop\\file-sample_150kB.pdf",
 >>   "size": 143360
 >> }' http://localhost:8383/hooks/upload -v
+
+
+docker run -d -p 1080:1080 -v C:/Users/MSI/GolandProjects/QoreTracking/back/internal/uploads:/data tusproject/tusd:latest -upload-dir=/data
+docker pull tusproject/tusd:latest
