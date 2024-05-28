@@ -1,6 +1,7 @@
 package server
 
 import (
+	"back/internal/database"
 	"back/internal/repository"
 	"back/internal/service"
 	"fmt"
@@ -8,8 +9,6 @@ import (
 	"os"
 	"strconv"
 	"time"
-
-	"back/internal/database"
 )
 
 type Server struct {
@@ -18,6 +17,7 @@ type Server struct {
 	userService       *service.UserService
 	departmentService *service.DepartmentService
 	roleService       *service.RoleService
+	payrollService    *service.PayrollService
 	fileService       *service.FileService
 }
 
@@ -28,10 +28,12 @@ func NewServer() *Server {
 	userRepository := repository.NewUserRepository()
 	roleRepository := repository.NewRoleRepository()
 	departmentRepository := repository.NewDepartmentRepository()
+	payrollRepository := repository.NewPayrollRepository()
 
 	roleService := service.NewRoleService(roleRepository)
 	userService := service.NewUserService(userRepository, roleRepository)
 	departmentService := service.NewDepartmentService(departmentRepository)
+	payrollService := service.NewPayrollService(*payrollRepository)
 
 	fileService := service.NewFileService(repository.NewFileRepository(), "http://localhost:1080")
 
@@ -41,6 +43,7 @@ func NewServer() *Server {
 		userService:       userService,
 		departmentService: departmentService,
 		roleService:       roleService,
+		payrollService:    payrollService, // Assign payroll service to the payrollService field
 		fileService:       fileService,
 	}
 }
