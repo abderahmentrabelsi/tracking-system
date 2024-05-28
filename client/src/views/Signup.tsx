@@ -1,12 +1,10 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
 import Card from '@mui/material/Card'
-//import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
-//import Typography from '@mui/material/Typography'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
@@ -14,6 +12,7 @@ import Alert, { AlertColor } from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
 import CustomTextField from '@core/components/mui/TextField'
 import type { SystemMode } from '@core/types'
+import { useQuery } from '@tanstack/react-query'
 
 type FormDataType = {
   firstName: string
@@ -22,7 +21,7 @@ type FormDataType = {
   email: string
   departmentID: string | number
   roleName: string | null
-  username : string
+  username: string
 }
 
 type RoleType = {
@@ -35,49 +34,40 @@ type DepartmentType = {
   name: string
 }
 
-const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
+const fetchRoles = async (): Promise<RoleType[]> => {
+  const response = await axios.get('http://localhost:8383/roles', { withCredentials: true })
+  if (response.status !== 200) throw new Error('Failed to fetch roles')
+  return response.data.data
+}
+
+const fetchDepartments = async (): Promise<DepartmentType[]> => {
+  const response = await axios.get('http://localhost:8383/departments', { withCredentials: true })
+  if (response.status !== 200) throw new Error('Failed to fetch departments')
+  return response.data.data
+}
+
+const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
   const [formData, setFormData] = useState<FormDataType>({
     firstName: '',
     lastName: '',
     phoneNumber: '',
     email: '',
-    username: '', // Add this line
+    username: '',
     departmentID: '',
     roleName: ''
   })
 
   const [open, setOpen] = useState(false)
   const [alert, setAlert] = useState<{ severity: AlertColor, message: string }>({ severity: "info", message: "" })
-  const [roles, setRoles] = useState<RoleType[]>([])
-  const [departments, setDepartments] = useState<DepartmentType[]>([])
 
-
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const response = await axios.get('http://localhost:8383/roles', { withCredentials: true })
-        setRoles(response.data.data)
-      } catch (error) {
-        console.error('Failed to fetch roles', error)
-      }
-    }
-
-    fetchRoles()
-  }, [])
-
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const response = await axios.get('http://localhost:8383/departments', { withCredentials: true })
-        setDepartments(response.data.data)
-      } catch (error) {
-        console.error('Failed to fetch departments', error)
-      }
-    }
-
-    fetchDepartments()
-  }, [])
-
+  const { data: roles, isError: rolesError } = useQuery<RoleType[]>({
+    queryKey: ['roles'],
+    queryFn: fetchRoles
+  })
+  const { data: departments, isError: departmentsError } = useQuery<DepartmentType[]>({
+    queryKey: ['departments'],
+    queryFn: fetchDepartments
+  })
 
   const handleReset = () => {
     setFormData({
@@ -87,7 +77,7 @@ const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
       email: '',
       departmentID: '',
       roleName: '',
-      username: '', // Add this line
+      username: '',
     })
   }
 
@@ -128,6 +118,7 @@ const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
       setTimeout(() => setOpen(false), 90000) // Close the alert after 1 minute and 30 seconds
     }
   }
+
   return (
     <Card style={{ width: "50%" }}>
       <CardHeader title="Add user" />
@@ -184,9 +175,9 @@ const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
             value={formData.departmentID}
             onChange={e => setFormData({ ...formData, departmentID: e.target.value })}
           >
-            {departments.map((department) => (
+            {departments?.map((department: DepartmentType) => (
               <MenuItem key={department.ID} value={department.ID}>
-                {department.name} {/* Change this line */}
+                {department.name}
               </MenuItem>
             ))}
           </CustomTextField>
@@ -199,7 +190,7 @@ const FormLayoutsSeparator =({ mode }: { mode: SystemMode }) => {
             value={formData.roleName}
             onChange={e => setFormData({ ...formData, roleName: e.target.value })}
           >
-            {roles.map((role) => (
+            {roles?.map((role: RoleType) => (
               <MenuItem key={role.ID} value={role.name}>
                 {role.name}
               </MenuItem>
