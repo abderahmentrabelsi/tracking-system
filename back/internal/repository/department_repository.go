@@ -12,6 +12,7 @@ type DepartmentRepository interface {
 	GetDepartmentByID(id uint) (*models.Department, error)
 	UpdateDepartment(id uint, name string, supervisorID uint) error
 	DeleteDepartment(id uint) error
+	GetAllDepartments() ([]*models.Department, error)
 }
 
 type DepartmentRepositoryImpl struct{}
@@ -64,4 +65,12 @@ func (r *DepartmentRepositoryImpl) DeleteDepartment(id uint) error {
 		return fmt.Errorf("failed to delete department: %v", err)
 	}
 	return nil
+}
+
+func (r *DepartmentRepositoryImpl) GetAllDepartments() ([]*models.Department, error) {
+	var departments []*models.Department
+	if err := orm.DB.Find(&departments).Error; err != nil {
+		return nil, fmt.Errorf("failed to retrieve departments: %v", err)
+	}
+	return departments, nil
 }

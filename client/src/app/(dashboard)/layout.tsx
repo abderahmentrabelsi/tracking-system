@@ -5,7 +5,6 @@ import Button from '@mui/material/Button'
 import type { ChildrenType } from '@core/types'
 import Customizer from '@core/components/customizer'
 
-
 // Layout Imports
 import LayoutWrapper from '@layouts/LayoutWrapper'
 import VerticalLayout from '@layouts/VerticalLayout'
@@ -54,7 +53,6 @@ const Layout = async ({ children }: ChildrenType) => {
         </Button>
       </ScrollToTop>
       <Customizer dir={direction} />
-
     </Providers>
   )
 }

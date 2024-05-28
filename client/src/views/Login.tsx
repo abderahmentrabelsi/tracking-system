@@ -45,14 +45,11 @@ const MaskImg = styled('img')({
   zIndex: -1
 });
 
-
-
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
-  //const serverUrl = process.env.REACT_APP_SERVER_URL;
   const [isPasswordShown, setIsPasswordShown] = useState(false);
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState(''); // renamed from email to identifier
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); // Add state for error message
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
   const { settings } = useSettings();
   const theme = useTheme();
@@ -68,23 +65,21 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show);
 
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`http://localhost:8383/login`, { Email: email, Password: password });
+      const response = await axios.post(`http://localhost:8383/login`, { Identifier: identifier, Password: password }); // changed Email to Identifier
       const { access_token } = response.data.data;
 
-
-      // Set the access token in a cookie
       document.cookie = `access_token=${access_token}; path=/`;
 
       router.push('/');
     } catch (error) {
       console.error('Failed to login', error);
-      setErrorMessage('Invalid credentials'); // Set the error message
+      setErrorMessage('Invalid credentials');
     }
   };
+
   return (
     <div className='flex bs-full justify-center'>
       <div
@@ -124,8 +119,8 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
               fullWidth
               label='Email or Username'
               placeholder='Enter your email or username'
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              value={identifier} // use identifier instead of email
+              onChange={e => setIdentifier(e.target.value)} // use setIdentifier instead of setEmail
             />
             <CustomTextField
               fullWidth
@@ -154,7 +149,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
             <Button fullWidth variant='contained' type='submit'>
               Login
             </Button>
-            {errorMessage && <Alert severity='error'>{errorMessage}</Alert>} {/* Display the error message */}
+            {errorMessage && <Alert severity='error'>{errorMessage}</Alert>}
             <div className='flex justify-center items-center flex-wrap gap-2'>
               <Typography>New on our platform?</Typography>
               <Typography component={Link} color='primary'>

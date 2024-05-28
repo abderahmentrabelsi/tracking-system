@@ -1,0 +1,12 @@
+#!/bin/bash
+FILE_ID=$(jq -r '.Upload.Key' <&0)
+FILE_SIZE=$(jq -r '.Upload.Size' <&0)
+FILE_PATH="/data/$FILE_ID"
+FILE_NAME=$(basename "$FILE_PATH")
+
+curl -X POST -H "Content-Type: application/json" -d '{
+  "fileId": "'"${FILE_ID}"'",
+  "fileName": "'"${FILE_NAME}"'",
+  "filePath": "'"${FILE_PATH}"'",
+  "size": '"${FILE_SIZE}"'
+}' http://localhost:8383/hooks/upload

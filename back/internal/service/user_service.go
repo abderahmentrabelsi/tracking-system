@@ -57,3 +57,11 @@ func (us *UserService) GenerateToken(email string, role string, duration time.Du
 func (us *UserService) GetRoleByID(roleID uint) (*models.Role, error) {
 	return us.roleRepository.GetRoleByID(roleID)
 }
+
+func (us *UserService) GetUserByEmailOrUsername(identifier string) (*models.User, error) {
+	return us.userRepository.GetUserByEmailOrUsername(identifier) // rename GetUserByEmail to GetUserByEmailOrUsername
+}
+
+func (us *UserService) GetUserByUsername(username string) (*models.User, error) {
+	return us.userRepository.GetUserByUsername(username)
+}

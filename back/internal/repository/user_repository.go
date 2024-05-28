@@ -37,3 +37,25 @@ func (ur *UserRepository) GetRoleByID(roleID uint) (*models.Role, error) {
 	}
 	return &role, nil
 }
+
+func (ur *UserRepository) GetUserByEmailOrUsername(identifier string) (*models.User, error) {
+	var user models.User
+	if err := orm.DB.Where("email = ? OR username = ?", identifier, identifier).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (ur *UserRepository) GetUserByUsername(username string) (*models.User, error) {
+	var user models.User
+	if err := orm.DB.Where("username = ?", username).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
+}
