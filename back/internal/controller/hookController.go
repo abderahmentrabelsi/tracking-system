@@ -17,6 +17,7 @@ func NewHookController(fileService *service.FileService) *HookController {
 
 func (hc *HookController) UploadHook(c *gin.Context) {
 	var fileUpload struct {
+		FileID   string `json:"fileId"`
 		FileName string `json:"fileName"`
 		FilePath string `json:"filePath"`
 		Size     int64  `json:"size"`
@@ -30,7 +31,7 @@ func (hc *HookController) UploadHook(c *gin.Context) {
 	log.Printf("Received file upload data: %+v", fileUpload) // Log the received data
 
 	// Call the SaveFile function
-	err := hc.fileService.SaveFile(fileUpload.FileName, fileUpload.FilePath, fileUpload.Size)
+	err := hc.fileService.SaveFile(fileUpload.FileID, fileUpload.FileName, fileUpload.FilePath, fileUpload.Size)
 	if err != nil {
 		log.Printf("Error saving file info to database: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file info to database"})

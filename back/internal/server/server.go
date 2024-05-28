@@ -33,7 +33,7 @@ func NewServer() *Server {
 	userService := service.NewUserService(userRepository, roleRepository)
 	departmentService := service.NewDepartmentService(departmentRepository)
 
-	fileService := service.NewFileService(repository.NewFileRepository())
+	fileService := service.NewFileService(repository.NewFileRepository(), "http://localhost:1080")
 
 	return &Server{
 		port:              port,
@@ -44,6 +44,7 @@ func NewServer() *Server {
 		fileService:       fileService,
 	}
 }
+
 func (s *Server) Start() error {
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", s.port),
