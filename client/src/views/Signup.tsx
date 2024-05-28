@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import axios from 'axios'
+import { useQuery } from '@tanstack/react-query'
 import Card from '@mui/material/Card'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
@@ -12,7 +13,6 @@ import Alert, { AlertColor } from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
 import CustomTextField from '@core/components/mui/TextField'
 import type { SystemMode } from '@core/types'
-import { useQuery } from '@tanstack/react-query'
 
 type FormDataType = {
   firstName: string
@@ -37,13 +37,13 @@ type DepartmentType = {
 const fetchRoles = async (): Promise<RoleType[]> => {
   const response = await axios.get('http://localhost:8383/roles', { withCredentials: true })
   if (response.status !== 200) throw new Error('Failed to fetch roles')
-  return response.data.data
+  return response.data.data // Adjusting to access the data array in the response
 }
 
 const fetchDepartments = async (): Promise<DepartmentType[]> => {
   const response = await axios.get('http://localhost:8383/departments', { withCredentials: true })
   if (response.status !== 200) throw new Error('Failed to fetch departments')
-  return response.data.data
+  return response.data.data // Adjusting to access the data array in the response
 }
 
 const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
@@ -60,11 +60,11 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
   const [open, setOpen] = useState(false)
   const [alert, setAlert] = useState<{ severity: AlertColor, message: string }>({ severity: "info", message: "" })
 
-  const { data: roles, isError: rolesError } = useQuery<RoleType[]>({
+  const { data: roles, isError: rolesError, isLoading: rolesLoading } = useQuery<RoleType[]>({
     queryKey: ['roles'],
     queryFn: fetchRoles
   })
-  const { data: departments, isError: departmentsError } = useQuery<DepartmentType[]>({
+  const { data: departments, isError: departmentsError, isLoading: departmentsLoading } = useQuery<DepartmentType[]>({
     queryKey: ['departments'],
     queryFn: fetchDepartments
   })
@@ -118,6 +118,9 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       setTimeout(() => setOpen(false), 90000) // Close the alert after 1 minute and 30 seconds
     }
   }
+
+  if (rolesLoading || departmentsLoading) return <div>Loading...</div>
+  if (rolesError || departmentsError) return <div>Error loading data</div>
 
   return (
     <Card style={{ width: "50%" }}>
