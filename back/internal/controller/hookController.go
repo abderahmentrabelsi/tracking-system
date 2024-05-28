@@ -16,27 +16,49 @@ func NewHookController(fileService *service.FileService) *HookController {
 }
 
 func (hc *HookController) UploadHook(c *gin.Context) {
-	var fileUpload struct {
+	var fileUploads []struct {
 		FileID   string `json:"fileId"`
 		FileName string `json:"fileName"`
 		FilePath string `json:"filePath"`
 		Size     int64  `json:"size"`
 	}
-	if err := c.BindJSON(&fileUpload); err != nil {
+	if err := c.BindJSON(&fileUploads); err != nil {
 		log.Printf("Error binding JSON: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Invalid request body",
+				"error": err.Error(),
+			},
+		})
 		return
 	}
 
-	log.Printf("Received file upload data: %+v", fileUpload) // Log the received data
+	for _, fileUpload := range fileUploads {
+		log.Printf("Received file upload data: %+v", fileUpload) // Log the received data
 
-	// Call the SaveFile function
-	err := hc.fileService.SaveFile(fileUpload.FileID, fileUpload.FileName, fileUpload.FilePath, fileUpload.Size)
-	if err != nil {
-		log.Printf("Error saving file info to database: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file info to database"})
-		return
+		// Call the SaveFile function
+		err := hc.fileService.SaveFile(fileUpload.FileID, fileUpload.FileName, fileUpload.FilePath, fileUpload.Size)
+		if err != nil {
+			log.Printf("Error saving file info to database: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"data":   nil,
+				"status": "error",
+				"message": gin.H{
+					"msg":   "Failed to save file info to database",
+					"error": err.Error(),
+				},
+			})
+			return
+		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "File info saved successfully"})
+	c.JSON(http.StatusOK, gin.H{
+		"data":   nil,
+		"status": "success",
+		"message": gin.H{
+			"msg": "File info saved successfully",
+		},
+	})
 }
