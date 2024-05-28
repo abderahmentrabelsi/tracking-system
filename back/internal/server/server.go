@@ -1,15 +1,11 @@
 package server
 
 import (
+	"back/internal/database"
 	"back/internal/repository"
 	"back/internal/service"
-	"fmt"
-	"net/http"
 	"os"
 	"strconv"
-	"time"
-
-	"back/internal/database"
 )
 
 type Server struct {
@@ -18,6 +14,7 @@ type Server struct {
 	userService       *service.UserService
 	departmentService *service.DepartmentService
 	roleService       *service.RoleService
+	payrollService    *service.PayrollService
 }
 
 func NewServer() *Server {
@@ -27,10 +24,12 @@ func NewServer() *Server {
 	userRepository := repository.NewUserRepository()
 	roleRepository := repository.NewRoleRepository()
 	departmentRepository := repository.NewDepartmentRepository()
+	payrollRepository := repository.NewPayrollRepository()
 
 	roleService := service.NewRoleService(roleRepository)
 	userService := service.NewUserService(userRepository, roleRepository)
 	departmentService := service.NewDepartmentService(departmentRepository)
+	payrollService := service.NewPayrollService(*payrollRepository)
 
 	return &Server{
 		port:              port,
@@ -38,16 +37,6 @@ func NewServer() *Server {
 		userService:       userService,
 		departmentService: departmentService,
 		roleService:       roleService,
+		payrollService:    payrollService, // Assign payroll service to the payrollService field
 	}
-}
-func (s *Server) Start() error {
-	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", s.port),
-		Handler:      s.RegisterRoutes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
-	}
-
-	return server.ListenAndServe()
 }

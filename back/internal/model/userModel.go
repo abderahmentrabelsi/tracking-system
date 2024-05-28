@@ -94,9 +94,9 @@ type Salary struct {
 
 type Contract struct {
 	gorm.Model
-	UserID         uint      `json:"userId"`
-	ContractType   string    `json:"contractType"` // e.g., CDI, CDD
-	StartDate      time.Time `json:"startDate"`
-	EndDate        time.Time `json:"endDate,omitempty"`
-	ContractStatus string    `json:"contractStatus"` // e.g., Active, Terminated
+	UserID         uint       `json:"userId"`
+	ContractType   string     `json:"contractType"` // e.g., CDI, CDD
+	StartDate      time.Time  `json:"startDate"`
+	EndDate        *time.Time `json:"endDate,omitempty"`
+	ContractStatus string     `json:"contractStatus"` // e.g., Active, Terminated
 }
