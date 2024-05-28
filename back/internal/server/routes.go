@@ -26,6 +26,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/department/:id", middleware.AuthMiddleware(), departmentController.GetDepartmentByID)
 	r.PUT("/department/update/:id", middleware.AuthMiddleware(), departmentController.UpdateDepartment)
 	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(), departmentController.DeleteDepartment)
+	r.GET("/departments", middleware.AuthMiddleware(), departmentController.GetAllDepartments)
 
 	// Role routes
 	roleController := controller.NewRoleController(s.roleService)
@@ -44,6 +45,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.PUT("/contract/user/:userId", middleware.AuthMiddleware(), payrollController.UpdateContractByUserID)
 	r.GET("/contract/user/:userId", middleware.AuthMiddleware(), payrollController.GetContractByUserID)
 	r.DELETE("/contract/user/:userId", middleware.AuthMiddleware(), payrollController.DeleteContractByUserID)
+	// Hook routes
+	hookController := controller.NewHookController(s.fileService)
+	r.POST("/hooks/upload", hookController.UploadHook)
 
 	return r
 }

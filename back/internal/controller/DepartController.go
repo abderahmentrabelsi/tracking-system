@@ -190,3 +190,27 @@ func (dc *DepartmentController) DeleteDepartment(c *gin.Context) {
 		},
 	})
 }
+
+func (dc *DepartmentController) GetAllDepartments(c *gin.Context) {
+	departments, err := dc.departmentService.GetAllDepartments()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Error fetching departments",
+				"error": err.Error(),
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":   departments,
+		"status": "success",
+		"message": gin.H{
+			"error": "",
+			"msg":   "Departments retrieved successfully",
+		},
+	})
+}

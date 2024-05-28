@@ -4,8 +4,11 @@ import (
 	"back/internal/database"
 	"back/internal/repository"
 	"back/internal/service"
+	"fmt"
+	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 type Server struct {
@@ -15,6 +18,7 @@ type Server struct {
 	departmentService *service.DepartmentService
 	roleService       *service.RoleService
 	payrollService    *service.PayrollService
+	fileService       *service.FileService
 }
 
 func NewServer() *Server {
@@ -31,6 +35,8 @@ func NewServer() *Server {
 	departmentService := service.NewDepartmentService(departmentRepository)
 	payrollService := service.NewPayrollService(*payrollRepository)
 
+	fileService := service.NewFileService(repository.NewFileRepository(), "http://localhost:1080")
+
 	return &Server{
 		port:              port,
 		db:                db,
@@ -38,5 +44,18 @@ func NewServer() *Server {
 		departmentService: departmentService,
 		roleService:       roleService,
 		payrollService:    payrollService, // Assign payroll service to the payrollService field
+		fileService:       fileService,
 	}
+}
+
+func (s *Server) Start() error {
+	server := &http.Server{
+		Addr:         fmt.Sprintf(":%d", s.port),
+		Handler:      s.RegisterRoutes(),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+	}
+
+	return server.ListenAndServe()
 }
