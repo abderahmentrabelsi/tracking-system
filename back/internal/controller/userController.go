@@ -307,7 +307,11 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		})
 		return
 	}
-
+	// Redirect to the provided URI or default to /home
+	redirectURI := body.RedirectURI
+	if redirectURI == "" {
+		redirectURI = "/home"
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
 			"access_token": accessToken,
