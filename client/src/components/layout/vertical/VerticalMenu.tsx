@@ -89,7 +89,11 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
           <MenuItem href='/permissions' icon={<i className='tabler-shield-check' />}>
             Permissions
           </MenuItem>
+
         </SubMenu>
+        <MenuItem href='/departments' icon={<i className='tabler-shield-check' />}>
+          Departments
+        </MenuItem>
       </Menu>
       {/* <Menu
         popoutMenuOffset={{ mainAxis: 23 }}
