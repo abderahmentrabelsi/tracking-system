@@ -48,5 +48,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	hookController := controller.NewHookController(s.fileService)
 	r.POST("/hooks/upload", hookController.UploadHook)
 
+	r.Any("/files/*any", gin.WrapH(http.StripPrefix("/files/", s.fileService.TusdHandler)))
+
 	return r
 }

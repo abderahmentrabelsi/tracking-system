@@ -1,76 +1,98 @@
 package service
 
 import (
+	"fmt"
+	"log"
+	"path/filepath"
+	"strconv"
+	"time"
+
 	model "back/internal/model"
 	"back/internal/repository"
-	"fmt"
-	"io"
-	"log"
-	"net/http"
-	"os"
-	"path/filepath"
-	"time"
+	"github.com/tus/tusd/v2/pkg/filelocker"
+	"github.com/tus/tusd/v2/pkg/filestore"
+	tusd "github.com/tus/tusd/v2/pkg/handler"
 )
 
 type FileService struct {
 	fileRepository *repository.FileRepository
-	tusdServerURL  string
+	TusdHandler    *tusd.Handler
 }
 
-func NewFileService(fileRepository *repository.FileRepository, tusdServerURL string) *FileService {
-	return &FileService{fileRepository: fileRepository, tusdServerURL: tusdServerURL}
+func NewFileService(fileRepository *repository.FileRepository, uploadPath string) *FileService {
+	absolutePath, err := filepath.Abs(uploadPath)
+	if err != nil {
+		log.Fatalf("Unable to determine absolute path: %s", err)
+	}
+
+	store := filestore.New(absolutePath)
+	locker := filelocker.New(absolutePath)
+
+	composer := tusd.NewStoreComposer()
+	store.UseIn(composer)
+	locker.UseIn(composer)
+
+	handler, err := tusd.NewHandler(tusd.Config{
+		BasePath:              "/files/",
+		StoreComposer:         composer,
+		NotifyCompleteUploads: true,
+	})
+	if err != nil {
+		log.Fatalf("Unable to create tusd handler: %s", err)
+	}
+
+	fs := &FileService{
+		fileRepository: fileRepository,
+		TusdHandler:    handler,
+	}
+
+	go fs.processCompletedUploads()
+	return fs
 }
 
-func (fs *FileService) SaveFile(fileID string, fileName string, filePath string, size int64) error {
-	log.Printf("Starting SaveFile with fileID: %s, fileName: %s, filePath: %s, size: %d", fileID, fileName, filePath, size)
-
-	if fileID == "" || fileName == "" || filePath == "" || size <= 0 {
-		log.Printf("Invalid input: fileID=%s, fileName=%s, filePath=%s, size=%d", fileID, fileName, filePath, size)
-		return fmt.Errorf("invalid input data")
+func (fs *FileService) processCompletedUploads() {
+	for {
+		event := <-fs.TusdHandler.CompleteUploads
+		log.Printf("Upload %s finished\n", event.Upload.ID)
+		metadata := event.Upload.MetaData
+		if err := fs.saveFileMetadata(event.Upload.ID, metadata); err != nil {
+			log.Printf("Error saving file metadata: %v", err)
+		} else {
+			log.Printf("Metadata for upload %s saved successfully", event.Upload.ID)
+		}
 	}
+}
 
-	resp, err := http.Get(fs.tusdServerURL + "/files/" + fileID)
-	if err != nil {
-		log.Printf("Error retrieving file from tusd: %v", err)
-		return err
+func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]string) error {
+	fileName, ok := metadata["filename"]
+	if !ok {
+		return fmt.Errorf("filename not provided in metadata")
 	}
-	defer resp.Body.Close()
-
-	uploadDir := "internal/uploads"
-	err = os.MkdirAll(uploadDir, os.ModePerm)
-	if err != nil {
-		log.Printf("Error creating upload directory: %v", err)
-		return err
+	filePath := filepath.Join("back/internal/uploads", fileName)
+	sizeStr, ok := metadata["size"]
+	if !ok {
+		return fmt.Errorf("size not provided in metadata")
 	}
-
-	out, err := os.Create(filepath.Join(uploadDir, fileName))
+	size, err := strconv.ParseInt(sizeStr, 10, 64)
 	if err != nil {
-		log.Printf("Error creating file: %v", err)
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		log.Printf("Error writing file: %v", err)
-		return err
+		return fmt.Errorf("invalid size value: %v", err)
 	}
 
 	fileUpload := &model.FileUpload{
 		FileName:   fileName,
-		FilePath:   filepath.Join(uploadDir, fileName),
+		FilePath:   filePath,
 		Size:       size,
 		UploadedAt: time.Now(),
 	}
 
-	log.Printf("FileUpload object created: %+v", fileUpload)
+	return fs.fileRepository.SaveFileUpload(fileUpload)
+}
 
-	err = fs.fileRepository.SaveFileUpload(fileUpload)
-	if err != nil {
-		log.Printf("Error saving file upload: %v", err)
-		return err
+// SaveFile is a method that wraps the saveFileMetadata method to match the expected interface
+func (fs *FileService) SaveFile(fileID, fileName, filePath string, size int64) error {
+	metadata := map[string]string{
+		"filename": fileName,
+		"size":     strconv.FormatInt(size, 10),
 	}
-
-	log.Printf("FileUpload successfully saved: %+v", fileUpload)
-	return nil
+	return fs.saveFileMetadata(fileID, metadata)
 }

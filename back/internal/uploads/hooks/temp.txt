@@ -1,9 +1,44 @@
-curl -X POST -H "Content-Type: application/json" -d '{
->>   "fileName": "file-sample_150kB.pdf",
->>   "filePath": "C:\\Users\\MSI\\Desktop\\file-sample_150kB.pdf",
->>   "size": 143360
->> }' http://localhost:8383/hooks/upload -v
+# Make the POST request and capture the response headers
+$response = Invoke-RestMethod -Uri http://localhost:8383/files/ `
+    -Method Post `
+    -Headers @{
+        "Upload-Length" = "123456"
+        "Tus-Resumable" = "1.0.0"
+        "Upload-Metadata" = "filename YWMucGRm,size MTIzNDU2"
+    } `
+    -ResponseHeadersVariable responseHeaders
+
+# Extract the Location header
+$uploadUrl = $responseHeaders.Location
+
+# Output the upload URL
+$uploadUrl
 
 
-docker run -d -p 1080:1080 -v C:/Users/MSI/GolandProjects/QoreTracking/back/internal/uploads:/data tusproject/tusd:latest -upload-dir=/data
-docker pull tusproject/tusd:latest
+UPLOAD :
+# Define the file path
+$filePath = "C:/Users/MSI/Desktop/ac.pdf"
+
+# Get the file size
+$fileInfo = Get-Item $filePath
+$fileSize = $fileInfo.Length
+
+# Make the POST request to get the upload URL
+$response = curl -i -X POST http://localhost:8383/files/ `
+    -H "Upload-Length: $fileSize" `
+    -H "Tus-Resumable: 1.0.0" `
+    -H "Upload-Metadata: filename YWMucGRm,size MTIzNDU2"
+
+# Extract the Location header from the raw response
+$responseText = $response | Out-String
+$uploadUrl = ($responseText -match 'Location: (.+)$').Matches[0].Groups[1].Value
+
+# Upload the file using curl
+$response = curl -X PATCH $uploadUrl `
+    -H "Tus-Resumable: 1.0.0" `
+    -H "Content-Type: application/offset+octet-stream" `
+    -H "Upload-Offset: 0" `
+    --data-binary @$filePath
+
+# Output the response
+$response

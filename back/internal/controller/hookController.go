@@ -15,6 +15,8 @@ func NewHookController(fileService *service.FileService) *HookController {
 	return &HookController{fileService: fileService}
 }
 
+// HookController.go
+
 func (hc *HookController) UploadHook(c *gin.Context) {
 	var fileUploads []struct {
 		FileID   string `json:"fileId"`
