@@ -1,4 +1,3 @@
-// internal/model/fileModel.go
 package models
 
 import (

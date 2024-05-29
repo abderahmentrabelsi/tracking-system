@@ -13,11 +13,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
 
 	// User routes
-	userController := controller.NewUserController(s.userService, s.departmentService, s.roleService) // Update this line
+	userController := controller.NewUserController(s.userService, s.departmentService, s.roleService)
 	r.POST("/signup", middleware.AuthMiddleware(), userController.SignUp)
 	r.POST("/login", userController.LoginHandler)
 	r.POST("/logout", userController.LogoutHandler)
-	//for the getAllRoles from userController
 	r.GET("/roles", middleware.AuthMiddleware(), userController.GetAllRoles)
 
 	// Department routes
@@ -34,17 +33,17 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/permission", middleware.AuthMiddleware(), roleController.CreatePermission)
 	r.POST("/role_permission", middleware.AuthMiddleware(), roleController.CreateRolePermission)
 
+	// Payroll routes
 	payrollController := controller.NewPayrollController(s.payrollService)
-	// Salary routes
 	r.POST("/salary/create", middleware.AuthMiddleware(), payrollController.CreateSalaryRecord)
 	r.PUT("/salary/user/:userId", middleware.AuthMiddleware(), payrollController.UpdateSalaryRecordByUserID)
 	r.GET("/salary/user/:id", middleware.AuthMiddleware(), payrollController.GetSalaryRecordsByUserID)
 	r.DELETE("/salary/user/:userId", middleware.AuthMiddleware(), payrollController.DeleteSalaryRecordByUserID)
-	// Contract routes
 	r.POST("/contract/create", middleware.AuthMiddleware(), payrollController.CreateContractRecord)
 	r.PUT("/contract/user/:userId", middleware.AuthMiddleware(), payrollController.UpdateContractByUserID)
 	r.GET("/contract/user/:userId", middleware.AuthMiddleware(), payrollController.GetContractByUserID)
 	r.DELETE("/contract/user/:userId", middleware.AuthMiddleware(), payrollController.DeleteContractByUserID)
+
 	// Hook routes
 	hookController := controller.NewHookController(s.fileService)
 	r.POST("/hooks/upload", hookController.UploadHook)

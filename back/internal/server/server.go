@@ -1,3 +1,4 @@
+// internal/server/server.go
 package server
 
 import (
@@ -35,7 +36,7 @@ func NewServer() *Server {
 	departmentService := service.NewDepartmentService(departmentRepository)
 	payrollService := service.NewPayrollService(*payrollRepository)
 
-	fileService := service.NewFileService(repository.NewFileRepository(), "http://localhost:1080")
+	fileService := service.NewFileService(repository.NewFileRepository(), "http://localhost:8383")
 
 	return &Server{
 		port:              port,
@@ -43,7 +44,7 @@ func NewServer() *Server {
 		userService:       userService,
 		departmentService: departmentService,
 		roleService:       roleService,
-		payrollService:    payrollService, // Assign payroll service to the payrollService field
+		payrollService:    payrollService,
 		fileService:       fileService,
 	}
 }

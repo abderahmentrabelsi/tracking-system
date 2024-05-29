@@ -1,4 +1,3 @@
-// internal/repository/fileRepository.go
 package repository
 
 import (
@@ -14,7 +13,7 @@ func NewFileRepository() *FileRepository {
 }
 
 func (fr *FileRepository) SaveFileUpload(fileUpload *model.FileUpload) error {
-	log.Printf("Attempting to save to database: %+v", fileUpload) // Log before saving to the database
+	log.Printf("Attempting to save to database: %+v", fileUpload)
 
 	err := orm.DB.Create(fileUpload).Error
 	if err != nil {
