@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import Card from '@mui/material/Card'
+import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
@@ -12,7 +13,8 @@ import CardActions from '@mui/material/CardActions'
 import Alert, { AlertColor } from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
 import CustomTextField from '@core/components/mui/TextField'
-import type { SystemMode } from '@core/types'
+import Typography from '@mui/material/Typography'
+import { SystemMode } from '@core/types'
 
 type FormDataType = {
   firstName: string
@@ -123,82 +125,108 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
   if (rolesError || departmentsError) return <div>Error loading data</div>
 
   return (
-    <Card style={{ width: "50%" }}>
-      <CardHeader title="Add user" />
+    <Card>
+      <CardHeader title="Add User" />
       <Divider />
       <form onSubmit={handleSignup}>
         <CardContent>
-          <CustomTextField
-            required
-            fullWidth
-            label='First Name'
-            placeholder='Enter your first name'
-            value={formData.firstName}
-            onChange={e => setFormData({ ...formData, firstName: e.target.value })}
-          />
-          <CustomTextField
-            required
-            fullWidth
-            label='Last Name'
-            placeholder='Enter your last name'
-            value={formData.lastName}
-            onChange={e => setFormData({ ...formData, lastName: e.target.value })}
-          />
-          <CustomTextField
-            fullWidth
-            label="Username"
-            placeholder="Enter your username"
-            variant="outlined"
-            value={formData.username}
-            onChange={e => setFormData({ ...formData, username: e.target.value })}
-            required
-          />
-          <CustomTextField
-            required
-            fullWidth
-            label='Phone Number'
-            placeholder='Enter your phone number'
-            value={formData.phoneNumber}
-            onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
-          />
-          <CustomTextField
-            required
-            fullWidth
-            label='Email'
-            placeholder='Enter your email'
-            value={formData.email}
-            onChange={e => setFormData({ ...formData, email: e.target.value })}
-          />
-          <CustomTextField
-            required
-            fullWidth
-            select
-            label='Department'
-            placeholder='Select your department'
-            value={formData.departmentID}
-            onChange={e => setFormData({ ...formData, departmentID: e.target.value })}
-          >
-            {departments?.map((department: DepartmentType) => (
-              <MenuItem key={department.ID} value={department.ID}>
-                {department.name}
-              </MenuItem>
-            ))}
-          </CustomTextField>
-          <CustomTextField
-            required
-            fullWidth
-            select
-            label='Role'
-            placeholder='Select your role'
-            value={formData.roleName}
-            onChange={e => setFormData({ ...formData, roleName: e.target.value })}
-          >
-            {roles?.map((role: RoleType) => (
-              <MenuItem key={role.ID} value={role.name}>
-                {role.name}
-              </MenuItem>
-            ))}
-          </CustomTextField>
+          <Grid container spacing={6}>
+            <Grid item xs={12}>
+              <Typography variant='body2' className='font-medium'>
+                1. Personal Details
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='First Name'
+                placeholder='Enter your first name'
+                value={formData.firstName}
+                onChange={e => setFormData({ ...formData, firstName: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='Last Name'
+                placeholder='Enter your last name'
+                value={formData.lastName}
+                onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='Username'
+                placeholder='Enter your username'
+                value={formData.username}
+                onChange={e => setFormData({ ...formData, username: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='Phone Number'
+                placeholder='Enter your phone number'
+                value={formData.phoneNumber}
+                onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='Email'
+                placeholder='Enter your email'
+                value={formData.email}
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Divider />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant='body2' className='font-medium'>
+                2. Organization Details
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                select
+                label='Department'
+                value={formData.departmentID}
+                onChange={e => setFormData({ ...formData, departmentID: e.target.value })}
+              >
+                {departments?.map((department: DepartmentType) => (
+                  <MenuItem key={department.ID} value={department.ID}>
+                    {department.name}
+                  </MenuItem>
+                ))}
+              </CustomTextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                select
+                label='Role'
+                value={formData.roleName}
+                onChange={e => setFormData({ ...formData, roleName: e.target.value })}
+              >
+                {roles?.map((role: RoleType) => (
+                  <MenuItem key={role.ID} value={role.name}>
+                    {role.name}
+                  </MenuItem>
+                ))}
+              </CustomTextField>
+            </Grid>
+          </Grid>
         </CardContent>
         <Divider />
         <CardActions>
@@ -211,7 +239,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
           </Button>
           <Button
             color='secondary'
-            variant='outlined'
+            variant='tonal'
             onClick={handleReset}
           >
             Reset
