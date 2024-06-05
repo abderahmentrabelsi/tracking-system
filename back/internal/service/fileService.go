@@ -23,13 +23,13 @@ type FileService struct {
 }
 
 func NewFileService(fileRepository *repository.FileRepository, uploadPath string) *FileService {
-	absolutePath, err := filepath.Abs(uploadPath)
-	if err != nil {
-		log.Fatalf("Unable to determine absolute path: %s", err)
-	}
+	// Use the relative path directly
+	absolutePath := filepath.Join(".", uploadPath)
 
 	if _, err := os.Stat(absolutePath); os.IsNotExist(err) {
-		os.MkdirAll(absolutePath, os.ModePerm)
+		if err := os.MkdirAll(absolutePath, os.ModePerm); err != nil {
+			log.Fatalf("Unable to create upload directory: %s", err)
+		}
 	}
 
 	store := filestore.New(absolutePath)
