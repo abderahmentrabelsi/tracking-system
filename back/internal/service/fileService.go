@@ -1,8 +1,10 @@
 package service
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -17,12 +19,17 @@ import (
 type FileService struct {
 	fileRepository *repository.FileRepository
 	TusdHandler    *tusd.Handler
+	UploadPath     string
 }
 
 func NewFileService(fileRepository *repository.FileRepository, uploadPath string) *FileService {
 	absolutePath, err := filepath.Abs(uploadPath)
 	if err != nil {
 		log.Fatalf("Unable to determine absolute path: %s", err)
+	}
+
+	if _, err := os.Stat(absolutePath); os.IsNotExist(err) {
+		os.MkdirAll(absolutePath, os.ModePerm)
 	}
 
 	store := filestore.New(absolutePath)
@@ -44,6 +51,7 @@ func NewFileService(fileRepository *repository.FileRepository, uploadPath string
 	fs := &FileService{
 		fileRepository: fileRepository,
 		TusdHandler:    handler,
+		UploadPath:     absolutePath,
 	}
 
 	go fs.processCompletedUploads()
@@ -51,14 +59,30 @@ func NewFileService(fileRepository *repository.FileRepository, uploadPath string
 }
 
 func (fs *FileService) processCompletedUploads() {
+	log.Println("Started processing completed uploads")
 	for {
-		event := <-fs.TusdHandler.CompleteUploads
-		log.Printf("Upload %s finished\n", event.Upload.ID)
-		metadata := event.Upload.MetaData
-		if err := fs.saveFileMetadata(event.Upload.ID, metadata); err != nil {
+		event, ok := <-fs.TusdHandler.CompleteUploads
+		if !ok {
+			log.Println("CompleteUploads channel closed")
+			return
+		}
+
+		upload := event.Upload
+		log.Printf("Processing upload: %s", upload.ID)
+		metadata := upload.MetaData
+		storedFile := filepath.Join(fs.UploadPath, metadata["filename"])
+
+		log.Printf("File should be stored at %s", storedFile)
+		if _, err := os.Stat(storedFile); err == nil {
+			log.Printf("File already exists at %s", storedFile)
+			continue
+		}
+
+		log.Printf("File successfully processed at %s", storedFile)
+		if err := fs.saveFileMetadata(upload.ID, metadata); err != nil {
 			log.Printf("Error saving file metadata: %v", err)
 		} else {
-			log.Printf("Metadata for upload %s saved successfully", event.Upload.ID)
+			log.Printf("Metadata for upload %s saved successfully", upload.ID)
 		}
 	}
 }
@@ -66,33 +90,32 @@ func (fs *FileService) processCompletedUploads() {
 func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]string) error {
 	fileName, ok := metadata["filename"]
 	if !ok {
+		log.Println("Filename not provided in metadata")
 		return fmt.Errorf("filename not provided in metadata")
 	}
-	filePath := filepath.Join("back/internal/uploads", fileName)
-	sizeStr, ok := metadata["size"]
-	if !ok {
-		return fmt.Errorf("size not provided in metadata")
-	}
-	size, err := strconv.ParseInt(sizeStr, 10, 64)
+
+	decodedFileName, err := base64.StdEncoding.DecodeString(fileName)
 	if err != nil {
-		return fmt.Errorf("invalid size value: %v", err)
+		log.Println("Error decoding filename:", err)
+		return fmt.Errorf("error decoding filename: %v", err)
 	}
 
+	filePath := filepath.Join(fs.UploadPath, string(decodedFileName))
+	log.Printf("Saving file metadata: filename=%s, path=%s", string(decodedFileName), filePath)
+
 	fileUpload := &model.FileUpload{
-		FileName:   fileName,
+		FileName:   string(decodedFileName),
 		FilePath:   filePath,
-		Size:       size,
 		UploadedAt: time.Now(),
 	}
 
 	return fs.fileRepository.SaveFileUpload(fileUpload)
 }
 
-// SaveFile is a method that wraps the saveFileMetadata method to match the expected interface
 func (fs *FileService) SaveFile(fileID, fileName, filePath string, size int64) error {
 	metadata := map[string]string{
-		"filename": fileName,
-		"size":     strconv.FormatInt(size, 10),
+		"filename": base64.StdEncoding.EncodeToString([]byte(fileName)),
+		"size":     base64.StdEncoding.EncodeToString([]byte(strconv.FormatInt(size, 10))),
 	}
 	return fs.saveFileMetadata(fileID, metadata)
 }

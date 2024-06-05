@@ -1,44 +1,31 @@
-# Make the POST request and capture the response headers
-$response = Invoke-RestMethod -Uri http://localhost:8383/files/ `
-    -Method Post `
-    -Headers @{
-        "Upload-Length" = "123456"
-        "Tus-Resumable" = "1.0.0"
-        "Upload-Metadata" = "filename YWMucGRm,size MTIzNDU2"
-    } `
-    -ResponseHeadersVariable responseHeaders
+$filePath = "C:/Users/MSI/Desktop/aa.pdf"
+$fileName = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("aa.pdf"))
+$fileSize = (Get-Item $filePath).length
+$fileType = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("application/pdf"))
 
-# Extract the Location header
-$uploadUrl = $responseHeaders.Location
-
-# Output the upload URL
-$uploadUrl
-
-
-UPLOAD :
-# Define the file path
-$filePath = "C:/Users/MSI/Desktop/ac.pdf"
-
-# Get the file size
-$fileInfo = Get-Item $filePath
-$fileSize = $fileInfo.Length
-
-# Make the POST request to get the upload URL
+# Create the upload resource
 $response = curl -i -X POST http://localhost:8383/files/ `
+    -H "Tus-Resumable: 1.0.0" `
     -H "Upload-Length: $fileSize" `
-    -H "Tus-Resumable: 1.0.0" `
-    -H "Upload-Metadata: filename YWMucGRm,size MTIzNDU2"
+    -H "Upload-Metadata: filename $fileName,filetype $fileType"
 
-# Extract the Location header from the raw response
-$responseText = $response | Out-String
-$uploadUrl = ($responseText -match 'Location: (.+)$').Matches[0].Groups[1].Value
+# Print the response for debugging
+Write-Output "Response from server:"
+Write-Output $response
 
-# Upload the file using curl
-$response = curl -X PATCH $uploadUrl `
+# Extract the upload URL
+$locationHeader = $response | Select-String -Pattern "Location: (.*)"
+if ($locationHeader) {
+    $uploadUrl = $locationHeader.Matches.Groups[1].Value.Trim()
+    Write-Output "Upload URL: $uploadUrl"
+} else {
+    Write-Error "Failed to get upload URL from the response."
+    exit 1
+}
+
+# Upload the file data
+curl -X PATCH $uploadUrl `
     -H "Tus-Resumable: 1.0.0" `
-    -H "Content-Type: application/offset+octet-stream" `
     -H "Upload-Offset: 0" `
-    --data-binary @$filePath
-
-# Output the response
-$response
+    -H "Content-Type: application/offset+octet-stream" `
+    --data-binary "@$filePath"
