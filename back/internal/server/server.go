@@ -35,7 +35,7 @@ func NewServer() *Server {
 	departmentService := service.NewDepartmentService(departmentRepository)
 	payrollService := service.NewPayrollService(*payrollRepository)
 
-	fileService := service.NewFileService(repository.NewFileRepository(), "/internal/uploads")
+	fileService := service.NewFileService(repository.NewFileRepository())
 
 	return &Server{
 		port:              port,

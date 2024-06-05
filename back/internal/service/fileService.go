@@ -22,18 +22,22 @@ type FileService struct {
 	UploadPath     string
 }
 
-func NewFileService(fileRepository *repository.FileRepository, uploadPath string) *FileService {
-	// Use the relative path directly
-	absolutePath := filepath.Join(".", uploadPath)
+func NewFileService(fileRepository *repository.FileRepository) *FileService {
+	uploadPath := os.Getenv("UPLOAD_PATH")
+	if uploadPath == "" {
+		log.Fatalf("UPLOAD_PATH environment variable is not set")
+	}
 
-	if _, err := os.Stat(absolutePath); os.IsNotExist(err) {
-		if err := os.MkdirAll(absolutePath, os.ModePerm); err != nil {
+	absoluteUploadPath := filepath.Clean(uploadPath)
+
+	if _, err := os.Stat(absoluteUploadPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(absoluteUploadPath, os.ModePerm); err != nil {
 			log.Fatalf("Unable to create upload directory: %s", err)
 		}
 	}
 
-	store := filestore.New(absolutePath)
-	locker := filelocker.New(absolutePath)
+	store := filestore.New(absoluteUploadPath)
+	locker := filelocker.New(absoluteUploadPath)
 
 	composer := tusd.NewStoreComposer()
 	store.UseIn(composer)
@@ -51,7 +55,7 @@ func NewFileService(fileRepository *repository.FileRepository, uploadPath string
 	fs := &FileService{
 		fileRepository: fileRepository,
 		TusdHandler:    handler,
-		UploadPath:     absolutePath,
+		UploadPath:     absoluteUploadPath,
 	}
 
 	go fs.processCompletedUploads()
@@ -81,6 +85,20 @@ func (fs *FileService) processCompletedUploads() {
 			log.Printf("Error saving file metadata: %v", err)
 		} else {
 			log.Printf("Metadata for upload %s saved successfully", upload.ID)
+		}
+
+		// Rename file to original filename
+		originalFileName, err := base64.StdEncoding.DecodeString(metadata["filename"])
+		if err != nil {
+			log.Printf("Error decoding filename: %v", err)
+			continue
+		}
+
+		originalFilePath := filepath.Join(fs.UploadPath, string(originalFileName))
+		if err := os.Rename(storedFile, originalFilePath); err != nil {
+			log.Printf("Error renaming file: %v", err)
+		} else {
+			log.Printf("File renamed to %s", originalFilePath)
 		}
 	}
 }
