@@ -70,15 +70,13 @@ func (fs *FileService) processCompletedUploads() {
 		upload := event.Upload
 		log.Printf("Processing upload: %s", upload.ID)
 		metadata := upload.MetaData
-		storedFile := filepath.Join(fs.UploadPath, metadata["filename"])
+		storedFile := filepath.Join(fs.UploadPath, upload.ID)
 
 		log.Printf("File should be stored at %s", storedFile)
 		if _, err := os.Stat(storedFile); err == nil {
 			log.Printf("File already exists at %s", storedFile)
-			continue
 		}
 
-		log.Printf("File successfully processed at %s", storedFile)
 		if err := fs.saveFileMetadata(upload.ID, metadata); err != nil {
 			log.Printf("Error saving file metadata: %v", err)
 		} else {
@@ -100,16 +98,44 @@ func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]str
 		return fmt.Errorf("error decoding filename: %v", err)
 	}
 
-	filePath := filepath.Join(fs.UploadPath, string(decodedFileName))
-	log.Printf("Saving file metadata: filename=%s, path=%s", string(decodedFileName), filePath)
+	sizeStr, ok := metadata["size"]
+	if !ok {
+		log.Println("Size not provided in metadata")
+		return fmt.Errorf("size not provided in metadata")
+	}
+
+	decodedSize, err := base64.StdEncoding.DecodeString(sizeStr)
+	if err != nil {
+		log.Println("Error decoding size:", err)
+		return fmt.Errorf("error decoding size: %v", err)
+	}
+
+	size, err := strconv.ParseInt(string(decodedSize), 10, 64)
+	if err != nil {
+		log.Println("Error parsing size:", err)
+		return fmt.Errorf("error parsing size: %v", err)
+	}
+
+	filePath := filepath.Join(fs.UploadPath, uploadID)
+	log.Printf("Saving file metadata: filename=%s, path=%s, size=%d", string(decodedFileName), filePath, size)
 
 	fileUpload := &model.FileUpload{
 		FileName:   string(decodedFileName),
 		FilePath:   filePath,
+		Size:       size,
 		UploadedAt: time.Now(),
 	}
 
 	return fs.fileRepository.SaveFileUpload(fileUpload)
+}
+
+func getFileSize(filePath string) int64 {
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		log.Println("Error getting file size:", err)
+		return 0
+	}
+	return fileInfo.Size()
 }
 
 func (fs *FileService) SaveFile(fileID, fileName, filePath string, size int64) error {
@@ -118,4 +144,8 @@ func (fs *FileService) SaveFile(fileID, fileName, filePath string, size int64) e
 		"size":     base64.StdEncoding.EncodeToString([]byte(strconv.FormatInt(size, 10))),
 	}
 	return fs.saveFileMetadata(fileID, metadata)
+}
+
+func (fs *FileService) GetAllFiles() ([]model.FileUpload, error) {
+	return fs.fileRepository.GetAllFiles()
 }

@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import Card from '@mui/material/Card'
@@ -178,42 +178,58 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
     }
   }
 
-  const handleFileUpload = async () => {
-    const uploadPromises = files.map(file => {
-      const formData = new FormData()
-      formData.append('file', file)
+  const fetchUploadedFiles = async () => {
+    const response = await axios.get('http://localhost:8383/files');
+    if (response.status !== 200) throw new Error('Failed to fetch files');
+    return response.data;
+  }
 
-      return axios.post('http://localhost:8383/files/', formData, {
+  useEffect(() => {
+    fetchUploadedFiles().then(files => {
+      // Handle the files and display them
+    }).catch(error => {
+      console.error("Error fetching files:", error);
+    });
+  }, []);
+
+
+  const handleFileUpload = async () => {
+    const uploadPromises = files.map(async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await axios.post('http://localhost:8383/files/', formData, {
         headers: {
           'Tus-Resumable': '1.0.0',
           'Upload-Length': file.size.toString(),
-          'Upload-Metadata': `filename ${btoa(file.name)},filetype ${btoa(file.type)}`
+          'Upload-Metadata': `filename ${btoa(file.name)},size ${btoa(file.size.toString())}`
         }
-      }).then(res => {
-        const fileId = res.headers['location'].split('/').pop()
-        return axios.post('http://localhost:8383/hooks/upload', {
-          fileId,
-          fileName: file.name,
-          filePath: `/files/${fileId}`,
-          size: file.size
-        })
-      })
-    })
+      });
+
+      const fileId = res.headers['location'].split('/').pop();
+      return {
+        fileId,
+        fileName: file.name,
+        filePath: `/files/${fileId}`,
+        size: file.size
+      };
+    });
 
     try {
-      await Promise.all(uploadPromises)
+      const uploadedFiles = await Promise.all(uploadPromises);
+      await axios.post('http://localhost:8383/hooks/upload', uploadedFiles);
       setAlert({
         severity: "success",
         message: "Files uploaded successfully"
-      })
+      });
     } catch (error) {
       setAlert({
         severity: "error",
         message: "An error occurred while uploading files"
-      })
+      });
     } finally {
-      setOpen(true)
-      setTimeout(() => setOpen(false), 90000) // Close the alert after 1 minute and 30 seconds
+      setOpen(true);
+      setTimeout(() => setOpen(false), 90000); // Close the alert after 1 minute and 30 seconds
     }
   }
 

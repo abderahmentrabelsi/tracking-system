@@ -61,3 +61,27 @@ func (hc *HookController) UploadHook(c *gin.Context) {
 		},
 	})
 }
+
+func (fc *HookController) GetFiles(c *gin.Context) {
+	files, err := fc.fileService.GetAllFiles()
+	if err != nil {
+		log.Printf("Error fetching files: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Failed to fetch files",
+				"error": err.Error(),
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":   files,
+		"status": "success",
+		"message": gin.H{
+			"msg": "Files fetched successfully",
+		},
+	})
+}
