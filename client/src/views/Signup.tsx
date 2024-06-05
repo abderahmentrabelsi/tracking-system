@@ -178,6 +178,45 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
     }
   }
 
+  const handleFileUpload = async () => {
+    const uploadPromises = files.map(file => {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      return axios.post('http://localhost:8383/files/', formData, {
+        headers: {
+          'Tus-Resumable': '1.0.0',
+          'Upload-Length': file.size.toString(),
+          'Upload-Metadata': `filename ${btoa(file.name)},filetype ${btoa(file.type)}`
+        }
+      }).then(res => {
+        const fileId = res.headers['location'].split('/').pop()
+        return axios.post('http://localhost:8383/hooks/upload', {
+          fileId,
+          fileName: file.name,
+          filePath: `/files/${fileId}`,
+          size: file.size
+        })
+      })
+    })
+
+    try {
+      await Promise.all(uploadPromises)
+      setAlert({
+        severity: "success",
+        message: "Files uploaded successfully"
+      })
+    } catch (error) {
+      setAlert({
+        severity: "error",
+        message: "An error occurred while uploading files"
+      })
+    } finally {
+      setOpen(true)
+      setTimeout(() => setOpen(false), 90000) // Close the alert after 1 minute and 30 seconds
+    }
+  }
+
   if (rolesLoading || departmentsLoading) return <div>Loading...</div>
   if (rolesError || departmentsError) return <div>Error loading data</div>
 
@@ -317,7 +356,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
                     <Button color='error' variant='outlined' onClick={handleRemoveAllFiles}>
                       Remove All
                     </Button>
-                    <Button variant='contained'>Upload Files</Button>
+                    <Button variant='contained' onClick={handleFileUpload}>Upload Files</Button>
                   </div>
                 </>
               ) : null}

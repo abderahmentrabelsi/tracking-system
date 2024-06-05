@@ -48,7 +48,24 @@ func (s *Server) RegisterRoutes() http.Handler {
 	hookController := controller.NewHookController(s.fileService)
 	r.POST("/hooks/upload", hookController.UploadHook)
 
-	r.Any("/files/*any", gin.WrapH(http.StripPrefix("/files/", s.fileService.TusdHandler)))
+	r.Any("/files/*any", gin.WrapH(http.StripPrefix("/files/", corsWrapper(s.fileService.TusdHandler))))
 
 	return r
+}
+
+// corsWrapper wraps a handler with CORS headers and preflight OPTIONS request handling
+func corsWrapper(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Handle preflight request
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		// Set CORS headers for the main request
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		handler.ServeHTTP(w, r)
+	})
 }

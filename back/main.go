@@ -1,34 +1,46 @@
 package main
 
 import (
-	"back/internal/model"
+	model "back/internal/model"
 	"back/internal/orm"
 	"back/internal/server"
 	"fmt"
-	"github.com/rs/cors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/rs/cors"
 )
 
 func main() {
 	initializeORM()
 	srv := server.NewServer()
 	router := srv.RegisterRoutes()
+
 	corsConfig := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000"},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
-		AllowedHeaders:   []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
+		AllowedHeaders:   []string{"Origin", "Content-Length", "Content-Type", "Authorization", "Tus-Resumable", "Upload-Length", "Upload-Metadata", "Upload-Offset"},
 		MaxAge:           int(12 * time.Hour / time.Second),
 	})
 	handler := corsConfig.Handler(router)
 
+	// Middleware for handling TUS headers
+	tusMiddleware := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Header.Get("Tus-Resumable") == "1.0.0" {
+				w.Header().Set("Tus-Resumable", "1.0.0")
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+
 	PORT := os.Getenv("PORT")
-	log.Fatal(http.ListenAndServe(":"+PORT, handler))
+	log.Fatal(http.ListenAndServe(":"+PORT, tusMiddleware(handler)))
 }
 
 func initializeORM() {
@@ -40,9 +52,9 @@ func initializeORM() {
 		log.Fatalf("Failed to initialize GORM: %v", err)
 	}
 	orm.DB = db
-	err = db.AutoMigrate(&models.User{}, &models.Department{}, &models.LoginHistory{},
-		&models.WorkHours{}, &models.TokenDetails{}, &models.Role{}, &models.Permission{},
-		&models.RolePermission{}, &models.Contract{}, &models.Salary{}, &models.FileUpload{})
+	err = db.AutoMigrate(&model.User{}, &model.Department{}, &model.LoginHistory{},
+		&model.WorkHours{}, &model.TokenDetails{}, &model.Role{}, &model.Permission{},
+		&model.RolePermission{}, &model.Contract{}, &model.Salary{}, &model.FileUpload{})
 	if err != nil {
 		log.Fatalf("Failed to migrate database models: %v", err)
 	}
