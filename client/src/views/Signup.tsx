@@ -195,11 +195,19 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
 
   const handleFileUpload = async () => {
     const uploadPromises = files.map(async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const encodedFilename = btoa(file.name);
+      const encodedSize = btoa(file.size.toString());
+
+      const uploadMetadata = `filename ${encodedFilename},size ${encodedSize}`;
+
       const res = await axios.post('http://localhost:8383/files/', null, {
         headers: {
           'Tus-Resumable': '1.0.0',
           'Upload-Length': file.size.toString(),
-          'Upload-Metadata': `filename ${btoa(file.name)},size ${btoa(file.size.toString())}`
+          'Upload-Metadata': uploadMetadata
         }
       });
 
@@ -207,14 +215,14 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       const fileUploadUrl = `http://localhost:8383/files/${fileId}`;
       const fileReader = new FileReader();
 
-      fileReader.onload = async (event: ProgressEvent<FileReader>) => {
+      fileReader.onload = async (event) => {
         const target = event.target;
         if (target && target.result) {
           const fileContent = target.result;
           await axios.patch(fileUploadUrl, fileContent, {
             headers: {
               'Content-Type': 'application/offset+octet-stream',
-              'Upload-Offset': '0', // You may need to handle the offset if uploading in chunks
+              'Upload-Offset': '0',
               'Tus-Resumable': '1.0.0'
             }
           });

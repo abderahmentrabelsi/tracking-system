@@ -20,7 +20,10 @@ type FileService struct {
 	fileRepository *repository.FileRepository
 	TusdHandler    *tusd.Handler
 	UploadPath     string
+	workerChan     chan tusd.HookEvent
 }
+
+const numWorkers = 5
 
 func NewFileService(fileRepository *repository.FileRepository) *FileService {
 	uploadPath := os.Getenv("UPLOAD_PATH")
@@ -56,6 +59,11 @@ func NewFileService(fileRepository *repository.FileRepository) *FileService {
 		fileRepository: fileRepository,
 		TusdHandler:    handler,
 		UploadPath:     absoluteUploadPath,
+		workerChan:     make(chan tusd.HookEvent, numWorkers),
+	}
+
+	for i := 0; i < numWorkers; i++ {
+		go fs.uploadWorker()
 	}
 
 	go fs.processCompletedUploads()
@@ -64,51 +72,66 @@ func NewFileService(fileRepository *repository.FileRepository) *FileService {
 
 func (fs *FileService) processCompletedUploads() {
 	log.Println("Started processing completed uploads")
-	for {
-		event, ok := <-fs.TusdHandler.CompleteUploads
-		if !ok {
-			log.Println("CompleteUploads channel closed")
-			return
-		}
-
-		upload := event.Upload
-		log.Printf("Processing upload: %s", upload.ID)
-		metadata := upload.MetaData
-		storedFile := filepath.Join(fs.UploadPath, upload.ID)
-
-		// Ensure the file is not empty
-		fileInfo, err := os.Stat(storedFile)
-		if err != nil {
-			log.Printf("Error stating file: %v", err)
-			continue
-		}
-		if fileInfo.Size() == 0 {
-			log.Printf("File %s is empty", storedFile)
-			continue
-		}
-
-		log.Printf("File stored at %s with size %d", storedFile, fileInfo.Size())
-
-		if err := fs.saveFileMetadata(upload.ID, metadata); err != nil {
-			log.Printf("Error saving file metadata: %v", err)
-		} else {
-			log.Printf("Metadata for upload %s saved successfully", upload.ID)
-		}
-
-		// Rename file to original filename
-		originalFileName, err := base64.StdEncoding.DecodeString(metadata["filename"])
-		if err != nil {
-			log.Printf("Error decoding filename: %v", err)
-			continue
-		}
-
-		originalFilePath := filepath.Join(fs.UploadPath, string(originalFileName))
-		if err := os.Rename(storedFile, originalFilePath); err != nil {
-			log.Printf("Error renaming file: %v", err)
-		} else {
-			log.Printf("File renamed to %s", originalFilePath)
-		}
+	for event := range fs.TusdHandler.CompleteUploads {
+		fs.workerChan <- event
 	}
+	close(fs.workerChan)
+}
+
+func (fs *FileService) uploadWorker() {
+	for event := range fs.workerChan {
+		fs.handleUploadComplete(event)
+	}
+}
+
+func decodeBase64IfNeeded(value string) (string, error) {
+	decoded, err := base64.StdEncoding.DecodeString(value)
+	if err != nil {
+		return value, nil // Assume it's not base64 encoded
+	}
+	return string(decoded), nil
+}
+
+func (fs *FileService) handleUploadComplete(event tusd.HookEvent) {
+	upload := event.Upload
+	log.Printf("Processing upload: %s", upload.ID)
+	metadata := upload.MetaData
+	storedFile := filepath.Join(fs.UploadPath, upload.ID)
+
+	for key, value := range metadata {
+		log.Printf("Metadata - Key: %s, Value: %s", key, value)
+	}
+
+	fileInfo, err := os.Stat(storedFile)
+	if err != nil {
+		log.Printf("Error stating file: %v", err)
+		return
+	}
+	if fileInfo.Size() == 0 {
+		log.Printf("File %s is empty", storedFile)
+		return
+	}
+
+	log.Printf("File stored at %s with size %d", storedFile, fileInfo.Size())
+
+	if err := fs.saveFileMetadata(upload.ID, metadata); err != nil {
+		log.Printf("Error saving file metadata: %v", err)
+		return
+	}
+	log.Printf("Metadata for upload %s saved successfully", upload.ID)
+
+	originalFileName, err := decodeBase64IfNeeded(metadata["filename"])
+	if err != nil {
+		log.Printf("Error decoding filename: %v, raw: %s", err, metadata["filename"])
+		return
+	}
+
+	originalFilePath := filepath.Join(fs.UploadPath, originalFileName)
+	if err := os.Rename(storedFile, originalFilePath); err != nil {
+		log.Printf("Error renaming file: %v", err)
+		return
+	}
+	log.Printf("File renamed to %s", originalFilePath)
 }
 
 func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]string) error {
@@ -118,9 +141,9 @@ func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]str
 		return fmt.Errorf("filename not provided in metadata")
 	}
 
-	decodedFileName, err := base64.StdEncoding.DecodeString(fileName)
+	decodedFileName, err := decodeBase64IfNeeded(fileName)
 	if err != nil {
-		log.Println("Error decoding filename:", err)
+		log.Printf("Error decoding filename: %s, raw: %s", err, fileName)
 		return fmt.Errorf("error decoding filename: %v", err)
 	}
 
@@ -130,23 +153,23 @@ func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]str
 		return fmt.Errorf("size not provided in metadata")
 	}
 
-	decodedSize, err := base64.StdEncoding.DecodeString(sizeStr)
+	decodedSizeStr, err := decodeBase64IfNeeded(sizeStr)
 	if err != nil {
-		log.Println("Error decoding size:", err)
+		log.Printf("Error decoding size: %s, raw: %s", err, sizeStr)
 		return fmt.Errorf("error decoding size: %v", err)
 	}
 
-	size, err := strconv.ParseInt(string(decodedSize), 10, 64)
+	size, err := strconv.ParseInt(decodedSizeStr, 10, 64)
 	if err != nil {
-		log.Println("Error parsing size:", err)
+		log.Printf("Error parsing size: %v, raw: %s", err, decodedSizeStr)
 		return fmt.Errorf("error parsing size: %v", err)
 	}
 
 	filePath := filepath.Join(fs.UploadPath, uploadID)
-	log.Printf("Saving file metadata: filename=%s, path=%s, size=%d", string(decodedFileName), filePath, size)
+	log.Printf("Saving file metadata: filename=%s, path=%s, size=%d", decodedFileName, filePath, size)
 
 	fileUpload := &model.FileUpload{
-		FileName:   string(decodedFileName),
+		FileName:   decodedFileName,
 		FilePath:   filePath,
 		Size:       size,
 		UploadedAt: time.Now(),
