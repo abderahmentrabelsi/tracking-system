@@ -76,10 +76,18 @@ func (fs *FileService) processCompletedUploads() {
 		metadata := upload.MetaData
 		storedFile := filepath.Join(fs.UploadPath, upload.ID)
 
-		log.Printf("File should be stored at %s", storedFile)
-		if _, err := os.Stat(storedFile); err == nil {
-			log.Printf("File already exists at %s", storedFile)
+		// Ensure the file is not empty
+		fileInfo, err := os.Stat(storedFile)
+		if err != nil {
+			log.Printf("Error stating file: %v", err)
+			continue
 		}
+		if fileInfo.Size() == 0 {
+			log.Printf("File %s is empty", storedFile)
+			continue
+		}
+
+		log.Printf("File stored at %s with size %d", storedFile, fileInfo.Size())
 
 		if err := fs.saveFileMetadata(upload.ID, metadata); err != nil {
 			log.Printf("Error saving file metadata: %v", err)
@@ -145,15 +153,6 @@ func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]str
 	}
 
 	return fs.fileRepository.SaveFileUpload(fileUpload)
-}
-
-func getFileSize(filePath string) int64 {
-	fileInfo, err := os.Stat(filePath)
-	if err != nil {
-		log.Println("Error getting file size:", err)
-		return 0
-	}
-	return fileInfo.Size()
 }
 
 func (fs *FileService) SaveFile(fileID, fileName, filePath string, size int64) error {

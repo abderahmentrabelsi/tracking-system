@@ -195,10 +195,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
 
   const handleFileUpload = async () => {
     const uploadPromises = files.map(async (file) => {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const res = await axios.post('http://localhost:8383/files/', formData, {
+      const res = await axios.post('http://localhost:8383/files/', null, {
         headers: {
           'Tus-Resumable': '1.0.0',
           'Upload-Length': file.size.toString(),
@@ -207,12 +204,28 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       });
 
       const fileId = res.headers['location'].split('/').pop();
-      return {
-        fileId,
-        fileName: file.name,
-        filePath: `/files/${fileId}`,
-        size: file.size
+      const fileUploadUrl = `http://localhost:8383/files/${fileId}`;
+      const fileReader = new FileReader();
+
+      fileReader.onload = async (event) => {
+        const fileContent = event.target.result;
+        await axios.patch(fileUploadUrl, fileContent, {
+          headers: {
+            'Content-Type': 'application/offset+octet-stream',
+            'Upload-Offset': '0', // You may need to handle the offset if uploading in chunks
+            'Tus-Resumable': '1.0.0'
+          }
+        });
+
+        return {
+          fileId,
+          fileName: file.name,
+          filePath: `/files/${fileId}`,
+          size: file.size
+        };
       };
+
+      fileReader.readAsArrayBuffer(file);
     });
 
     try {
