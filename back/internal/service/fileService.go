@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 	"time"
 
 	model "back/internal/model"
@@ -21,6 +22,8 @@ type FileService struct {
 	TusdHandler    *tusd.Handler
 	UploadPath     string
 	workerChan     chan tusd.HookEvent
+	wg             sync.WaitGroup
+	mu             sync.Mutex
 }
 
 const numWorkers = 5
@@ -63,6 +66,7 @@ func NewFileService(fileRepository *repository.FileRepository) *FileService {
 	}
 
 	for i := 0; i < numWorkers; i++ {
+		fs.wg.Add(1)
 		go fs.uploadWorker()
 	}
 
@@ -76,9 +80,11 @@ func (fs *FileService) processCompletedUploads() {
 		fs.workerChan <- event
 	}
 	close(fs.workerChan)
+	fs.wg.Wait() // Wait for all workers to finish
 }
 
 func (fs *FileService) uploadWorker() {
+	defer fs.wg.Done()
 	for event := range fs.workerChan {
 		fs.handleUploadComplete(event)
 	}
@@ -94,79 +100,80 @@ func decodeBase64IfNeeded(value string) (string, error) {
 
 func (fs *FileService) handleUploadComplete(event tusd.HookEvent) {
 	upload := event.Upload
-	log.Printf("Processing upload: %s", upload.ID)
+	fs.logWithMutex(fmt.Sprintf("Processing upload: %s", upload.ID))
+
 	metadata := upload.MetaData
 	storedFile := filepath.Join(fs.UploadPath, upload.ID)
 
 	for key, value := range metadata {
-		log.Printf("Metadata - Key: %s, Value: %s", key, value)
+		fs.logWithMutex(fmt.Sprintf("Metadata - Key: %s, Value: %s", key, value))
 	}
 
 	fileInfo, err := os.Stat(storedFile)
 	if err != nil {
-		log.Printf("Error stating file: %v", err)
+		fs.logWithMutex(fmt.Sprintf("Error stating file: %v", err))
 		return
 	}
 	if fileInfo.Size() == 0 {
-		log.Printf("File %s is empty", storedFile)
+		fs.logWithMutex(fmt.Sprintf("File %s is empty", storedFile))
 		return
 	}
 
-	log.Printf("File stored at %s with size %d", storedFile, fileInfo.Size())
+	fs.logWithMutex(fmt.Sprintf("File stored at %s with size %d", storedFile, fileInfo.Size()))
 
 	if err := fs.saveFileMetadata(upload.ID, metadata); err != nil {
-		log.Printf("Error saving file metadata: %v", err)
+		fs.logWithMutex(fmt.Sprintf("Error saving file metadata: %v", err))
 		return
 	}
-	log.Printf("Metadata for upload %s saved successfully", upload.ID)
+	fs.logWithMutex(fmt.Sprintf("Metadata for upload %s saved successfully", upload.ID))
 
 	originalFileName, err := decodeBase64IfNeeded(metadata["filename"])
 	if err != nil {
-		log.Printf("Error decoding filename: %v, raw: %s", err, metadata["filename"])
+		fs.logWithMutex(fmt.Sprintf("Error decoding filename: %v, raw: %s", err, metadata["filename"]))
 		return
 	}
 
 	originalFilePath := filepath.Join(fs.UploadPath, originalFileName)
 	if err := os.Rename(storedFile, originalFilePath); err != nil {
-		log.Printf("Error renaming file: %v", err)
+		fs.logWithMutex(fmt.Sprintf("Error renaming file: %v", err))
 		return
 	}
-	log.Printf("File renamed to %s", originalFilePath)
+	fs.logWithMutex(fmt.Sprintf("File renamed to %s", originalFilePath))
 }
 
 func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]string) error {
 	fileName, ok := metadata["filename"]
 	if !ok {
-		log.Println("Filename not provided in metadata")
+		fs.logWithMutex("Filename not provided in metadata")
 		return fmt.Errorf("filename not provided in metadata")
 	}
 
 	decodedFileName, err := decodeBase64IfNeeded(fileName)
 	if err != nil {
-		log.Printf("Error decoding filename: %s, raw: %s", err, fileName)
+		fs.logWithMutex(fmt.Sprintf("Error decoding filename: %s, raw: %s", err, fileName))
 		return fmt.Errorf("error decoding filename: %v", err)
 	}
 
 	sizeStr, ok := metadata["size"]
 	if !ok {
-		log.Println("Size not provided in metadata")
+		fs.logWithMutex("Size not provided in metadata")
 		return fmt.Errorf("size not provided in metadata")
 	}
 
 	decodedSizeStr, err := decodeBase64IfNeeded(sizeStr)
 	if err != nil {
-		log.Printf("Error decoding size: %s, raw: %s", err, sizeStr)
+		fs.logWithMutex(fmt.Sprintf("Error decoding size: %s, raw: %s", err, sizeStr))
 		return fmt.Errorf("error decoding size: %v", err)
 	}
 
 	size, err := strconv.ParseInt(decodedSizeStr, 10, 64)
 	if err != nil {
-		log.Printf("Error parsing size: %v, raw: %s", err, decodedSizeStr)
+		fs.logWithMutex(fmt.Sprintf("Error parsing size: %v, raw: %s", err, decodedSizeStr))
 		return fmt.Errorf("error parsing size: %v", err)
 	}
 
 	filePath := filepath.Join(fs.UploadPath, uploadID)
-	log.Printf("Saving file metadata: filename=%s, path=%s, size=%d", decodedFileName, filePath, size)
+	fs.logWithMutex(fmt.Sprintf("Saving file metadata: filename=%s, path=%s, size=%d", decodedFileName, filePath, size))
 
 	fileUpload := &model.FileUpload{
 		FileName:   decodedFileName,
@@ -188,4 +195,10 @@ func (fs *FileService) SaveFile(fileID, fileName, filePath string, size int64) e
 
 func (fs *FileService) GetAllFiles() ([]model.FileUpload, error) {
 	return fs.fileRepository.GetAllFiles()
+}
+
+func (fs *FileService) logWithMutex(message string) {
+	fs.mu.Lock()
+	defer fs.mu.Unlock()
+	log.Println(message)
 }
