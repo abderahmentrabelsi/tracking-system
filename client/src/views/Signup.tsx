@@ -207,22 +207,25 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       const fileUploadUrl = `http://localhost:8383/files/${fileId}`;
       const fileReader = new FileReader();
 
-      fileReader.onload = async (event) => {
-        const fileContent = event.target.result;
-        await axios.patch(fileUploadUrl, fileContent, {
-          headers: {
-            'Content-Type': 'application/offset+octet-stream',
-            'Upload-Offset': '0', // You may need to handle the offset if uploading in chunks
-            'Tus-Resumable': '1.0.0'
-          }
-        });
+      fileReader.onload = async (event: ProgressEvent<FileReader>) => {
+        const target = event.target;
+        if (target && target.result) {
+          const fileContent = target.result;
+          await axios.patch(fileUploadUrl, fileContent, {
+            headers: {
+              'Content-Type': 'application/offset+octet-stream',
+              'Upload-Offset': '0', // You may need to handle the offset if uploading in chunks
+              'Tus-Resumable': '1.0.0'
+            }
+          });
 
-        return {
-          fileId,
-          fileName: file.name,
-          filePath: `/files/${fileId}`,
-          size: file.size
-        };
+          return {
+            fileId,
+            fileName: file.name,
+            filePath: `/files/${fileId}`,
+            size: file.size
+          };
+        }
       };
 
       fileReader.readAsArrayBuffer(file);
