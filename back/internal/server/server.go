@@ -31,11 +31,10 @@ func NewServer() *Server {
 	payrollRepository := repository.NewPayrollRepository()
 
 	roleService := service.NewRoleService(roleRepository)
-	userService := service.NewUserService(userRepository, roleRepository)
+	fileService := service.NewFileService(repository.NewFileRepository())
+	userService := service.NewUserService(userRepository, roleRepository, fileService)
 	departmentService := service.NewDepartmentService(departmentRepository)
 	payrollService := service.NewPayrollService(*payrollRepository)
-
-	fileService := service.NewFileService(repository.NewFileRepository(), "http://localhost:1080")
 
 	return &Server{
 		port:              port,
@@ -43,7 +42,7 @@ func NewServer() *Server {
 		userService:       userService,
 		departmentService: departmentService,
 		roleService:       roleService,
-		payrollService:    payrollService, // Assign payroll service to the payrollService field
+		payrollService:    payrollService,
 		fileService:       fileService,
 	}
 }
