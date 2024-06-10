@@ -161,7 +161,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
         const userID = response.data.data.user_id
         setAlert({
           severity: "success",
-          message: `User created successfully.<br/>Email: ${response.data.data.email}<br/>Username: ${response.data.data.username}<br/>Default Password: defaultPassword`
+          message: `User created successfully.<br/>Email: ${response.data.data.email}<br/>Username: ${response.data.data.username}<br/>Password: defaultPassword`
         })
         setOpen(true)
         setTimeout(() => setOpen(false), 9000)
@@ -256,7 +256,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       await Promise.all(uploadPromises);
       setAlert({
         severity: "success",
-        message: "Files uploaded successfully"
+        message: `User created successfully.<br/>Email: ${formData.email}<br/>Username: ${formData.username}<br/>Password: defaultPassword`
       });
     } catch (error) {
       setAlert({
