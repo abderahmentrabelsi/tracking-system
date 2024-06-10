@@ -31,11 +31,10 @@ func NewServer() *Server {
 	payrollRepository := repository.NewPayrollRepository()
 
 	roleService := service.NewRoleService(roleRepository)
-	userService := service.NewUserService(userRepository, roleRepository)
+	fileService := service.NewFileService(repository.NewFileRepository())
+	userService := service.NewUserService(userRepository, roleRepository, fileService)
 	departmentService := service.NewDepartmentService(departmentRepository)
 	payrollService := service.NewPayrollService(*payrollRepository)
-
-	fileService := service.NewFileService(repository.NewFileRepository())
 
 	return &Server{
 		port:              port,

@@ -1,10 +1,12 @@
 package controller
 
 import (
+	model "back/internal/model"
 	"back/internal/service"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"time"
 )
 
 type HookController struct {
@@ -17,11 +19,13 @@ func NewHookController(fileService *service.FileService) *HookController {
 
 func (hc *HookController) UploadHook(c *gin.Context) {
 	var fileUploads []struct {
+		UserID   uint   `json:"userId"`
 		FileID   string `json:"fileId"`
 		FileName string `json:"fileName"`
 		FilePath string `json:"filePath"`
 		Size     int64  `json:"size"`
 	}
+
 	if err := c.BindJSON(&fileUploads); err != nil {
 		log.Printf("Error binding JSON: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -38,7 +42,15 @@ func (hc *HookController) UploadHook(c *gin.Context) {
 	for _, fileUpload := range fileUploads {
 		log.Printf("Received file upload data: %+v", fileUpload)
 
-		err := hc.fileService.SaveFile(fileUpload.FileID, fileUpload.FileName, fileUpload.FilePath, fileUpload.Size)
+		file := &model.FileUpload{
+			UserID:     fileUpload.UserID,
+			FileName:   fileUpload.FileName,
+			FilePath:   fileUpload.FilePath,
+			Size:       fileUpload.Size,
+			UploadedAt: time.Now(),
+		}
+
+		err := hc.fileService.SaveFile(file)
 		if err != nil {
 			log.Printf("Error saving file info: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{

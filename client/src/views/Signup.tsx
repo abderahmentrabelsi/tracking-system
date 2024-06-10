@@ -141,18 +141,28 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
   }
 
   const handleSignup = async (event: React.FormEvent) => {
-    event.preventDefault()
-    const departmentID = parseInt(formData.departmentID as string)
+    event.preventDefault();
+    const departmentID = parseInt(formData.departmentID as string);
+
+    const filesToUpload = files.map(file => ({
+      fileName: file.name,
+      filePath: "", // This will be updated after the file is uploaded
+      size: file.size,
+    }));
 
     try {
-      const response = await axios.post('http://localhost:8383/signup', { ...formData, departmentID }, { withCredentials: true })
+      const response = await axios.post('http://localhost:8383/signup', { ...formData, departmentID, files: filesToUpload }, { withCredentials: true });
       if (response.status === 200) {
+        const userID = response.data.data.user_id; // Get the user_id from the response
         setAlert({
           severity: "success",
           message: `User created successfully.<br/>Email: ${response.data.data.email}<br/>Username: ${response.data.data.username}<br/>Default Password: ${response.data.data.default_password}`
-        })
-        setOpen(true)
-        setTimeout(() => setOpen(false), 90000) // Close the alert after 1 minute and 30 seconds
+        });
+        setOpen(true);
+        setTimeout(() => setOpen(false), 90000); // Close the alert after 1 minute and 30 seconds
+
+        // Now upload the files
+        await handleFileUpload(userID); // Pass the user_id to handleFileUpload
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -160,24 +170,23 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
           setAlert({
             severity: "error",
             message: "Username already exists"
-          })
+          });
         } else if (error.response?.data?.message?.error === "User already exists") {
           setAlert({
             severity: "error",
             message: "User already exists"
-          })
+          });
         } else {
           setAlert({
             severity: "error",
             message: "An error occurred while creating the user"
-          })
+          });
         }
       }
-      setOpen(true)
-      setTimeout(() => setOpen(false), 90000) // Close the alert after 1 minute and 30 seconds
+      setOpen(true);
+      setTimeout(() => setOpen(false), 90000); // Close the alert after 1 minute and 30 seconds
     }
   }
-
   const fetchUploadedFiles = async () => {
     const response = await axios.get('http://localhost:8383/files');
     if (response.status !== 200) throw new Error('Failed to fetch files');
@@ -192,8 +201,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
     });
   }, []);
 
-
-  const handleFileUpload = async () => {
+  const handleFileUpload = async (userID: number) => {
     const uploadPromises = files.map(async (file) => {
       const formData = new FormData();
       formData.append('file', file);
@@ -216,7 +224,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       const fileReader = new FileReader();
 
       fileReader.onload = async (event) => {
-        const target = event.target;
+        const target = event.target as FileReader;
         if (target && target.result) {
           const fileContent = target.result;
           await axios.patch(fileUploadUrl, fileContent, {
@@ -227,12 +235,17 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
             }
           });
 
-          return {
+          // Prepare the hook payload
+          const fileUploadData = [{
+            userId: userID,
             fileId,
             fileName: file.name,
             filePath: `/files/${fileId}`,
-            size: file.size
-          };
+            size: file.size,
+          }];
+
+          // Remove the hook request to prevent duplicate entries
+          // await axios.post('http://localhost:8383/hooks/upload', fileUploadData);
         }
       };
 
@@ -240,8 +253,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
     });
 
     try {
-      const uploadedFiles = await Promise.all(uploadPromises);
-      await axios.post('http://localhost:8383/hooks/upload', uploadedFiles);
+      await Promise.all(uploadPromises);
       setAlert({
         severity: "success",
         message: "Files uploaded successfully"
@@ -255,7 +267,11 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       setOpen(true);
       setTimeout(() => setOpen(false), 90000); // Close the alert after 1 minute and 30 seconds
     }
-  }
+  };
+
+
+
+
 
   if (rolesLoading || departmentsLoading) return <div>Loading...</div>
   if (rolesError || departmentsError) return <div>Error loading data</div>
@@ -396,7 +412,6 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
                     <Button color='error' variant='outlined' onClick={handleRemoveAllFiles}>
                       Remove All
                     </Button>
-                    <Button variant='contained' onClick={handleFileUpload}>Upload Files</Button>
                   </div>
                 </>
               ) : null}

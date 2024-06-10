@@ -24,6 +24,7 @@ type User struct {
 	TokenDetails TokenDetails   `gorm:"foreignKey:UserID" json:"tokenDetails"`
 	Salary       Salary         `gorm:"foreignKey:UserID" json:"salary"`
 	Contract     Contract       `gorm:"foreignKey:UserID" json:"contract"`
+	Files        []FileUpload   `gorm:"foreignKey:UserID" json:"files"`
 }
 
 type Role struct {

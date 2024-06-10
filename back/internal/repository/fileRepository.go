@@ -4,6 +4,8 @@ import (
 	model "back/internal/model"
 	"back/internal/orm"
 	"log"
+
+	"gorm.io/gorm"
 )
 
 type FileRepository struct{}
@@ -33,4 +35,18 @@ func (fr *FileRepository) GetAllFiles() ([]model.FileUpload, error) {
 		return nil, err
 	}
 	return files, nil
+}
+
+// Add the GetFileByFileID function
+func (fr *FileRepository) GetFileByFileID(uploadID string) (*model.FileUpload, error) {
+	var file model.FileUpload
+	err := orm.DB.Where("upload_id = ?", uploadID).First(&file).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil // No record found
+		}
+		log.Printf("Error fetching file by upload ID from database: %v", err)
+		return nil, err
+	}
+	return &file, nil
 }
