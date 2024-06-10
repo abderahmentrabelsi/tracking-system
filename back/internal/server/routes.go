@@ -19,13 +19,20 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/logout", userController.LogoutHandler)
 	r.GET("/roles", middleware.AuthMiddleware(), userController.GetAllRoles)
 
-	// Department routes
+	// Department
 	departmentController := controller.NewDepartmentController(s.departmentService)
 	r.POST("/department/create", middleware.AuthMiddleware(), departmentController.CreateDepartment)
 	r.GET("/department/:id", middleware.AuthMiddleware(), departmentController.GetDepartmentByID)
 	r.PUT("/department/update/:id", middleware.AuthMiddleware(), departmentController.UpdateDepartment)
 	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(), departmentController.DeleteDepartment)
-	r.GET("/departments", middleware.AuthMiddleware(), departmentController.GetAllDepartments)
+	r.GET("/departments/:client", middleware.AuthMiddleware(), departmentController.GetAllDepartmentsByClient)
+
+	// Client routes
+	r.POST("/client/create", middleware.AuthMiddleware(), departmentController.CreateClient)
+	r.GET("/client/", middleware.AuthMiddleware(), departmentController.GetAllClients)
+	r.GET("/client/:id", middleware.AuthMiddleware(), departmentController.GetClientByID)
+	r.PUT("/client/update/:id", middleware.AuthMiddleware(), departmentController.UpdateClient)
+	r.DELETE("/client/delete/:id", middleware.AuthMiddleware(), departmentController.DeleteClient)
 
 	// Role routes
 	roleController := controller.NewRoleController(s.roleService)
