@@ -1,5 +1,7 @@
 .idea
 back/.env
+back/internal/uploads/*
+back/internal/uploads
 client/node_modules
 full-version/node_modules
 /node_modules/react/build-info.json
