@@ -4,14 +4,14 @@
   "license": "Commercial",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-    "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.ts",
-    "postinstall": "npm run build:icons"
+    "dev": "bun run next dev --turbo",
+    "build": "bun run next build",
+    "start": "bun run next start",
+    "lint": "bun run next lint",
+    "lint:fix": "bun run next lint --fix",
+    "format": "bun run prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "build:icons": "bun run tsx src/assets/iconify-icons/bundle-icons-css.ts",
+    "postinstall": "bun run build:icons"
   },
   "dependencies": {
     "@emotion/cache": "11.11.0",
