@@ -18,7 +18,7 @@ func NewHookController(fileService *service.FileService) *HookController {
 }
 
 func (hc *HookController) UploadHook(c *gin.Context) {
-	var fileUploads []struct {
+	var fileUpload struct {
 		UserID   uint   `json:"userId"`
 		FileID   string `json:"fileId"`
 		FileName string `json:"fileName"`
@@ -26,7 +26,7 @@ func (hc *HookController) UploadHook(c *gin.Context) {
 		Size     int64  `json:"size"`
 	}
 
-	if err := c.BindJSON(&fileUploads); err != nil {
+	if err := c.BindJSON(&fileUpload); err != nil {
 		log.Printf("Error binding JSON: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"data":   nil,
@@ -39,30 +39,28 @@ func (hc *HookController) UploadHook(c *gin.Context) {
 		return
 	}
 
-	for _, fileUpload := range fileUploads {
-		log.Printf("Received file upload data: %+v", fileUpload)
+	log.Printf("Received file upload data: %+v", fileUpload)
 
-		file := &model.FileUpload{
-			UserID:     fileUpload.UserID,
-			FileName:   fileUpload.FileName,
-			FilePath:   fileUpload.FilePath,
-			Size:       fileUpload.Size,
-			UploadedAt: time.Now(),
-		}
+	file := &model.FileUpload{
+		UserID:     fileUpload.UserID,
+		FileName:   fileUpload.FileName,
+		FilePath:   fileUpload.FilePath,
+		Size:       fileUpload.Size,
+		UploadedAt: time.Now(),
+	}
 
-		err := hc.fileService.SaveFile(file)
-		if err != nil {
-			log.Printf("Error saving file info: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"data":   nil,
-				"status": "error",
-				"message": gin.H{
-					"msg":   "Failed to save file info",
-					"error": err.Error(),
-				},
-			})
-			return
-		}
+	err := hc.fileService.SaveFile(file)
+	if err != nil {
+		log.Printf("Error saving file info: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Failed to save file info",
+				"error": err.Error(),
+			},
+		})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{

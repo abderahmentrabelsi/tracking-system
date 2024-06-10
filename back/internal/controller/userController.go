@@ -57,8 +57,8 @@ func (uc *UserController) SignUp(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"msg":   "User already exists",
-				"error": "User already exists",
+				"msg":   "Email already exists",
+				"error": "Email already exists",
 			},
 		})
 		return

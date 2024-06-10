@@ -50,13 +50,13 @@ type FileProp = {
 const fetchRoles = async (): Promise<RoleType[]> => {
   const response = await axios.get('http://localhost:8383/roles', { withCredentials: true })
   if (response.status !== 200) throw new Error('Failed to fetch roles')
-  return response.data.data // Adjusting to access the data array in the response
+  return response.data.data
 }
 
 const fetchDepartments = async (): Promise<DepartmentType[]> => {
   const response = await axios.get('http://localhost:8383/departments', { withCredentials: true })
   if (response.status !== 200) throw new Error('Failed to fetch departments')
-  return response.data.data // Adjusting to access the data array in the response
+  return response.data.data
 }
 
 const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
@@ -70,9 +70,15 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
     roleName: ''
   })
 
+  const [touchedFields, setTouchedFields] = useState<{ [key: string]: boolean }>({
+    email: false,
+    username: false,
+    phoneNumber: false
+
+  })
+
   const [open, setOpen] = useState(false)
   const [alert, setAlert] = useState<{ severity: AlertColor, message: string }>({ severity: "info", message: "" })
-
   const [files, setFiles] = useState<File[]>([])
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -92,7 +98,6 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files
     const filtered = uploadedFiles.filter((i: FileProp) => i.name !== file.name)
-
     setFiles([...filtered])
   }
 
@@ -138,31 +143,29 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       roleName: '',
       username: '',
     })
+    setTouchedFields({ email: false, username: false })
   }
 
   const handleSignup = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const departmentID = parseInt(formData.departmentID as string);
-
+    event.preventDefault()
+    const departmentID = parseInt(formData.departmentID as string)
     const filesToUpload = files.map(file => ({
       fileName: file.name,
-      filePath: "", // This will be updated after the file is uploaded
+      filePath: "",
       size: file.size,
-    }));
+    }))
 
     try {
-      const response = await axios.post('http://localhost:8383/signup', { ...formData, departmentID, files: filesToUpload }, { withCredentials: true });
+      const response = await axios.post('http://localhost:8383/signup', { ...formData, departmentID, files: filesToUpload }, { withCredentials: true })
       if (response.status === 200) {
-        const userID = response.data.data.user_id; // Get the user_id from the response
+        const userID = response.data.data.user_id
         setAlert({
           severity: "success",
-          message: `User created successfully.<br/>Email: ${response.data.data.email}<br/>Username: ${response.data.data.username}<br/>Default Password: ${response.data.data.default_password}`
-        });
-        setOpen(true);
-        setTimeout(() => setOpen(false), 90000); // Close the alert after 1 minute and 30 seconds
-
-        // Now upload the files
-        await handleFileUpload(userID); // Pass the user_id to handleFileUpload
+          message: `User created successfully.<br/>Email: ${response.data.data.email}<br/>Username: ${response.data.data.username}<br/>Default Password: defaultPassword`
+        })
+        setOpen(true)
+        setTimeout(() => setOpen(false), 9000)
+        await handleFileUpload(userID)
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -170,36 +173,35 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
           setAlert({
             severity: "error",
             message: "Username already exists"
-          });
-        } else if (error.response?.data?.message?.error === "User already exists") {
+          })
+        } else if (error.response?.data?.message?.error === "Email already exists") {
           setAlert({
             severity: "error",
-            message: "User already exists"
-          });
+            message: "Email already exists"
+          })
         } else {
           setAlert({
             severity: "error",
             message: "An error occurred while creating the user"
-          });
+          })
         }
       }
-      setOpen(true);
-      setTimeout(() => setOpen(false), 90000); // Close the alert after 1 minute and 30 seconds
+      setOpen(true)
+      setTimeout(() => setOpen(false), 9000)
     }
   }
+
   const fetchUploadedFiles = async () => {
-    const response = await axios.get('http://localhost:8383/files');
-    if (response.status !== 200) throw new Error('Failed to fetch files');
-    return response.data;
+    const response = await axios.get('http://localhost:8383/files')
+    if (response.status !== 200) throw new Error('Failed to fetch files')
+    return response.data
   }
 
   useEffect(() => {
-    fetchUploadedFiles().then(files => {
-      // Handle the files and display them
-    }).catch(error => {
-      console.error("Error fetching files:", error);
-    });
-  }, []);
+    fetchUploadedFiles().then(files => {}).catch(error => {
+      console.error("Error fetching files:", error)
+    })
+  }, [])
 
   const handleFileUpload = async (userID: number) => {
     const uploadPromises = files.map(async (file) => {
@@ -209,7 +211,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       const encodedFilename = btoa(file.name);
       const encodedSize = btoa(file.size.toString());
 
-      const uploadMetadata = `filename ${encodedFilename},size ${encodedSize}`;
+      const uploadMetadata = `filename ${encodedFilename},size ${encodedSize},userId ${userID}`;
 
       const res = await axios.post('http://localhost:8383/files/', null, {
         headers: {
@@ -235,17 +237,15 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
             }
           });
 
-          // Prepare the hook payload
-          const fileUploadData = [{
+          const fileUploadData = {
             userId: userID,
             fileId,
             fileName: file.name,
             filePath: `/files/${fileId}`,
             size: file.size,
-          }];
+          };
 
-          // Remove the hook request to prevent duplicate entries
-          // await axios.post('http://localhost:8383/hooks/upload', fileUploadData);
+          await axios.post('http://localhost:8383/hooks/upload', fileUploadData);
         }
       };
 
@@ -265,13 +265,31 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       });
     } finally {
       setOpen(true);
-      setTimeout(() => setOpen(false), 90000); // Close the alert after 1 minute and 30 seconds
+      setTimeout(() => setOpen(false), 9000);
     }
   };
 
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }
 
+  const validatePhoneNumber = (phoneNumber: string) => {
+    return /^[0-9]+$/.test(phoneNumber)
+  }
 
-
+  const isValidForm = () => {
+    return (
+      formData.firstName.trim() !== '' &&
+      formData.lastName.trim() !== '' &&
+      formData.username.trim() !== '' &&
+      formData.email.trim() !== '' &&
+      validateEmail(formData.email) &&
+      formData.phoneNumber.trim() !== '' &&
+      validatePhoneNumber(formData.phoneNumber) &&
+      formData.departmentID !== '' &&
+      formData.roleName !== ''
+    )
+  }
 
   if (rolesLoading || departmentsLoading) return <div>Loading...</div>
   if (rolesError || departmentsError) return <div>Error loading data</div>
@@ -315,7 +333,12 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
                 label='Username'
                 placeholder='Enter your username'
                 value={formData.username}
-                onChange={e => setFormData({ ...formData, username: e.target.value })}
+                onChange={e => {
+                  setFormData({ ...formData, username: e.target.value })
+                  setTouchedFields({ ...touchedFields, username: true })
+                }}
+                error={touchedFields.username && formData.username.trim() === ''}
+                helperText={touchedFields.username && formData.username.trim() === '' && 'Username is required'}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -325,7 +348,12 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
                 label='Phone Number'
                 placeholder='Enter your phone number'
                 value={formData.phoneNumber}
-                onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
+                onChange={e => {
+                  setFormData({ ...formData, phoneNumber: e.target.value })
+                  setTouchedFields({ ...touchedFields, phoneNumber: true })
+                }}
+                error={touchedFields.phoneNumber && !validatePhoneNumber(formData.phoneNumber)}
+                helperText={touchedFields.phoneNumber && !validatePhoneNumber(formData.phoneNumber) && 'Phone number must be only numbers'}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -335,7 +363,12 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
                 label='Email'
                 placeholder='Enter your email'
                 value={formData.email}
-                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                onChange={e => {
+                  setFormData({ ...formData, email: e.target.value })
+                  setTouchedFields({ ...touchedFields, email: true })
+                }}
+                error={touchedFields.email && !validateEmail(formData.email)}
+                helperText={touchedFields.email && !validateEmail(formData.email) && 'Email must be a valid email'}
               />
             </Grid>
             <Grid item xs={12}>
@@ -424,6 +457,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
             color='primary'
             variant='contained'
             type='submit'
+            disabled={!isValidForm()}
           >
             Submit
           </Button>
