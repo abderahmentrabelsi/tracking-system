@@ -1,4 +1,3 @@
-// internal/model/fileModel.go
 package models
 
 import (
@@ -8,6 +7,7 @@ import (
 
 type FileUpload struct {
 	gorm.Model
+	UserID     uint      `json:"userId"`
 	FileName   string    `json:"fileName"`
 	FilePath   string    `json:"filePath"`
 	Size       int64     `json:"size"`

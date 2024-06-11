@@ -1,7 +1,7 @@
 package service
 
 import (
-	"back/internal/model"
+	model "back/internal/model"
 	"back/internal/orm"
 	"back/internal/repository"
 	"github.com/dgrijalva/jwt-go"
@@ -12,25 +12,40 @@ import (
 type UserService struct {
 	userRepository *repository.UserRepository
 	roleRepository *repository.RoleRepository // Add this line
+	fileService    *FileService               // Add this line
 }
 
-func NewUserService(userRepository *repository.UserRepository, roleRepository *repository.RoleRepository) *UserService {
+func NewUserService(userRepository *repository.UserRepository, roleRepository *repository.RoleRepository, fileService *FileService) *UserService {
 	return &UserService{
 		userRepository: userRepository,
 		roleRepository: roleRepository, // Initialize roleRepository
+		fileService:    fileService,    // Initialize fileService
 	}
 }
 
-func (us *UserService) GetUserByEmail(email string) (*models.User, error) {
+func (us *UserService) GetUserByEmail(email string) (*model.User, error) {
 	return us.userRepository.GetUserByEmail(email)
 }
 
-func (us *UserService) CreateUser(user *models.User) error {
-	return us.userRepository.CreateUser(user)
+func (us *UserService) CreateUser(user *model.User, files []model.FileUpload) error {
+	err := us.userRepository.CreateUser(user)
+	if err != nil {
+		return err
+	}
+
+	// Assign UserID to each file and save them
+	for i := range files {
+		files[i].UserID = user.ID
+		if err := us.fileService.SaveFile(&files[i]); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (us *UserService) CreateLoginHistory(userID uint, clientIP string, userAgent string) error {
-	history := models.LoginHistory{
+	history := model.LoginHistory{
 		UserID:      userID,
 		LoginIP:     clientIP,
 		LoginDevice: userAgent,
@@ -54,14 +69,14 @@ func (us *UserService) GenerateToken(email string, role string, duration time.Du
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
 
-func (us *UserService) GetRoleByID(roleID uint) (*models.Role, error) {
+func (us *UserService) GetRoleByID(roleID uint) (*model.Role, error) {
 	return us.roleRepository.GetRoleByID(roleID)
 }
 
-func (us *UserService) GetUserByEmailOrUsername(identifier string) (*models.User, error) {
+func (us *UserService) GetUserByEmailOrUsername(identifier string) (*model.User, error) {
 	return us.userRepository.GetUserByEmailOrUsername(identifier) // rename GetUserByEmail to GetUserByEmailOrUsername
 }
 
-func (us *UserService) GetUserByUsername(username string) (*models.User, error) {
+func (us *UserService) GetUserByUsername(username string) (*model.User, error) {
 	return us.userRepository.GetUserByUsername(username)
 }

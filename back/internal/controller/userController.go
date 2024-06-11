@@ -1,11 +1,9 @@
 package controller
 
 import (
-	"back/internal/middleware"
-	models "back/internal/model"
+	model "back/internal/model"
 	"back/internal/service"
 	"back/internal/store"
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -30,64 +28,17 @@ func NewUserController(userService *service.UserService, departmentService *serv
 }
 
 func (uc *UserController) SignUp(c *gin.Context) {
-	middleware.AuthMiddleware()(c)
-	role, exists := c.Get("userRole")
-	fmt.Println("Role from context:", role)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"data":   nil,
-			"status": "error",
-			"message": gin.H{
-				"error": "Unauthorized",
-				"msg":   "Unauthorized",
-			},
-		})
-		return
-	}
-
-	adminRole, err := uc.roleService.GetRoleByName("Admin")
-	if err != nil || adminRole == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"data":   nil,
-			"status": "error",
-			"message": gin.H{
-				"error": err.Error(),
-				"msg":   "Admin role not found",
-			},
-		})
-		return
-	}
-
-	// Check for the CREATE permission
-	hasCreatePermission := false
-	for _, permission := range adminRole.Permissions {
-		if permission.Name == "CREATE" {
-			hasCreatePermission = true
-			break
-		}
-	}
-
-	if !hasCreatePermission {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"data":   nil,
-			"status": "error",
-			"message": gin.H{
-				"error": "Unauthorized",
-				"msg":   "Unauthorized",
-			},
-		})
-		return
-	}
-
 	var body struct {
-		FirstName    string `json:"FirstName"`
-		LastName     string `json:"LastName"`
-		PhoneNumber  string `json:"PhoneNumber"`
-		Email        string `json:"Email"`
-		Username     string `json:"Username"` // Add this line
-		DepartmentID uint   `json:"DepartmentID"`
-		RoleName     string `json:"RoleName"`
+		FirstName    string             `json:"FirstName"`
+		LastName     string             `json:"LastName"`
+		PhoneNumber  string             `json:"PhoneNumber"`
+		Email        string             `json:"Email"`
+		Username     string             `json:"Username"`
+		DepartmentID uint               `json:"DepartmentID"`
+		RoleName     string             `json:"RoleName"`
+		Files        []model.FileUpload `json:"Files"`
 	}
+
 	if err := c.Bind(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"data":   nil,
@@ -101,47 +52,26 @@ func (uc *UserController) SignUp(c *gin.Context) {
 	}
 
 	existingUser, err := uc.userService.GetUserByEmail(body.Email)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"data":   nil,
-			"status": "error",
-			"message": gin.H{
-				"msg":   "Error checking user existence",
-				"error": err.Error(),
-			},
-		})
-		return
-	}
-	if existingUser != nil {
+	if err != nil || existingUser != nil {
 		c.JSON(http.StatusConflict, gin.H{
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"error": "User already exists",
-				"msg":   "User already exists",
+				"msg":   "Email already exists",
+				"error": "Email already exists",
 			},
 		})
 		return
 	}
+
 	existingUserByUsername, err := uc.userService.GetUserByUsername(body.Username)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"data":   nil,
-			"status": "error",
-			"message": gin.H{
-				"msg":   "Error checking user existence",
-				"error": err.Error(),
-			},
-		})
-		return
-	}
-	if existingUserByUsername != nil {
+	if err != nil || existingUserByUsername != nil {
 		c.JSON(http.StatusConflict, gin.H{
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"error": "Username already exists",
 				"msg":   "Username already exists",
+				"error": "Username already exists",
 			},
 		})
 		return
@@ -187,18 +117,18 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		return
 	}
 
-	user := &models.User{
+	user := &model.User{
 		FirstName:    body.FirstName,
 		LastName:     body.LastName,
 		PhoneNumber:  body.PhoneNumber,
 		Email:        body.Email,
-		Username:     body.Username, // Add this line
+		Username:     body.Username,
 		DepartmentID: department.ID,
 		RoleID:       roleEntity.ID,
 		Password:     string(hash),
 	}
 
-	if err := uc.userService.CreateUser(user); err != nil {
+	if err := uc.userService.CreateUser(user, body.Files); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"data":   nil,
 			"status": "error",
@@ -211,11 +141,10 @@ func (uc *UserController) SignUp(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   gin.H{"email": body.Email, "default_password": defaultPassword, "username": body.Username}, // Add username to response
+		"data":   gin.H{"user_id": user.ID, "email": body.Email, "default_password": defaultPassword, "username": body.Username},
 		"status": "success",
 		"message": gin.H{
-			"error": "",
-			"msg":   "User created successfully",
+			"msg": "User created successfully",
 		},
 	})
 }

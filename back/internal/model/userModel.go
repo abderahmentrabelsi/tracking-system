@@ -9,7 +9,7 @@ type User struct {
 	gorm.Model
 	Username     string `json:"username" gorm:"unique"`
 	Password     string `json:"password"`
-	Email        string `json:"email"`
+	Email        string `json:"email" gorm:"unique"`
 	RoleID       uint   `json:"roleId"`
 	Role         Role   `gorm:"foreignKey:RoleID"`
 	FirstName    string `json:"firstName"`
@@ -24,6 +24,7 @@ type User struct {
 	TokenDetails TokenDetails   `gorm:"foreignKey:UserID" json:"tokenDetails"`
 	Salary       Salary         `gorm:"foreignKey:UserID" json:"salary"`
 	Contract     Contract       `gorm:"foreignKey:UserID" json:"contract"`
+	Files        []FileUpload   `gorm:"foreignKey:UserID" json:"files"`
 }
 
 type Role struct {

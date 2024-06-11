@@ -4,14 +4,14 @@
   "license": "Commercial",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-    "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.ts",
-    "postinstall": "npm run build:icons"
+    "dev": "bun run next dev --turbo",
+    "build": "bun run next build",
+    "start": "bun run next start",
+    "lint": "bun run next lint",
+    "lint:fix": "bun run next lint --fix",
+    "format": "bun run prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "build:icons": "bun run tsx src/assets/iconify-icons/bundle-icons-css.ts",
+    "postinstall": "bun run build:icons"
   },
   "dependencies": {
     "@emotion/cache": "11.11.0",
@@ -31,6 +31,7 @@
     "react-colorful": "5.6.1",
     "react-datepicker": "^6.9.0",
     "react-dom": "18.2.0",
+    "react-dropzone": "^14.2.3",
     "react-perfect-scrollbar": "1.5.8",
     "react-toastify": "10.0.4",
     "react-use": "17.5.0",
