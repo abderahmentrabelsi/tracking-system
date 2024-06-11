@@ -43,7 +43,7 @@ const fetchRoles = async (): Promise<RoleType[]> => {
 }
 
 const fetchDepartments = async (): Promise<DepartmentType[]> => {
-  const response = await axios.get('http://localhost:8383/departments', { withCredentials: true })
+  const response = await axios.get('http://localhost:8383/client', { withCredentials: true })
   if (response.status !== 200) throw new Error('Failed to fetch departments')
   return response.data.data // Adjusting to access the data array in the response
 }
