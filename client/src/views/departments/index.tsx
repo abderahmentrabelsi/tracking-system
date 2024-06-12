@@ -40,13 +40,14 @@ const Departments = () => {
   useEffect(() => {
     const fetchClientsAndDepartments = async () => {
       try {
+        // Fetch clients data
         const clientsResponse = await axios.get('http://localhost:8383/client', { withCredentials: true });
 
         if (clientsResponse.status === 200) {
           const clientData = clientsResponse.data.data as ClientType[];
-
           setClients(clientData);
 
+          // Fetch departments data for each client
           const allDepartmentsData: DepartmentType[] = [];
 
           for (const client of clientData) {
@@ -55,7 +56,6 @@ const Departments = () => {
             if (departmentsResponse.status === 200) {
               const departmentData = departmentsResponse.data.data as DepartmentType[];
               const departmentsWithClientName = departmentData.map(department => ({ ...department, clientName: client.name }));
-
               allDepartmentsData.push(...departmentsWithClientName);
             } else {
               throw new Error(`Failed to fetch departments for client ${client.name}`);
@@ -72,7 +72,7 @@ const Departments = () => {
     };
 
     fetchClientsAndDepartments();
-  }, []);
+  }, []); // Run this effect only once on component mount
 
   // Define columns
   const columns = useMemo(() => [
@@ -95,14 +95,14 @@ const Departments = () => {
     columnHelper.display({
       header: 'Actions',
       cell: ({ row }) => (
-          <div className='flex items-center'>
-            <IconButton onClick={() => handleEditDepartment(row.original)}>
-              <i className='tabler-edit text-[22px] text-textSecondary' />
-            </IconButton>
-            <IconButton onClick={() => handleDeleteDepartment(row.original.ID)}>
-              <i className='tabler-trash text-[22px] text-textSecondary' />
-            </IconButton>
-          </div>
+        <div className='flex items-center'>
+          <IconButton onClick={() => handleEditDepartment(row.original)}>
+            <i className='tabler-edit text-[22px] text-textSecondary' />
+          </IconButton>
+          <IconButton onClick={() => handleDeleteDepartment(row.original.ID)}>
+            <i className='tabler-trash text-[22px] text-textSecondary' />
+          </IconButton>
+        </div>
       ),
     }),
   ], []);
@@ -118,7 +118,7 @@ const Departments = () => {
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
+    onGlobalFilterChange: setGlobalFilter, // Ensure onGlobalFilterChange updates the globalFilter state
     onPaginationChange: ({ pageIndex, pageSize }) => {
       setPage(pageIndex);
       setRowsPerPage(pageSize);
@@ -191,109 +191,117 @@ const Departments = () => {
   };
 
   return (
-      <>
-        <Card>
-          <CardContent className='flex flex-col gap-4 sm:flex-row items-start sm:items-center justify-between flex-wrap'>
-            <div className='flex items-center gap-2'>
-              <Typography>Show</Typography>
-              <TextField
-                  select
-                  value={rowsPerPage}
-                  onChange={(e) => {
-                    const newSize = parseInt(e.target.value, 10);
+    <>
+      <Card>
+        <CardContent className='flex flex-col gap-4 sm:flex-row items-start sm:items-center justify-between flex-wrap'>
+          <div className='flex items-center gap-2'>
+            <Typography>Show</Typography>
+            <TextField
+              select
+              value={rowsPerPage}
+              onChange={(e) => {
+                const newSize = parseInt(e.target.value, 10);
+                setRowsPerPage(newSize);
+                setPage(0); // Reset to the first page when changing rows per page
+              }}
+              className="is-[70px]"
+            >
+              <MenuItem value={5}>5</MenuItem>
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={15}>15</MenuItem>
+            </TextField>
+          </div>
+          <div className='flex gap-4'>
+            <TextField
+              value={globalFilter ?? ''}
+              onChange={(e) => setGlobalFilter(e.target.value)} // Update the globalFilter state directly
+              placeholder='Search Departments'
+              fullWidth
+            />
+            <Button
+              variant="contained"
+              onClick={() => setOpen(true)}
+              className="is-full sm:is-auto"
+              startIcon={<i className='tabler' />}
+            >
+              CREATE Department
+            </Button>
 
-                    setRowsPerPage(newSize);
-                    setPage(0); // Reset to the first page when changing rows per page
-                  }}
-                  className="is-[70px]"
-              >
-                <MenuItem value={5}>5</MenuItem>
-                <MenuItem value={10}>10</MenuItem>
-                <MenuItem value={15}>15</MenuItem>
-              </TextField>
-            </div>
-            <div className='flex flex-wrap gap-4'>
-              <TextField
-                  value={globalFilter ?? ''}
-                  onChange={(e) => setGlobalFilter(String(e.target.value))}
-                  placeholder='Search Departments'
-                  fullWidth
-              />
-              <Button variant="contained" onClick={() => setOpen(true)} style={{ backgroundColor: '#FFC107', color: '#fff' }}>Add Department</Button>
-            </div>
-          </CardContent>
-          <Table>
-            <TableHead>
-              <TableRow>
-                {table.getHeaderGroups().map(headerGroup => (
-                    headerGroup.headers.map(header => (
-                        <TableCell key={header.id}>
-                          {header.isPlaceholder ? null : (
-                              flexRender(header.column.columnDef.header, header.getContext())
-                          )}
-                        </TableCell>
-                    ))
+
+          </div>
+        </CardContent>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {table.getHeaderGroups().map(headerGroup => (
+                headerGroup.headers.map(header => (
+                  <TableCell key={header.id}>
+                    {header.isPlaceholder ? null : (
+                      flexRender(header.column.columnDef.header, header.getContext())
+                    )}
+                  </TableCell>
+                ))
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {table.getRowModel().rows.map(row => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map(cell => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {table.getRowModel().rows.map(row => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map(cell => (
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                    ))}
-                  </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <TablePagination
-              component="div"
-              count={departmentsData.length}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={(event, newPage) => setPage(newPage)}
-              onRowsPerPageChange={(event) => {
-                setRowsPerPage(parseInt(event.target.value, 10));
-                setPage(0);
-              }}
-          />
-        </Card>
+            ))}
+          </TableBody>
+        </Table>
+        <TablePagination
+          component="div"
+          count={departmentsData.length}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(event, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(event) => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(0);
+          }}
+        />
+      </Card>
 
-        <Dialog open={open} onClose={() => setOpen(false)}>
-          <DialogTitle>{editValue ? 'Edit Department' : 'Add Department'}</DialogTitle>
-          <DialogContent>
-            <TextField
-                margin="dense"
-                label="Name"
-                fullWidth
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-            />
-            <TextField
-                margin="dense"
-                label="Client Name"
-                fullWidth
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-            />
-            <TextField
-                margin="dense"
-                label="Supervisor ID"
-                fullWidth
-                value={supervisorId}
-                onChange={(e) => setSupervisorId(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={editValue ? handleUpdateDepartment : handleAddDepartment}>
-              {editValue ? 'Update' : 'Add'}
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </>
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle>{editValue ? 'Edit Department' : 'Add Department'}</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Name"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Client Name"
+            fullWidth
+            value={clientName}
+            onChange={(e) => setClientName(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Supervisor ID"
+            fullWidth
+            value={supervisorId}
+            onChange={(e) => setSupervisorId(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={editValue ? handleUpdateDepartment : handleAddDepartment}>
+            {editValue ? 'Update' : 'Add'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
