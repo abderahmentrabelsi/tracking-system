@@ -18,6 +18,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/login", userController.LoginHandler)
 	r.POST("/logout", userController.LogoutHandler)
 	r.GET("/roles", middleware.AuthMiddleware(), userController.GetAllRoles)
+	r.GET("/user/:id", userController.GetUserByID)
 
 	// Department
 	departmentController := controller.NewDepartmentController(s.departmentService)

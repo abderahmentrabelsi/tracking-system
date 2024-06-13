@@ -3,6 +3,7 @@ package repository
 import (
 	"back/internal/model"
 	"back/internal/orm"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -56,6 +57,17 @@ func (ur *UserRepository) GetUserByUsername(username string) (*models.User, erro
 			return nil, nil
 		}
 		return nil, err
+	}
+	return &user, nil
+}
+
+func (ur *UserRepository) GetUserByID(id uint) (*models.User, error) {
+	var user models.User
+	if err := orm.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("user with ID %d not found", id)
+		}
+		return nil, fmt.Errorf("failed to retrieve client: %v", err)
 	}
 	return &user, nil
 }
