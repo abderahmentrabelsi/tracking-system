@@ -1,111 +1,133 @@
 'use client'
 
-import React, { useEffect, useState, useMemo } from 'react';
-import axios from 'axios';
-import { Card, CardContent, Typography, Table, TableHead, TableRow, TableCell, TableBody, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, MenuItem, TablePagination } from '@mui/material';
-import { createColumnHelper, useReactTable, getCoreRowModel, getPaginationRowModel, getFilteredRowModel, getSortedRowModel, flexRender } from '@tanstack/react-table';
-import { rankItem } from '@tanstack/match-sorter-utils';
+import React, { useEffect, useState, useMemo } from 'react'
 
-// Define interfaces
-interface DepartmentType {
-  ID: number;
-  name: string;
-  supervisorId: number;
-  CreatedAt: string;
-  clientName: string;
-}
+import {
+  Card,
+  CardContent,
+  Typography,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  IconButton,
+  MenuItem,
+  TablePagination,
+  TextFieldProps
+} from '@mui/material'
+import {
+  createColumnHelper,
+  useReactTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  flexRender
+} from '@tanstack/react-table'
+import { rankItem } from '@tanstack/match-sorter-utils'
 
-interface ClientType {
-  ID: number;
-  name: string;
-}
+import type { DepartmentType, ClientType } from '@/types/departmentTypes'
+import {
+  fetchClients,
+  fetchDepartments,
+  createDepartment,
+  updateDepartment,
+  deleteDepartment
+} from '@/app/api/departmentApi'
 
-// Create column helper
-const columnHelper = createColumnHelper<DepartmentType>();
+const columnHelper = createColumnHelper<DepartmentType>()
 
 const Departments = () => {
-  // States
-  const [, setClients] = useState<ClientType[]>([]);
-  const [departmentsData, setDepartmentsData] = useState<DepartmentType[]>([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [globalFilter, setGlobalFilter] = useState('');
-  const [open, setOpen] = useState(false);
-  const [editValue, setEditValue] = useState<DepartmentType | null>(null);
-  const [name, setName] = useState('');
-  const [clientName, setClientName] = useState('');
-  const [supervisorId, setSupervisorId] = useState('');
+  const [, setClients] = useState<ClientType[]>([])
+  const [departmentsData, setDepartmentsData] = useState<DepartmentType[]>([])
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(5)
+  const [globalFilter, setGlobalFilter] = useState('')
+  const [open, setOpen] = useState(false)
+  const [editValue, setEditValue] = useState<DepartmentType | null>(null)
+  const [name, setName] = useState('')
+  const [clientName, setClientName] = useState('')
+  const [supervisorId, setSupervisorId] = useState('')
 
-  // Fetch clients and departments data
   useEffect(() => {
     const fetchClientsAndDepartments = async () => {
       try {
-        // Fetch clients data
-        const clientsResponse = await axios.get('http://localhost:8383/client', { withCredentials: true });
+        const clientsResponse = await fetchClients()
+        const allDepartmentsData: React.SetStateAction<DepartmentType[]> = []
 
-        if (clientsResponse.status === 200) {
-          const clientData = clientsResponse.data.data as ClientType[];
-          setClients(clientData);
+        for (const client of clientsResponse) {
+          const departmentsResponse = await fetchDepartments(client.name)
 
-          // Fetch departments data for each client
-          const allDepartmentsData: DepartmentType[] = [];
+          const departmentsWithClientName = departmentsResponse.map(department => ({
+            ...department,
+            clientName: client.name
+          }))
 
-          for (const client of clientData) {
-            const departmentsResponse = await axios.get(`http://localhost:8383/departments/${client.name}`, { withCredentials: true });
-
-            if (departmentsResponse.status === 200) {
-              const departmentData = departmentsResponse.data.data as DepartmentType[];
-              const departmentsWithClientName = departmentData.map(department => ({ ...department, clientName: client.name }));
-              allDepartmentsData.push(...departmentsWithClientName);
-            } else {
-              throw new Error(`Failed to fetch departments for client ${client.name}`);
-            }
-          }
-
-          setDepartmentsData(allDepartmentsData);
-        } else {
-          throw new Error('Failed to fetch clients');
+          allDepartmentsData.push(...departmentsWithClientName)
         }
-      } catch (error) {
-        console.error('Error fetching clients and departments data:', error);
-      }
-    };
 
-    fetchClientsAndDepartments();
-  }, []); // Run this effect only once on component mount
+        setClients(clientsResponse)
+        setDepartmentsData(allDepartmentsData)
+
+        // After setting departmentsData, initialize the table
+        table.setState(state => ({
+          ...state,
+          data: allDepartmentsData,
+          pagination: {
+            ...state.pagination,
+            pageCount: Math.ceil(allDepartmentsData.length / rowsPerPage) // Calculate pageCount
+          }
+        }))
+      } catch (error) {
+        console.error('Error fetching clients and departments data:', error)
+      }
+    }
+
+    fetchClientsAndDepartments()
+  }, [])
 
   // Define columns
-  const columns = useMemo(() => [
-    columnHelper.accessor('name', {
-      header: 'Department',
-      cell: ({ row }) => <Typography>{row.original.name}</Typography>,
-    }),
-    columnHelper.accessor('clientName', {
-      header: 'Client',
-      cell: ({ row }) => <Typography>{row.original.clientName}</Typography>,
-    }),
-    columnHelper.accessor('supervisorId', {
-      header: 'Supervisor',
-      cell: ({ row }) => <Typography>{row.original.supervisorId}</Typography>,
-    }),
-    columnHelper.accessor('CreatedAt', {
-      header: 'Created At',
-      cell: ({ row }) => <Typography>{row.original.CreatedAt}</Typography>,
-    }),
-    columnHelper.display({
-      header: 'Actions',
-      cell: ({ row }) => (
-        <div className='flex items-center'>
-          <IconButton onClick={() => handleEditDepartment(row.original)}>
-            <i className='tabler-edit text-[22px] text-textSecondary' />
-          </IconButton>
-          <IconButton onClick={() => handleDeleteDepartment(row.original.ID)}>
-            <i className='tabler-trash text-[22px] text-textSecondary' />
-          </IconButton>
-        </div>
-      ),
-    }),
-  ], []);
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('name', {
+        header: 'Department',
+        cell: ({ row }) => <Typography>{row.original.name}</Typography>
+      }),
+      columnHelper.accessor('clientName', {
+        header: 'Client',
+        cell: ({ row }) => <Typography>{row.original.clientName}</Typography>
+      }),
+      columnHelper.accessor('supervisorId', {
+        header: 'Supervisor',
+        cell: ({ row }) => <Typography>{row.original.supervisorId}</Typography>
+      }),
+      columnHelper.accessor('CreatedAt', {
+        header: 'Created At',
+        cell: ({ row }) => <Typography>{row.original.CreatedAt}</Typography>
+      }),
+      columnHelper.display({
+        header: 'Actions',
+        cell: ({ row }) => (
+          <div className='flex items-center'>
+            <IconButton onClick={() => handleEditDepartment(row.original)}>
+              <i className='tabler-edit text-[22px] text-textSecondary' />
+            </IconButton>
+            <IconButton onClick={() => handleDeleteDepartment(row.original.ID)}>
+              <i className='tabler-trash text-[22px] text-textSecondary' />
+            </IconButton>
+          </div>
+        )
+      })
+    ],
+    []
+  )
 
   // Setup table
   const table = useReactTable({
@@ -120,74 +142,92 @@ const Departments = () => {
     getSortedRowModel: getSortedRowModel(),
     onGlobalFilterChange: setGlobalFilter, // Ensure onGlobalFilterChange updates the globalFilter state
     onPaginationChange: ({ pageIndex, pageSize }) => {
-      setPage(pageIndex);
-      setRowsPerPage(pageSize);
+      setPage(pageIndex)
+      setRowsPerPage(pageSize)
     }
-  });
+  })
 
   // Add department handler
   const handleAddDepartment = async () => {
     try {
-      const response = await axios.post('http://localhost:8383/department/create', {
+      const newDepartment = await createDepartment({
         name,
         clientName,
         supervisorId: Number(supervisorId)
-      }, { withCredentials: true });
+      })
 
-      if (response.status === 201) {
-        setDepartmentsData(prevData => [...prevData, response.data.data]);
-        setOpen(false);
-      } else {
-        console.error('Failed to create department');
-      }
+      setDepartmentsData(prevData => [...prevData, newDepartment])
+      setOpen(false)
     } catch (error) {
-      console.error('Error creating department:', error);
+      console.error('Error creating department:', error)
     }
-  };
+  }
 
   // Edit department handler
   const handleEditDepartment = (department: DepartmentType) => {
-    setEditValue(department);
-    setName(department.name);
-    setClientName(department.clientName);
-    setSupervisorId(String(department.supervisorId));
-    setOpen(true);
-  };
+    setEditValue(department)
+    setName(department.name)
+    setClientName(department.clientName)
+    setSupervisorId(String(department.supervisorId))
+    setOpen(true)
+  }
 
   // Update department handler
   const handleUpdateDepartment = async () => {
-    if (!editValue) return;
+    if (!editValue) return
 
     try {
-      const response = await axios.put(`http://localhost:8383/department/update/${editValue.ID}`, {
+      await updateDepartment(editValue.ID, {
         name,
         supervisorId: Number(supervisorId)
-      }, { withCredentials: true });
-
-      if (response.status === 200) {
-        setDepartmentsData(prevData => prevData.map(dep => dep.ID === editValue.ID ? { ...dep, name, supervisorId: Number(supervisorId) } : dep));
-        setOpen(false);
-      } else {
-        console.error('Failed to update department');
-      }
+      })
+      setDepartmentsData(prevData =>
+        prevData.map(dep => (dep.ID === editValue.ID ? { ...dep, name, supervisorId: Number(supervisorId) } : dep))
+      )
+      setOpen(false)
     } catch (error) {
-      console.error('Error updating department:', error);
+      console.error('Error updating department:', error)
     }
-  };
+  }
 
   // Delete department handler
   const handleDeleteDepartment = async (departmentId: number) => {
     try {
-      const response = await axios.delete(`http://localhost:8383/department/delete/${departmentId}`, { withCredentials: true });
-
-      if (response.status === 200) {
-        setDepartmentsData(prevData => prevData.filter(dep => dep.ID !== departmentId));
-      } else {
-        console.error('Failed to delete department');
-      }
+      await deleteDepartment(departmentId)
+      setDepartmentsData(prevData => prevData.filter(dep => dep.ID !== departmentId))
     } catch (error) {
-      console.error('Error deleting department:', error);
+      console.error('Error deleting department:', error)
     }
+  }
+
+  const DebouncedInput = ({
+    value: initialValue,
+    onChange,
+    debounce = 500,
+    ...props
+  }: {
+    value: string | number
+    onChange: (value: string | number) => void
+    debounce?: number
+  } & Omit<TextFieldProps, 'onChange'>) => {
+    // States
+    const [value, setValue] = useState(initialValue);
+
+    // Update internal state when initialValue changes
+    React.useEffect(() => {
+      setValue(initialValue);
+    }, [initialValue]);
+
+    // Debounce changes to value and call onChange after debounce time
+    React.useEffect(() => {
+      const timeout = setTimeout(() => {
+        onChange(value);
+      }, debounce);
+
+      return () => clearTimeout(timeout);
+    }, [value, onChange, debounce]);
+
+    return <TextField {...props} value={value} onChange={(e) => setValue(e.target.value)} />;
   };
 
   return (
@@ -199,12 +239,13 @@ const Departments = () => {
             <TextField
               select
               value={rowsPerPage}
-              onChange={(e) => {
-                const newSize = parseInt(e.target.value, 10);
-                setRowsPerPage(newSize);
-                setPage(0); // Reset to the first page when changing rows per page
+              onChange={e => {
+                const newSize = parseInt(e.target.value, 10)
+
+                setRowsPerPage(newSize)
+                setPage(0) // Reset to the first page when changing rows per page
               }}
-              className="is-[70px]"
+              className='is-[70px]'
             >
               <MenuItem value={5}>5</MenuItem>
               <MenuItem value={10}>10</MenuItem>
@@ -212,59 +253,56 @@ const Departments = () => {
             </TextField>
           </div>
           <div className='flex gap-4'>
-            <TextField
-              value={globalFilter ?? ''}
-              onChange={(e) => setGlobalFilter(e.target.value)} // Update the globalFilter state directly
-              placeholder='Search Departments'
+            <DebouncedInput
+                value={globalFilter ?? ''}
+                onChange={value => setGlobalFilter(String(value))}
+                placeholder='Search Departments'
+                className='is-full sm:is-auto'
               fullWidth
             />
             <Button
-              variant="contained"
+              variant='contained'
               onClick={() => setOpen(true)}
-              className="is-full sm:is-auto"
+              className='is-full sm:is-auto'
               startIcon={<i className='tabler' />}
             >
               CREATE Department
             </Button>
-
-
           </div>
         </CardContent>
         <Table>
           <TableHead>
             <TableRow>
-              {table.getHeaderGroups().map(headerGroup => (
-                headerGroup.headers.map(header => (
-                  <TableCell key={header.id}>
-                    {header.isPlaceholder ? null : (
-                      flexRender(header.column.columnDef.header, header.getContext())
-                    )}
-                  </TableCell>
-                ))
-              ))}
+              {table
+                .getHeaderGroups()
+                .map(headerGroup =>
+                  headerGroup.headers.map(header => (
+                    <TableCell key={header.id}>
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableCell>
+                  ))
+                )}
             </TableRow>
           </TableHead>
           <TableBody>
             {table.getRowModel().rows.map(row => (
               <TableRow key={row.id}>
                 {row.getVisibleCells().map(cell => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                 ))}
               </TableRow>
             ))}
           </TableBody>
         </Table>
         <TablePagination
-          component="div"
+          component='div'
           count={departmentsData.length}
           page={page}
           rowsPerPage={rowsPerPage}
           onPageChange={(event, newPage) => setPage(newPage)}
-          onRowsPerPageChange={(event) => {
-            setRowsPerPage(parseInt(event.target.value, 10));
-            setPage(0);
+          onRowsPerPageChange={event => {
+            setRowsPerPage(parseInt(event.target.value, 10))
+            setPage(0)
           }}
         />
       </Card>
@@ -272,26 +310,20 @@ const Departments = () => {
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>{editValue ? 'Edit Department' : 'Add Department'}</DialogTitle>
         <DialogContent>
+          <TextField margin='dense' label='Name' fullWidth value={name} onChange={e => setName(e.target.value)} />
           <TextField
-            margin="dense"
-            label="Name"
-            fullWidth
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="Client Name"
+            margin='dense'
+            label='Client Name'
             fullWidth
             value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
+            onChange={e => setClientName(e.target.value)}
           />
           <TextField
-            margin="dense"
-            label="Supervisor ID"
+            margin='dense'
+            label='Supervisor ID'
             fullWidth
             value={supervisorId}
-            onChange={(e) => setSupervisorId(e.target.value)}
+            onChange={e => setSupervisorId(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
@@ -302,7 +334,7 @@ const Departments = () => {
         </DialogActions>
       </Dialog>
     </>
-  );
-};
+  )
+}
 
-export default Departments;
+export default Departments
