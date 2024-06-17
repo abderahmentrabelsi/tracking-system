@@ -350,3 +350,27 @@ func (uc *UserController) GetUserByID(c *gin.Context) {
 		},
 	})
 }
+
+func (uc *UserController) GetAllUsers(c *gin.Context) {
+	users, err := uc.userService.GetAllUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "Failed to fetch users",
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":   users,
+		"status": "success",
+		"message": gin.H{
+			"error": "",
+			"msg":   "Users retrieved successfully",
+		},
+	})
+}

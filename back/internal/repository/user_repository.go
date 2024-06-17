@@ -71,3 +71,11 @@ func (ur *UserRepository) GetUserByID(id uint) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+func (ur *UserRepository) GetAllUsers() ([]*models.User, error) {
+	var users []*models.User
+	if err := orm.DB.Find(&users).Error; err != nil {
+		return nil, fmt.Errorf("failed to retrieve users: %v", err)
+	}
+	return users, nil
+}
