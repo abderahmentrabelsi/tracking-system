@@ -18,7 +18,10 @@ export const fetchClients = async (): Promise<ClientType[]> => {
 export const fetchDepartments = async (clientName: string): Promise<DepartmentType[]> => {
   const response = await apiClient.get(`/departments/${clientName}`);
   if (response.status === 200) {
-    return response.data.data;
+    return response.data.data.map((department: any) => ({
+      ...department,
+      CreatedAt: new Date(department.CreatedAt).toISOString(),
+    }));
   } else {
     throw new Error(`Failed to fetch departments for client ${clientName}`);
   }

@@ -1,3 +1,4 @@
+// src/views/departments/Departments.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -35,11 +36,13 @@ const Departments = () => {
     const fetchClientsData = async () => {
       try {
         const clientsResponse = await fetchClients();
-        const clientsWithDepartmentCount = await Promise.all(clientsResponse.map(async client => {
+        const usersResponse = await fetchAllUsers();
+        const clientsWithCounts = await Promise.all(clientsResponse.map(async client => {
           const departmentsResponse = await fetchDepartments(client.name);
-          return { ...client, departmentCount: departmentsResponse.length };
+          const employeeCount = usersResponse.filter(user => departmentsResponse.some(dept => dept.ID === user.DepartmentID)).length;
+          return { ...client, departmentCount: departmentsResponse.length, employeeCount };
         }));
-        setClients(clientsWithDepartmentCount);
+        setClients(clientsWithCounts);
       } catch (error) {
         console.error('Error fetching clients:', error);
       }
@@ -199,7 +202,7 @@ const Departments = () => {
   const handleAddClient = async () => {
     try {
       const newClient = await createClient({ name: clientName });
-      setClients(prevData => [...prevData, { ...newClient, departmentCount: 0 }]);
+      setClients(prevData => [...prevData, { ...newClient, departmentCount: 0, employeeCount: 0 }]);
       setClientCreateOpen(false);
       setSnackbarMessage('Client added successfully');
       setSnackbarSeverity('success');

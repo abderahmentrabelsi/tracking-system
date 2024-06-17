@@ -1,6 +1,7 @@
+// src/views/departments/ClientCard.tsx
 'use client';
 
-import { Card, CardContent, Typography, Avatar, Grid, IconButton, Tooltip } from '@mui/material';
+import { Card, CardContent, Typography, Avatar, Grid, IconButton, Tooltip, Box } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTheme } from '@mui/material/styles';
@@ -10,6 +11,7 @@ interface ClientCardProps {
     ID: number;
     name: string;
     departmentCount: number;
+    employeeCount: number;
   };
   onClick: () => void;
   onEdit: () => void;
@@ -45,8 +47,11 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onClick, onEdit, onDele
             <Avatar sx={{ bgcolor: avatarBgColor, color: iconColor }}>{client.name.charAt(0)}</Avatar>
           </Grid>
           <Grid item xs>
-            <Typography variant='h5' color={textColor}>{client.name}</Typography>
-            <Typography variant='body2' color='textSecondary'>Departments: {client.departmentCount}</Typography>
+            <Box display='flex' flexDirection='column'>
+              <Typography variant='h5' color={textColor}>{client.name}</Typography>
+              <Typography variant='body2' color='textSecondary'>Departments: {client.departmentCount}</Typography>
+              <Typography variant='body2' color='textSecondary'>Employees: {client.employeeCount}</Typography>
+            </Box>
           </Grid>
           <Grid item>
             <Tooltip title="Edit Client">
