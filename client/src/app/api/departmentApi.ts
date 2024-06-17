@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 import { DepartmentType, ClientType } from '@/types/departmentTypes';
 const apiClient = axios.create({
@@ -45,3 +46,27 @@ export const deleteDepartment = async (id: number): Promise<void> => {
     throw new Error('Failed to delete department');
   }
 };
+
+export const createClient = async (client: { name: string }): Promise<ClientType> => {
+  const response = await apiClient.post('/client/create', client);
+  if (response.status === 201) {
+    return response.data.data;
+  } else {
+    throw new Error('Failed to create client');
+  }
+};
+
+export const updateClient = async (id: number, client: { name: string }): Promise<void> => {
+  const response = await apiClient.put(`/client/update/${id}`, client);
+  if (response.status !== 200) {
+    throw new Error('Failed to update client');
+  }
+};
+
+export const deleteClient = async (id: number): Promise<void> => {
+  const response = await apiClient.delete(`/client/delete/${id}`);
+  if (response.status !== 200) {
+    throw new Error('Failed to delete client');
+  }
+};
+

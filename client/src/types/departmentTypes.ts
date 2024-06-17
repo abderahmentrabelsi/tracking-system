@@ -1,4 +1,4 @@
-// departmentTypes.ts
+
 
 export interface DepartmentType {
   ID: number;

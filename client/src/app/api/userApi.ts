@@ -1,24 +1,25 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
+import type { UsersType } from '@/types/userTypes';
 
-export const fetchUserById = async (userId: number) => {
-  try {
-    const response = await axios.get(`/api/users/${userId}`);
-    return response.data;
-  } catch (error) {
-    handleAxiosError(error, 'Error fetching user by ID');
-    throw error;
+const apiClient = axios.create({
+  baseURL: 'http://localhost:8383',
+  withCredentials: true,
+});
+
+export const fetchAllUsers = async (): Promise<UsersType[]> => {
+  const response = await apiClient.get('/users');
+  if (response.status === 200) {
+    return response.data.data;
+  } else {
+    throw new Error('Failed to fetch users');
   }
 };
 
-const handleAxiosError = (error: AxiosError, message: string) => {
-  if (error.response) {
-    // The request was made and the server responded with a status code
-    console.error(message, error.response.status, error.response.data);
-  } else if (error.request) {
-    // The request was made but no response was received
-    console.error(message, 'Request made but no response received', error.request);
+export const fetchUserById = async (userId: number): Promise<UsersType> => {
+  const response = await apiClient.get(`/user/${userId}`);
+  if (response.status === 200) {
+    return response.data.data;
   } else {
-    // Something happened in setting up the request that triggered an Error
-    console.error(message, 'Error setting up request', error.message);
+    throw new Error('Failed to fetch user');
   }
 };
