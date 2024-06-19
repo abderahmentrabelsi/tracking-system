@@ -4,7 +4,6 @@ import (
 	"back/internal/store"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	_ "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
@@ -19,10 +18,8 @@ type JWTClaims struct {
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := getTokenFromRequest(c)
-		if tokenString == "" || store.IsTokenRevoked(tokenString) { // Check if the token is in the blacklist
-			c.Redirect(http.StatusFound, "/login?redirect="+c.Request.RequestURI)
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			c.Abort()
+		if tokenString == "" || store.IsTokenRevoked(tokenString) {
+			redirectToLogin(c)
 			return
 		}
 
@@ -30,14 +27,12 @@ func AuthMiddleware() gin.HandlerFunc {
 			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while parsing the token"})
-			c.Abort()
+		if err != nil || !token.Valid {
+			redirectToLogin(c)
 			return
 		}
 
 		if claims, ok := token.Claims.(*JWTClaims); ok && token.Valid {
-			// Now you have a valid token and can extract the UserID and Role
 			c.Set("userID", claims.UserID)
 			c.Set("userRole", claims.Role)
 			fmt.Println("Role set in context:", claims.Role)
@@ -51,10 +46,30 @@ func AuthMiddleware() gin.HandlerFunc {
 }
 
 func getTokenFromRequest(c *gin.Context) string {
-	// Attempt to retrieve the access token from cookies
 	token, err := c.Cookie("access_token")
 	if err != nil {
 		return ""
 	}
 	return token
+}
+
+func redirectToLogin(c *gin.Context) {
+	c.Redirect(http.StatusFound, "/login?redirect="+c.Request.RequestURI)
+	c.Abort()
+}
+
+func AuthorizeRole(allowedRoles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userRole := c.GetString("userRole")
+
+		for _, role := range allowedRoles {
+			if role == userRole {
+				c.Next()
+				return
+			}
+		}
+
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		c.Abort()
+	}
 }

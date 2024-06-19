@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
@@ -51,6 +51,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { settings } = useSettings()
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
@@ -68,10 +69,12 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const response = await axios.post(`http://localhost:8383/login`, { Identifier: identifier, Password: password }) // changed Email to Identifier
-      const { access_token, redirect_uri } = response.data.data
+      const redirectUri = searchParams.get('redirect') || '/home'
+      const response = await axios.post(`http://localhost:8383/login`, { Identifier: identifier, Password: password, RedirectURI: redirectUri })
+      const { access_token, redirect_uri,userRole } = response.data.data
 
       document.cookie = `access_token=${access_token}; path=/`
+      localStorage.setItem('userRole', userRole);
 
       router.push(redirect_uri || '/home')
     } catch (error) {
