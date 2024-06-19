@@ -47,8 +47,22 @@ const UserDropdown = () => {
   }
 
   const handleUserLogout = async () => {
-    router.push('/login')
+    const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/logout`, {
+      method: 'POST',
+      credentials: 'include', // This will include the cookie which is needed for server to identify the user
+    });
+
+    if (response.ok) {
+      // Clear the access_token cookie
+      document.cookie = "access_token=; Max-Age=-1; path=/";
+      router.push('/login');
+    } else {
+      // Handle any errors here
+      console.error('Logout failed');
+    }
   }
+
+
 
   return (
     <>
