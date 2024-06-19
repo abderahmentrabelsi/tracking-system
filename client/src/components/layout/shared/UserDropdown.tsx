@@ -1,13 +1,6 @@
-'use client'
-
-// React Imports
 import { useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
-
-// Next Imports
 import { useRouter } from 'next/navigation'
-
-// MUI Imports
 import { styled } from '@mui/material/styles'
 import Badge from '@mui/material/Badge'
 import Avatar from '@mui/material/Avatar'
@@ -20,11 +13,8 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
-
-// Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
 
-// Styled component for badge content
 const BadgeContentSpan = styled('span')({
   width: 8,
   height: 8,
@@ -35,15 +25,9 @@ const BadgeContentSpan = styled('span')({
 })
 
 const UserDropdown = () => {
-  // States
   const [open, setOpen] = useState(false)
-
-  // Refs
   const anchorRef = useRef<HTMLDivElement>(null)
-
-  // Hooks
   const router = useRouter()
-
   const { settings } = useSettings()
 
   const handleDropdownOpen = () => {
@@ -63,7 +47,6 @@ const UserDropdown = () => {
   }
 
   const handleUserLogout = async () => {
-    // Redirect to login page
     router.push('/login')
   }
 
@@ -112,7 +95,7 @@ const UserDropdown = () => {
                     </div>
                   </div>
                   <Divider className='mlb-1' />
-                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>
+                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, `${process.env.NEXT_PUBLIC_APP_URL}/user-profile`)}>
                     <i className='tabler-user text-[22px]' />
                     <Typography color='text.primary'>My Profile</Typography>
                   </MenuItem>
