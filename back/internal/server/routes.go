@@ -59,6 +59,18 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/files", middleware.AuthMiddleware(), hookController.GetFiles)
 	r.Any("/files/*any", gin.WrapH(http.StripPrefix("/files/", corsWrapper(s.fileService.TusdHandler))))
 
+	// Calendar routes
+	calendarController := controller.NewCalendarController(s.calendarService)
+	r.POST("/calendars", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.CreateCalendar)
+	r.GET("/calendars/:calendar_id", middleware.AuthMiddleware(), calendarController.GetCalendarByID)
+	r.PUT("/calendars/:calendar_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.UpdateCalendar)
+	r.DELETE("/calendars/:calendar_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.DeleteCalendar)
+	r.POST("/calendars/:calendar_id/events", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.CreateEvent)
+	r.GET("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), calendarController.GetEventByID)
+	r.PUT("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.UpdateEvent)
+	r.DELETE("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.DeleteEvent)
+	r.GET("/calendars/:calendar_id/events", middleware.AuthMiddleware(), calendarController.GetEventsByCalendarID)
+	r.GET("/dep/:department_id/events", middleware.AuthMiddleware(), calendarController.GetEventsByDepartmentID)
 	return r
 }
 
