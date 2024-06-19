@@ -6,6 +6,7 @@ import (
 	"back/internal/store"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -309,6 +310,67 @@ func (uc *UserController) GetAllRoles(c *gin.Context) {
 		"message": gin.H{
 			"error": "",
 			"msg":   "Roles retrieved successfully",
+		},
+	})
+}
+
+func (uc *UserController) GetUserByID(c *gin.Context) {
+	userID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "Invalid USER ID",
+			},
+		})
+		return
+	}
+
+	client, err := uc.userService.GetUserByID(uint(userID))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "USER not found",
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":   client,
+		"status": "success",
+		"message": gin.H{
+			"error": "",
+			"msg":   "USER retrieved successfully",
+		},
+	})
+}
+
+func (uc *UserController) GetAllUsers(c *gin.Context) {
+	users, err := uc.userService.GetAllUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "Failed to fetch users",
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":   users,
+		"status": "success",
+		"message": gin.H{
+			"error": "",
+			"msg":   "Users retrieved successfully",
 		},
 	})
 }

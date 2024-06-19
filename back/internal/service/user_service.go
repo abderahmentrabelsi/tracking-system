@@ -80,3 +80,11 @@ func (us *UserService) GetUserByEmailOrUsername(identifier string) (*model.User,
 func (us *UserService) GetUserByUsername(username string) (*model.User, error) {
 	return us.userRepository.GetUserByUsername(username)
 }
+
+func (us *UserService) GetUserByID(id uint) (*model.User, error) {
+	return us.userRepository.GetUserByID(id)
+}
+
+func (us *UserService) GetAllUsers() ([]*model.User, error) {
+	return us.userRepository.GetAllUsers()
+}

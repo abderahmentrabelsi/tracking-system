@@ -3,6 +3,7 @@ back/.env
 back/internal/uploads/*
 back/internal/uploads
 client/node_modules
+node_modules/
 full-version/node_modules
 /node_modules/react/build-info.json
 /node_modules/react-dom/build-info.json

@@ -1,6 +1,14 @@
-export interface DepartmentRowType {
-  id: string
-  name: string
-  supervisorId: string
-  createdDate: string
+
+
+export interface DepartmentType {
+  ID: number;
+  name: string;
+  supervisorId: number;
+  CreatedAt: string;
+  clientName: string;
+}
+
+export interface ClientType {
+  ID: number;
+  name: string;
 }
