@@ -149,12 +149,11 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		},
 	})
 }
-
 func (uc *UserController) LoginHandler(c *gin.Context) {
 	var body struct {
-		Identifier  string `json:"Identifier"` // rename Email to Identifier
+		Identifier  string `json:"Identifier"`
 		Password    string `json:"Password"`
-		RedirectURI string `json:"RedirectURI"` //  URI in login payload
+		RedirectURI string `json:"RedirectURI"`
 	}
 	if err := c.Bind(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -169,7 +168,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 	}
 	clientIP := c.ClientIP()
 	userAgent := c.GetHeader("User-Agent")
-	user, err := uc.userService.GetUserByEmailOrUsername(body.Identifier) // rename GetUserByEmail to GetUserByEmailOrUsername
+	user, err := uc.userService.GetUserByEmailOrUsername(body.Identifier)
 	if err != nil || user == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"data":   nil,
@@ -179,7 +178,6 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 				"msg":   "Invalid credentials",
 			},
 		})
-		// Redirect to login page with original URI included
 		c.Redirect(http.StatusTemporaryRedirect, "/login?uri="+body.RedirectURI)
 		return
 	}
@@ -237,7 +235,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		})
 		return
 	}
-	// Redirect to the provided URI or default to /home
+
 	redirectURI := body.RedirectURI
 	if redirectURI == "" {
 		redirectURI = "/home"
@@ -245,7 +243,8 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
 			"access_token": accessToken,
-			"redirect_uri": body.RedirectURI,
+			"userRole":     roleEntity.Name,
+			"redirect_uri": redirectURI,
 		},
 		"status": "success",
 		"message": gin.H{
@@ -254,7 +253,6 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		},
 	})
 }
-
 func (uc *UserController) LogoutHandler(c *gin.Context) {
 	token, err := c.Cookie("access_token")
 	if err != nil {
@@ -279,7 +277,6 @@ func (uc *UserController) LogoutHandler(c *gin.Context) {
 		},
 	})
 }
-
 func generateToken(email string, role string, duration time.Duration) (string, error) {
 	exp := time.Now().Add(duration)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -289,7 +286,6 @@ func generateToken(email string, role string, duration time.Duration) (string, e
 	})
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
-
 func (uc *UserController) GetAllRoles(c *gin.Context) {
 	roles, err := uc.roleService.GetAllRoles()
 	if err != nil {
@@ -313,7 +309,6 @@ func (uc *UserController) GetAllRoles(c *gin.Context) {
 		},
 	})
 }
-
 func (uc *UserController) GetUserByID(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -350,7 +345,6 @@ func (uc *UserController) GetUserByID(c *gin.Context) {
 		},
 	})
 }
-
 func (uc *UserController) GetAllUsers(c *gin.Context) {
 	users, err := uc.userService.GetAllUsers()
 	if err != nil {
