@@ -11,7 +11,7 @@ import TabContext from '@mui/lab/TabContext'
 import TabPanel from '@mui/lab/TabPanel'
 
 // Type Imports
-import type { Data } from '@/types/pages/profileTypes'
+import type { Data } from '@/types/profileTypes'
 
 // Component Imports
 import UserProfileHeader from './UserProfileHeader'
