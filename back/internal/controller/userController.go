@@ -149,6 +149,8 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		},
 	})
 }
+
+// controller/user.go
 func (uc *UserController) LoginHandler(c *gin.Context) {
 	var body struct {
 		Identifier  string `json:"Identifier"`
@@ -209,7 +211,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := generateToken(user.Email, roleEntity.Name, 7*24*time.Hour)
+	accessToken, err := uc.userService.GenerateToken(user.Email, user.ID, roleEntity.Name, 7*24*time.Hour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"data":   nil,
@@ -366,5 +368,31 @@ func (uc *UserController) GetAllUsers(c *gin.Context) {
 			"error": "",
 			"msg":   "Users retrieved successfully",
 		},
+	})
+}
+
+// controller/user.go
+func (uc *UserController) GetUserDetails(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	user, err := uc.userService.GetUserByID(uint(userID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"username": user.Username,
+		"email":    user.Email,
 	})
 }

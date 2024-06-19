@@ -6,6 +6,7 @@ import (
 	"back/internal/repository"
 	"github.com/dgrijalva/jwt-go"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -59,10 +60,12 @@ func (us *UserService) CreateLoginHistory(userID uint, clientIP string, userAgen
 	return nil
 }
 
-func (us *UserService) GenerateToken(email string, role string, duration time.Duration) (string, error) {
+// service/user_service.go
+func (us *UserService) GenerateToken(email string, userID uint, role string, duration time.Duration) (string, error) {
 	exp := time.Now().Add(duration)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"UserID": email,
+		"UserID": strconv.Itoa(int(userID)), // Convert userID to string
+		"Email":  email,
 		"Role":   role,
 		"exp":    exp.Unix(),
 	})

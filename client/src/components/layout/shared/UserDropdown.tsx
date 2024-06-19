@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { styled } from '@mui/material/styles'
@@ -26,9 +26,33 @@ const BadgeContentSpan = styled('span')({
 
 const UserDropdown = () => {
   const [open, setOpen] = useState(false)
+  const [userDetails, setUserDetails] = useState({ username: '', email: '' })
   const anchorRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { settings } = useSettings()
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await fetch('http://localhost:8383/user/details', {
+          method: 'GET',
+          credentials: 'include', // Include the cookie in the request
+        })
+        console.log('Response status:', response.status)
+        if (response.ok) {
+          const data = await response.json()
+          console.log('User details fetched:', data) // Add debug logging
+          setUserDetails(data)
+        } else {
+          console.error('Failed to fetch user details')
+        }
+      } catch (error) {
+        console.error('Error fetching user details:', error)
+      }
+    }
+
+    fetchUserDetails()
+  }, [])
 
   const handleDropdownOpen = () => {
     !open ? setOpen(true) : setOpen(false)
@@ -47,7 +71,7 @@ const UserDropdown = () => {
   }
 
   const handleUserLogout = async () => {
-    const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/logout`, {
+    const response = await fetch('http://localhost:8383/logout', {
       method: 'POST',
       credentials: 'include', // This will include the cookie which is needed for server to identify the user
     });
@@ -62,8 +86,6 @@ const UserDropdown = () => {
     }
   }
 
-
-
   return (
     <>
       <Badge
@@ -75,7 +97,7 @@ const UserDropdown = () => {
       >
         <Avatar
           ref={anchorRef}
-          alt='John Doe'
+          alt={userDetails.username}
           src='/images/avatars/1.png'
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
@@ -100,12 +122,12 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
-                    <Avatar alt='John Doe' src='/images/avatars/1.png' />
+                    <Avatar alt={userDetails.username} src='/images/avatars/1.png' />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
-                        John Doe
+                        {userDetails.username}
                       </Typography>
-                      <Typography variant='caption'>admin@vuexy.com</Typography>
+                      <Typography variant='caption'>{userDetails.email}</Typography>
                     </div>
                   </div>
                   <Divider className='mlb-1' />
