@@ -213,7 +213,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
   };
 
   const fetchUploadedFiles = async () => {
-    const response = await axios.get('http://localhost:8383/files');
+    const response = await axios.get('http://localhost:8383/files', { withCredentials: true });
     if (response.status !== 200) throw new Error('Failed to fetch files');
     return response.data;
   };
@@ -266,7 +266,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
             size: file.size,
           };
 
-          await axios.post('http://localhost:8383/hooks/upload', fileUploadData);
+          await axios.post('http://localhost:8383/hooks/upload', fileUploadData, { withCredentials: true });
         }
       };
 
