@@ -66,7 +66,6 @@ const AboutOverview = () => {
 
   const contacts = [
     { property: 'contact', value: userDetails?.phoneNumber || '(123) 456-7890', icon: 'mdi:phone' },
-    { property: 'skype', value: 'John.doe', icon: 'mdi:chat' },  // Static data example
     { property: 'email', value: userDetails?.email || 'John.doe@example.com', icon: 'mdi:email' }
   ]
 

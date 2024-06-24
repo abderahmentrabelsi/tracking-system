@@ -383,15 +383,27 @@ func (uc *UserController) GetUserDetails(c *gin.Context) {
 	}
 
 	var clientName string
+	var clientDepartments []*model.Department
+
 	if department.ParentDepartmentID != nil {
 		parentDepartment, err := uc.departmentService.GetDepartmentByIDd(*department.ParentDepartmentID)
 		if err != nil {
 			clientName = "Unknown"
 		} else {
 			clientName = parentDepartment.Name
+			clientDepartments, err = uc.departmentService.GetAllDepartmentsByClient(parentDepartment.Name)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch departments"})
+				return
+			}
 		}
 	} else {
 		clientName = department.Name
+		clientDepartments, err = uc.departmentService.GetAllDepartmentsByClient(department.Name)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch departments"})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -407,5 +419,6 @@ func (uc *UserController) GetUserDetails(c *gin.Context) {
 		"createdAt":      user.CreatedAt.Format(time.RFC3339),
 		"clientName":     clientName,
 		"departmentName": department.Name,
+		"departments":    clientDepartments, // Add departments to response
 	})
 }

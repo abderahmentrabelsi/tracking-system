@@ -1,5 +1,3 @@
-// src/utils/userUtils.ts
-
 export interface UserDetails {
   username: string;
   email: string;
@@ -11,9 +9,15 @@ export interface UserDetails {
   roleId: number;
   departmentId: number;
   createdAt: string;
-  clientName: string;      // Added clientName
-  departmentName: string;  // Added departmentName
-  // Add other fields as needed
+  clientName: string;
+  departmentName: string;
+  departments: Department[];  // Add departments field
+}
+
+export interface Department {
+  id: number;
+  name: string;
+  supervisorId?: number;
 }
 
 export const fetchUserDetails = async (): Promise<UserDetails | null> => {
@@ -26,21 +30,7 @@ export const fetchUserDetails = async (): Promise<UserDetails | null> => {
     if (response.ok) {
       const data = await response.json();
       console.log('User details fetched:', data); // Add debug logging
-      return {
-        username: data.username,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        picture: data.picture,
-        phoneNumber: data.phoneNumber,
-        address: data.address,
-        roleId: data.roleId,
-        departmentId: data.departmentId,
-        createdAt: data.createdAt,
-        clientName: data.clientName,         // Capturing clientName
-        departmentName: data.departmentName, // Capturing departmentName
-        // Add other fields as needed
-      };
+      return data;
     } else {
       console.error('Failed to fetch user details');
       return null;
