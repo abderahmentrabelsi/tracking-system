@@ -1,4 +1,4 @@
-// MUI Imports
+'use client'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
@@ -6,6 +6,8 @@ import CardContent from '@mui/material/CardContent'
 
 // Type Imports
 import type { ProfileTeamsType, ProfileCommonType, ProfileTabType } from '@/types/profileTypes'
+import { fetchUserDetails, UserDetails } from '@/utils/userUtils'
+import React, { useEffect, useState } from 'react'
 
 const renderList = (list: ProfileCommonType[]) => {
   return (
@@ -18,7 +20,7 @@ const renderList = (list: ProfileCommonType[]) => {
             <Typography className='font-medium'>
               {`${item.property.charAt(0).toUpperCase() + item.property.slice(1)}:`}
             </Typography>
-            <Typography> {item.value.charAt(0).toUpperCase() + item.value.slice(1)}</Typography>
+            <Typography>{item.value.charAt(0).toUpperCase() + item.value.slice(1)}</Typography>
           </div>
         </div>
       )
@@ -42,7 +44,36 @@ const renderTeams = (teams: ProfileTeamsType[]) => {
   )
 }
 
-const AboutOverview = ({ data }: { data?: ProfileTabType }) => {
+const AboutOverview = () => {
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
+
+  useEffect(() => {
+    fetchUserDetails().then(data => {
+      if (data) {
+        setUserDetails(data)
+      }
+    }).catch(error => console.error(error))
+  }, [])
+
+  const about = [
+    { property: 'fullName', value: `${userDetails?.firstName || ''} ${userDetails?.lastName || ''}`, icon: 'icon-user' },
+    { property: 'status', value: 'Active', icon: 'icon-check-circle' },  // Static data example
+    { property: 'role', value: 'Developer', icon: 'icon-crown' },  // Static data example
+    { property: 'country', value: userDetails?.address || 'USA', icon: 'icon-flag' },
+    { property: 'language', value: 'English', icon: 'icon-translate' },  // Static data example
+  ]
+
+  const contacts = [
+    { property: 'contact', value: userDetails?.phoneNumber || '(123) 456-7890', icon: 'icon-phone' },
+    { property: 'skype', value: 'John.doe', icon: 'icon-chat' },  // Static data example
+    { property: 'email', value: userDetails?.email || 'John.doe@example.com', icon: 'icon-email' }
+  ]
+
+  const teams = [
+    { property: 'clientName', value: userDetails?.clientName || 'Unknown', icon: 'icon-briefcase' },
+    { property: 'departmentName', value: userDetails?.departmentName || 'Unknown', icon: 'icon-building' }
+  ]
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -52,31 +83,19 @@ const AboutOverview = ({ data }: { data?: ProfileTabType }) => {
               <Typography className='uppercase' variant='body2' color='text.disabled'>
                 About
               </Typography>
-              {data?.about && renderList(data?.about)}
+              {renderList(about)}
             </div>
             <div className='flex flex-col gap-4'>
               <Typography className='uppercase' variant='body2' color='text.disabled'>
                 Contacts
               </Typography>
-              {data?.contacts && renderList(data?.contacts)}
+              {renderList(contacts)}
             </div>
             <div className='flex flex-col gap-4'>
               <Typography className='uppercase' variant='body2' color='text.disabled'>
                 Teams
               </Typography>
-              {data?.teams && renderTeams(data?.teams)}
-            </div>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12}>
-        <Card>
-          <CardContent className='flex flex-col gap-6'>
-            <div className='flex flex-col gap-4'>
-              <Typography className='uppercase' variant='body2' color='text.disabled'>
-                Overview
-              </Typography>
-              {data?.overview && renderList(data?.overview)}
+              {renderTeams(teams)}
             </div>
           </CardContent>
         </Card>

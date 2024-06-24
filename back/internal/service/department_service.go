@@ -45,3 +45,7 @@ func (s *DepartmentService) DeleteDepartment(id uint) error {
 func (s *DepartmentService) DeleteClient(id uint) error {
 	return s.departmentRepo.DeleteClient(id)
 }
+
+func (s *DepartmentService) GetDepartmentByIDd(id uint) (*models.Department, error) {
+	return s.departmentRepo.GetDepartmentByIDd(id)
+}

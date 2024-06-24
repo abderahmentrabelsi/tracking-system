@@ -11,6 +11,9 @@ export interface UserDetails {
   roleId: number;
   departmentId: number;
   createdAt: string;
+  clientName: string;      // Added clientName
+  departmentName: string;  // Added departmentName
+  // Add other fields as needed
 }
 
 export const fetchUserDetails = async (): Promise<UserDetails | null> => {
@@ -34,6 +37,9 @@ export const fetchUserDetails = async (): Promise<UserDetails | null> => {
         roleId: data.roleId,
         departmentId: data.departmentId,
         createdAt: data.createdAt,
+        clientName: data.clientName,         // Capturing clientName
+        departmentName: data.departmentName, // Capturing departmentName
+        // Add other fields as needed
       };
     } else {
       console.error('Failed to fetch user details');

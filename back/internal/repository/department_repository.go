@@ -18,6 +18,7 @@ type DepartmentRepository interface {
 	UpdateClient(id uint, name string) error
 	DeleteDepartment(id uint) error
 	DeleteClient(id uint) error
+	GetDepartmentByIDd(id uint) (*models.Department, error)
 }
 type DepartmentRepositoryImpl struct{}
 
@@ -131,4 +132,15 @@ func (r *DepartmentRepositoryImpl) DeleteClient(id uint) error {
 		return fmt.Errorf("failed to delete client: %v", err)
 	}
 	return nil
+}
+
+func (r *DepartmentRepositoryImpl) GetDepartmentByIDd(id uint) (*models.Department, error) {
+	var department models.Department
+	if err := orm.DB.Preload("ParentDepartment").Where("id = ?", id).First(&department).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("department with ID %d not found", id)
+		}
+		return nil, fmt.Errorf("failed to retrieve department: %v", err)
+	}
+	return &department, nil
 }

@@ -376,17 +376,36 @@ func (uc *UserController) GetUserDetails(c *gin.Context) {
 		return
 	}
 
+	department, err := uc.departmentService.GetDepartmentByIDd(user.DepartmentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch department"})
+		return
+	}
+
+	var clientName string
+	if department.ParentDepartmentID != nil {
+		parentDepartment, err := uc.departmentService.GetDepartmentByIDd(*department.ParentDepartmentID)
+		if err != nil {
+			clientName = "Unknown"
+		} else {
+			clientName = parentDepartment.Name
+		}
+	} else {
+		clientName = department.Name
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"username":     user.Username,
-		"email":        user.Email,
-		"firstName":    user.FirstName,
-		"lastName":     user.LastName,
-		"picture":      user.Picture,
-		"phoneNumber":  user.PhoneNumber,
-		"address":      user.Address,
-		"roleId":       user.RoleID,
-		"departmentId": user.DepartmentID,
-		"createdAt":    user.CreatedAt.Format(time.RFC3339),
-		// Add other fields as needed
+		"username":       user.Username,
+		"email":          user.Email,
+		"firstName":      user.FirstName,
+		"lastName":       user.LastName,
+		"picture":        user.Picture,
+		"phoneNumber":    user.PhoneNumber,
+		"address":        user.Address,
+		"roleId":         user.RoleID,
+		"departmentId":   user.DepartmentID,
+		"createdAt":      user.CreatedAt.Format(time.RFC3339),
+		"clientName":     clientName,
+		"departmentName": department.Name,
 	})
 }

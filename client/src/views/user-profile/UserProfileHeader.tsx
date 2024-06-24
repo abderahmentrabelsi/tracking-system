@@ -37,7 +37,7 @@ const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
         </div>
         <div className='flex is-full justify-start self-end flex-col items-center gap-6 sm-gap-0 sm:flex-row sm:justify-between sm:items-end '>
           <div className='flex flex-col items-center sm:items-start gap-2'>
-            <Typography variant='h4'>{userDetails ? `${userDetails.firstName} ${userDetails.lastName}` : ''}</Typography>
+            <Typography variant='h4'>{userDetails ? userDetails.firstName : ''}</Typography>
             <div className='flex flex-wrap gap-6 justify-center sm:justify-normal'>
               <div className='flex items-center gap-2'>
                 {data?.designationIcon && <i className={data?.designationIcon} />}
