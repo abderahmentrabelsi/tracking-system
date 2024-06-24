@@ -36,6 +36,7 @@ export type ProfileCommonType = {
 export type ProfileTeamsType = {
   value: string
   property: string
+  icon: string
 }
 export type ProfileConnectionsType = {
   name: string

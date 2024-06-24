@@ -1,46 +1,45 @@
 'use client'
+
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
+import { Icon } from '@iconify/react'
 
 // Type Imports
-import type { ProfileTeamsType, ProfileCommonType, ProfileTabType } from '@/types/profileTypes'
+import type { ProfileTeamsType, ProfileCommonType } from '@/types/profileTypes'
 import { fetchUserDetails, UserDetails } from '@/utils/userUtils'
 import React, { useEffect, useState } from 'react'
 
 const renderList = (list: ProfileCommonType[]) => {
   return (
     list.length > 0 &&
-    list.map((item, index) => {
-      return (
-        <div key={index} className='flex items-center gap-2'>
-          <i className={item.icon} />
-          <div className='flex items-center flex-wrap gap-2'>
-            <Typography className='font-medium'>
-              {`${item.property.charAt(0).toUpperCase() + item.property.slice(1)}:`}
-            </Typography>
-            <Typography>{item.value.charAt(0).toUpperCase() + item.value.slice(1)}</Typography>
-          </div>
+    list.map((item, index) => (
+      <div key={index} className='flex items-center gap-2'>
+        <Icon icon={item.icon} />
+        <div className='flex items-center flex-wrap gap-2'>
+          <Typography className='font-medium'>
+            {`${item.property.charAt(0).toUpperCase() + item.property.slice(1)}:`}
+          </Typography>
+          <Typography>{item.value.charAt(0).toUpperCase() + item.value.slice(1)}</Typography>
         </div>
-      )
-    })
+      </div>
+    ))
   )
 }
 
 const renderTeams = (teams: ProfileTeamsType[]) => {
   return (
     teams.length > 0 &&
-    teams.map((item, index) => {
-      return (
-        <div key={index} className='flex items-center flex-wrap gap-2'>
-          <Typography className='font-medium'>
-            {item.property.charAt(0).toUpperCase() + item.property.slice(1)}
-          </Typography>
-          <Typography>{item.value.charAt(0).toUpperCase() + item.value.slice(1)}</Typography>
-        </div>
-      )
-    })
+    teams.map((item, index) => (
+      <div key={index} className='flex items-center flex-wrap gap-2'>
+        <Icon icon={item.icon} />
+        <Typography className='font-medium'>
+          {item.property.charAt(0).toUpperCase() + item.property.slice(1)}
+        </Typography>
+        <Typography>{item.value.charAt(0).toUpperCase() + item.value.slice(1)}</Typography>
+      </div>
+    ))
   )
 }
 
@@ -48,30 +47,32 @@ const AboutOverview = () => {
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
 
   useEffect(() => {
-    fetchUserDetails().then(data => {
-      if (data) {
-        setUserDetails(data)
-      }
-    }).catch(error => console.error(error))
+    fetchUserDetails()
+      .then(data => {
+        if (data) {
+          setUserDetails(data)
+        }
+      })
+      .catch(error => console.error(error))
   }, [])
 
   const about = [
-    { property: 'fullName', value: `${userDetails?.firstName || ''} ${userDetails?.lastName || ''}`, icon: 'icon-user' },
-    { property: 'status', value: 'Active', icon: 'icon-check-circle' },  // Static data example
-    { property: 'role', value: 'Developer', icon: 'icon-crown' },  // Static data example
-    { property: 'country', value: userDetails?.address || 'USA', icon: 'icon-flag' },
-    { property: 'language', value: 'English', icon: 'icon-translate' },  // Static data example
+    { property: 'fullName', value: `${userDetails?.firstName || ''} ${userDetails?.lastName || ''}`, icon: 'mdi:account' },
+    { property: 'status', value: 'Active', icon: 'mdi:check-circle' },  // Static data example
+    { property: 'role', value: 'Developer', icon: 'mdi:crown' },  // Static data example
+    { property: 'country', value: userDetails?.address || 'USA', icon: 'mdi:flag' },
+    { property: 'language', value: 'English', icon: 'mdi:translate' },  // Static data example
   ]
 
   const contacts = [
-    { property: 'contact', value: userDetails?.phoneNumber || '(123) 456-7890', icon: 'icon-phone' },
-    { property: 'skype', value: 'John.doe', icon: 'icon-chat' },  // Static data example
-    { property: 'email', value: userDetails?.email || 'John.doe@example.com', icon: 'icon-email' }
+    { property: 'contact', value: userDetails?.phoneNumber || '(123) 456-7890', icon: 'mdi:phone' },
+    { property: 'skype', value: 'John.doe', icon: 'mdi:chat' },  // Static data example
+    { property: 'email', value: userDetails?.email || 'John.doe@example.com', icon: 'mdi:email' }
   ]
 
   const teams = [
-    { property: 'clientName', value: userDetails?.clientName || 'Unknown', icon: 'icon-briefcase' },
-    { property: 'departmentName', value: userDetails?.departmentName || 'Unknown', icon: 'icon-building' }
+    { property: 'clientName', value: userDetails?.clientName || 'Unknown', icon: 'mdi:briefcase' },
+    { property: 'departmentName', value: userDetails?.departmentName || 'Unknown', icon: 'mdi:office-building' }
   ]
 
   return (
