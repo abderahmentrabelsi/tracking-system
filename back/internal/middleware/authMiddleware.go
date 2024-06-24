@@ -1,4 +1,3 @@
-// middleware/authmiddleware.go
 package middleware
 
 import (
@@ -17,7 +16,6 @@ type JWTClaims struct {
 	jwt.StandardClaims
 }
 
-// middleware/authmiddleware.go
 func AuthMiddleware(userService *service.UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := getTokenFromRequest(c)
@@ -48,7 +46,6 @@ func AuthMiddleware(userService *service.UserService) gin.HandlerFunc {
 		}
 	}
 }
-
 func getTokenFromRequest(c *gin.Context) string {
 	token, err := c.Cookie("access_token")
 	if err != nil {
@@ -56,12 +53,10 @@ func getTokenFromRequest(c *gin.Context) string {
 	}
 	return token
 }
-
 func redirectToLogin(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/login?redirect="+c.Request.RequestURI)
 	c.Abort()
 }
-
 func AuthorizeRole(allowedRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userRole := c.GetString("userRole")
