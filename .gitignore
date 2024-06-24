@@ -1,4 +1,6 @@
 .idea
+auto_sync.ps1
+auto_sync.ps1
 back/.env
 back/internal/uploads/*
 back/internal/uploads
