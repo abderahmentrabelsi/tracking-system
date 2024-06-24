@@ -5,11 +5,9 @@ import (
 	"back/internal/service"
 	"back/internal/store"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -149,8 +147,6 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		},
 	})
 }
-
-// controller/user.go
 func (uc *UserController) LoginHandler(c *gin.Context) {
 	var body struct {
 		Identifier  string `json:"Identifier"`
@@ -279,15 +275,6 @@ func (uc *UserController) LogoutHandler(c *gin.Context) {
 		},
 	})
 }
-func generateToken(email string, role string, duration time.Duration) (string, error) {
-	exp := time.Now().Add(duration)
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"UserID": email,
-		"Role":   role,
-		"exp":    exp.Unix(),
-	})
-	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
-}
 func (uc *UserController) GetAllRoles(c *gin.Context) {
 	roles, err := uc.roleService.GetAllRoles()
 	if err != nil {
@@ -370,8 +357,6 @@ func (uc *UserController) GetAllUsers(c *gin.Context) {
 		},
 	})
 }
-
-// controller/user.go
 func (uc *UserController) GetUserDetails(c *gin.Context) {
 	userIDStr := c.GetString("userID")
 	if userIDStr == "" {
@@ -392,7 +377,16 @@ func (uc *UserController) GetUserDetails(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"username": user.Username,
-		"email":    user.Email,
+		"username":     user.Username,
+		"email":        user.Email,
+		"firstName":    user.FirstName,
+		"lastName":     user.LastName,
+		"picture":      user.Picture,
+		"phoneNumber":  user.PhoneNumber,
+		"address":      user.Address,
+		"roleId":       user.RoleID,
+		"departmentId": user.DepartmentID,
+		"createdAt":    user.CreatedAt.Format(time.RFC3339),
+		// Add other fields as needed
 	})
 }
