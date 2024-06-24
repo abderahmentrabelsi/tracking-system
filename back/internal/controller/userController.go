@@ -209,7 +209,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := generateToken(user.Email, roleEntity.Name, 7*24*time.Hour)
+	accessToken, err := generateToken(user.Email, roleEntity.Name, user.DepartmentID, user.ID, 7*24*time.Hour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"data":   nil,
@@ -244,6 +244,8 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		"data": gin.H{
 			"access_token": accessToken,
 			"userRole":     roleEntity.Name,
+			"departmentId": user.DepartmentID,
+			"UserID":       user.ID,
 			"redirect_uri": redirectURI,
 		},
 		"status": "success",
@@ -277,12 +279,14 @@ func (uc *UserController) LogoutHandler(c *gin.Context) {
 		},
 	})
 }
-func generateToken(email string, role string, duration time.Duration) (string, error) {
+func generateToken(email string, role string, departmentID uint, userID uint, duration time.Duration) (string, error) {
 	exp := time.Now().Add(duration)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"UserID": email,
-		"Role":   role,
-		"exp":    exp.Unix(),
+		"UserID":       email,
+		"Role":         role,
+		"DepartmentID": departmentID,
+		"ID":           userID,
+		"exp":          exp.Unix(),
 	})
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }

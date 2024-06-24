@@ -260,3 +260,21 @@ func (cc *CalendarController) GetEventsByDepartmentID(c *gin.Context) {
 		"message": "Events retrieved successfully",
 	})
 }
+func (cc *CalendarController) GetCalendarByDepartmentID(c *gin.Context) {
+	departmentID, _ := strconv.ParseUint(c.Param("department_id"), 10, 32)
+	calendar, err := cc.calendarService.GetCalendarByDepartmentID(uint(departmentID))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"data":    nil,
+			"status":  "error",
+			"message": "Calendar not found",
+			"error":   err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data":    calendar,
+		"status":  "success",
+		"message": "Calendar retrieved successfully",
+	})
+}

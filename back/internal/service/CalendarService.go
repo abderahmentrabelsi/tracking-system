@@ -3,6 +3,8 @@ package service
 import (
 	"back/internal/model"
 	"back/internal/repository"
+	"errors"
+	"gorm.io/gorm"
 )
 
 type CalendarService struct {
@@ -45,4 +47,26 @@ func (s *CalendarService) GetEventsByCalendarID(calendarID uint) ([]models.Calen
 }
 func (s *CalendarService) GetEventsByDepartmentID(departmentID uint) ([]models.CalendarEvent, error) {
 	return s.calendarRepo.GetEventsByDepartmentID(departmentID)
+}
+
+func (s *CalendarService) GetCalendarByDepartmentID(departmentID uint) (*models.Calendar, error) {
+	calendar, err := s.calendarRepo.GetCalendarByDepartmentID(departmentID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// Create a new calendar if not found
+			newCalendar := &models.Calendar{
+				DepartmentID: departmentID,
+				Name:         "Default Calendar",
+				Location:     "Default Location",
+				Active:       true,
+				Color:        0xFFFFFF,
+			}
+			if err := s.calendarRepo.CreateCalendar(newCalendar); err != nil {
+				return nil, err
+			}
+			return newCalendar, nil
+		}
+		return nil, err
+	}
+	return calendar, nil
 }

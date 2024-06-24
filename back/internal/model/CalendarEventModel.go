@@ -15,10 +15,9 @@ type Calendar struct {
 	Attributes   string          `json:"attributes"`
 	ImageURL     string          `json:"image_url"`
 	DepartmentID uint            `json:"department_id"`
-	Department   Department      `gorm:"foreignKey:DepartmentID"`
+	Department   Department      `json:"department" gorm:"foreignKey:DepartmentID"`
 	CreatedByID  uint            `json:"created_by_id"`
-	CreatedBy    User            `gorm:"foreignKey:CreatedByID"`
-	Events       []CalendarEvent `json:"events"`
+	Events       []CalendarEvent `json:"events" gorm:"foreignKey:CalendarID"`
 }
 
 type CalendarEvent struct {
@@ -32,9 +31,11 @@ type CalendarEvent struct {
 	Notes        string     `json:"notes"`
 	IsRemote     bool       `json:"is_remote"`
 	Attendance   string     `json:"attendance"`
+	Priority     string     `json:"priority"`
+	Type         string     `json:"type"`
 	CalendarID   uint       `json:"calendar_id"`
-	Calendar     Calendar   `gorm:"foreignKey:CalendarID"`
+	Calendar     Calendar   `json:"calendar" gorm:"foreignKey:CalendarID"`
 	Version      string     `json:"version"`
 	DepartmentID uint       `json:"department_id"`
-	Department   Department `gorm:"foreignKey:DepartmentID"`
+	Department   Department `json:"department" gorm:"foreignKey:DepartmentID"`
 }

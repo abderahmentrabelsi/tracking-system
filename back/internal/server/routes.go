@@ -19,22 +19,22 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/logout", userController.LogoutHandler)
 	r.GET("/roles", middleware.AuthMiddleware(), userController.GetAllRoles)
 	r.GET("/user/:id", middleware.AuthMiddleware(), userController.GetUserByID)
-	r.GET("/users", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), userController.GetAllUsers)
+	r.GET("/users", middleware.AuthMiddleware(), userController.GetAllUsers)
 
 	// Department routes
 	departmentController := controller.NewDepartmentController(s.departmentService)
 	r.POST("/department/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.CreateDepartment)
 	r.GET("/department/:id", middleware.AuthMiddleware(), departmentController.GetDepartmentByID)
 	r.PUT("/department/update/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateDepartment)
-	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.DeleteDepartment)
+	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(), departmentController.DeleteDepartment)
 	r.GET("/departments/:client", middleware.AuthMiddleware(), departmentController.GetAllDepartmentsByClient)
 
 	// Client routes
-	r.POST("/client/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.CreateClient)
-	r.GET("/client/", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetAllClients)
-	r.GET("/client/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetClientByID)
-	r.PUT("/client/update/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateClient)
-	r.DELETE("/client/delete/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.DeleteClient)
+	r.POST("/client/create", middleware.AuthMiddleware(), departmentController.CreateClient)
+	r.GET("/client/", middleware.AuthMiddleware(), departmentController.GetAllClients)
+	r.GET("/client/:id", middleware.AuthMiddleware(), departmentController.GetClientByID)
+	r.PUT("/client/update/:id", middleware.AuthMiddleware(), departmentController.UpdateClient)
+	r.DELETE("/client/delete/:id", middleware.AuthMiddleware(), departmentController.DeleteClient)
 
 	// Role routes
 	roleController := controller.NewRoleController(s.roleService)
@@ -64,13 +64,18 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/calendars", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.CreateCalendar)
 	r.GET("/calendars/:calendar_id", middleware.AuthMiddleware(), calendarController.GetCalendarByID)
 	r.PUT("/calendars/:calendar_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.UpdateCalendar)
-	r.DELETE("/calendars/:calendar_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.DeleteCalendar)
-	r.POST("/calendars/:calendar_id/events", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.CreateEvent)
+	r.DELETE("/calendars/:calendar_id", middleware.AuthMiddleware(), calendarController.DeleteCalendar)
+	r.GET("/calendars/department/:department_id", middleware.AuthMiddleware(), calendarController.GetCalendarByDepartmentID)
+
+	// Calendar Events routes
+	r.POST("/calendars/:calendar_id/events", middleware.AuthMiddleware(), calendarController.CreateEvent)
 	r.GET("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), calendarController.GetEventByID)
-	r.PUT("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.UpdateEvent)
+	r.PUT("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), calendarController.UpdateEvent)
 	r.DELETE("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.DeleteEvent)
 	r.GET("/calendars/:calendar_id/events", middleware.AuthMiddleware(), calendarController.GetEventsByCalendarID)
 	r.GET("/dep/:department_id/events", middleware.AuthMiddleware(), calendarController.GetEventsByDepartmentID)
+	r.GET("/events/:event_id", middleware.AuthMiddleware(), calendarController.GetEventByID)
+
 	return r
 }
 

@@ -70,14 +70,15 @@ func (r *CalendarRepository) UpdateEvent(id uint, updatedEvent *models.CalendarE
 	existingEvent.EndDT = updatedEvent.EndDT
 	existingEvent.AllDay = updatedEvent.AllDay
 	existingEvent.Title = updatedEvent.Title
-	existingEvent.Who = updatedEvent.Who
 	existingEvent.Location = updatedEvent.Location
 	existingEvent.Notes = updatedEvent.Notes
+	existingEvent.Who = updatedEvent.Who
 	existingEvent.IsRemote = updatedEvent.IsRemote
 	existingEvent.Attendance = updatedEvent.Attendance
 	existingEvent.CalendarID = updatedEvent.CalendarID
-	existingEvent.Version = updatedEvent.Version
 	existingEvent.DepartmentID = updatedEvent.DepartmentID
+	existingEvent.Type = updatedEvent.Type
+	existingEvent.Priority = updatedEvent.Priority
 
 	if err := orm.DB.Save(existingEvent).Error; err != nil {
 		return err
@@ -100,4 +101,9 @@ func (r *CalendarRepository) GetEventsByDepartmentID(departmentID uint) ([]model
 		return nil, err
 	}
 	return events, nil
+}
+func (r *CalendarRepository) GetCalendarByDepartmentID(departmentID uint) (*models.Calendar, error) {
+	var calendar models.Calendar
+	err := orm.DB.Preload("Events").Where("department_id = ?", departmentID).First(&calendar).Error
+	return &calendar, err
 }
