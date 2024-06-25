@@ -59,6 +59,21 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/files", middleware.AuthMiddleware(), hookController.GetFiles)
 	r.Any("/files/*any", gin.WrapH(http.StripPrefix("/files/", corsWrapper(s.fileService.TusdHandler))))
 
+	// Task routes
+	taskController := controller.NewTaskController(s.taskService)
+	r.POST("/task/create", middleware.AuthMiddleware(), taskController.CreateTask)
+	r.GET("/task/:id", middleware.AuthMiddleware(), taskController.GetTaskByID)
+	r.PUT("/task/:id", middleware.AuthMiddleware(), taskController.UpdateTask)
+	r.DELETE("/task/:id", middleware.AuthMiddleware(), taskController.DeleteTask)
+	r.GET("/tasks/user/:user_id", middleware.AuthMiddleware(), taskController.GetTasksByUserID)
+
+	// Comment routes
+	commentController := controller.NewTaskController(s.taskService)
+	r.POST("/comments", middleware.AuthMiddleware(), commentController.CreateComment)
+	r.GET("/comments/task/:task_id", middleware.AuthMiddleware(), commentController.GetCommentsByTaskID)
+	r.PUT("/comments/:id", middleware.AuthMiddleware(), commentController.UpdateComment)
+	r.DELETE("/comments/:id", middleware.AuthMiddleware(), commentController.DeleteComment)
+
 	return r
 }
 

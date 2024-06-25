@@ -19,6 +19,7 @@ type Server struct {
 	roleService       *service.RoleService
 	payrollService    *service.PayrollService
 	fileService       *service.FileService
+	taskService       *service.TaskService
 }
 
 func NewServer() *Server {
@@ -29,12 +30,15 @@ func NewServer() *Server {
 	roleRepository := repository.NewRoleRepository()
 	departmentRepository := repository.NewDepartmentRepository()
 	payrollRepository := repository.NewPayrollRepository()
+	taskRepository := repository.NewTaskRepository()
+	commentRepository := repository.NewCommentRepository()
 
 	roleService := service.NewRoleService(roleRepository)
 	fileService := service.NewFileService(repository.NewFileRepository())
 	userService := service.NewUserService(userRepository, roleRepository, fileService)
 	departmentService := service.NewDepartmentService(departmentRepository)
 	payrollService := service.NewPayrollService(*payrollRepository)
+	taskService := service.NewTaskService(taskRepository, commentRepository)
 
 	return &Server{
 		port:              port,
@@ -44,6 +48,7 @@ func NewServer() *Server {
 		roleService:       roleService,
 		payrollService:    payrollService,
 		fileService:       fileService,
+		taskService:       taskService,
 	}
 }
 
