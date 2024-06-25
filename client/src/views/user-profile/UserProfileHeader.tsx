@@ -55,8 +55,8 @@ const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
             <Typography variant='h4'>{userDetails ? userDetails.firstName : ''}</Typography>
             <div className='flex flex-wrap gap-6 justify-center sm:justify-normal'>
               <div className='flex items-center gap-2'>
-                {data?.designationIcon && <i className={data?.designationIcon} />}
-                <Typography className='font-medium'>{data?.designation}</Typography>
+                {userDetails?.jobTitle && <i className='mdi:briefcase-outline' />} {/* You can use any relevant icon */}
+                <Typography className='font-medium'>{userDetails ? userDetails.jobTitle : ''}</Typography>
               </div>
               <div className='flex items-center gap-2'>
                 <i className='tabler-map-pin' />

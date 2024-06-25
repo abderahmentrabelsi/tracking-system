@@ -423,6 +423,7 @@ func (uc *UserController) GetUserDetails(c *gin.Context) {
 		"createdAt":      user.CreatedAt.Format(time.RFC3339),
 		"clientName":     clientName,
 		"departmentName": department.Name,
-		"departments":    clientDepartments, // Add departments to response
+		"departments":    clientDepartments,
+		"jobTitle":       user.JobTitle,
 	})
 }

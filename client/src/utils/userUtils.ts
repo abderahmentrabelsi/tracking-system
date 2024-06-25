@@ -11,7 +11,8 @@ export interface UserDetails {
   createdAt: string;
   clientName: string;
   departmentName: string;
-  departments: Department[];  // Add departments field
+  departments: Department[];
+  jobTitle: string;
 }
 
 export interface Department {
