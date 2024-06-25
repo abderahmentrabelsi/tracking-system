@@ -164,6 +164,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		})
 		return
 	}
+
 	clientIP := c.ClientIP()
 	userAgent := c.GetHeader("User-Agent")
 	user, err := uc.userService.GetUserByEmailOrUsername(body.Identifier)
@@ -172,24 +173,24 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"error": err.Error(),
+				"error": "User not found",
 				"msg":   "Invalid credentials",
 			},
 		})
 		c.Redirect(http.StatusTemporaryRedirect, "/login?uri="+body.RedirectURI)
 		return
 	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"error": err.Error(),
+				"error": "Password mismatch",
 				"msg":   "Invalid credentials",
 			},
 		})
-		// Redirect to login page with original URI included
 		c.Redirect(http.StatusTemporaryRedirect, "/login?uri="+body.RedirectURI)
 		return
 	}
@@ -200,7 +201,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"error": err.Error(),
+				"error": "Role retrieval error",
 				"msg":   "Failed to fetch user role",
 			},
 		})
@@ -213,12 +214,13 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"error": err.Error(),
+				"error": "Token generation error",
 				"msg":   "Failed to generate access token",
 			},
 		})
 		return
 	}
+
 	c.SetCookie("access_token", accessToken, int(7*24*time.Hour.Seconds()), "/", "", false, true)
 
 	err = uc.userService.CreateLoginHistory(user.ID, clientIP, userAgent)
@@ -227,7 +229,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 			"data":   nil,
 			"status": "error",
 			"message": gin.H{
-				"error": err.Error(),
+				"error": "Login history error",
 				"msg":   "Failed to create login history",
 			},
 		})
