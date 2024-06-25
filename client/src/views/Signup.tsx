@@ -29,7 +29,8 @@ type FormDataType = {
   departmentID: string | number;
   roleName: string | null;
   username: string;
-  clientName: string; // Added clientName property
+  clientName: string;
+  jobTitle: string; // Add jobTitle property
 };
 
 type RoleType = {
@@ -80,7 +81,8 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
     username: '',
     departmentID: '',
     roleName: '',
-    clientName: '' // Added clientName initialization
+    clientName: '',
+    jobTitle: '' // Add jobTitle initialization
   });
 
   const [touchedFields, setTouchedFields] = useState<{ [key: string]: boolean }>({
@@ -162,7 +164,8 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       departmentID: '',
       roleName: '',
       username: '',
-      clientName: '' // Added clientName initialization
+      clientName: '',
+      jobTitle: '' // Add jobTitle initialization
     });
     setTouchedFields({ email: false, username: false });
   };
@@ -309,7 +312,8 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       validatePhoneNumber(formData.phoneNumber) &&
       formData.departmentID !== '' &&
       formData.roleName !== '' &&
-      formData.clientName !== '' // Added clientName validation
+      formData.clientName !== '' &&
+      formData.jobTitle.trim() !== '' // Add jobTitle validation
     );
   };
 
@@ -391,6 +395,16 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
                 }}
                 error={touchedFields.email && !validateEmail(formData.email)}
                 helperText={touchedFields.email && !validateEmail(formData.email) && 'Email must be a valid email'}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='Job Title'
+                placeholder='Enter your job title'
+                value={formData.jobTitle}
+                onChange={e => setFormData({ ...formData, jobTitle: e.target.value })}
               />
             </Grid>
             <Grid item xs={12}>

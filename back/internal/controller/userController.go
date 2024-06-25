@@ -36,6 +36,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		DepartmentID uint               `json:"DepartmentID"`
 		RoleName     string             `json:"RoleName"`
 		Files        []model.FileUpload `json:"Files"`
+		JobTitle     string             `json:"JobTitle"`
 	}
 
 	if err := c.Bind(&body); err != nil {
@@ -125,6 +126,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		DepartmentID: department.ID,
 		RoleID:       roleEntity.ID,
 		Password:     string(hash),
+		JobTitle:     body.JobTitle,
 	}
 
 	if err := uc.userService.CreateUser(user, body.Files); err != nil {
