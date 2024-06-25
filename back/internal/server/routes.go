@@ -28,6 +28,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.PUT("/department/update/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateDepartment)
 	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.DeleteDepartment)
 	r.GET("/departments/:client", middleware.AuthMiddleware(s.userService), departmentController.GetAllDepartmentsByClient)
+	r.GET("/department/:id/users", middleware.AuthMiddleware(s.userService), departmentController.GetUsersByDepartment)
 
 	// Client routes
 	r.POST("/client/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.CreateClient)

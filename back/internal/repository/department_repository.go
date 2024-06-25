@@ -19,6 +19,7 @@ type DepartmentRepository interface {
 	DeleteDepartment(id uint) error
 	DeleteClient(id uint) error
 	GetDepartmentByIDd(id uint) (*models.Department, error)
+	GetUsersByDepartmentID(departmentID uint) ([]*models.User, error)
 }
 type DepartmentRepositoryImpl struct{}
 
@@ -143,4 +144,12 @@ func (r *DepartmentRepositoryImpl) GetDepartmentByIDd(id uint) (*models.Departme
 		return nil, fmt.Errorf("failed to retrieve department: %v", err)
 	}
 	return &department, nil
+}
+
+func (r *DepartmentRepositoryImpl) GetUsersByDepartmentID(departmentID uint) ([]*models.User, error) {
+	var users []*models.User
+	if err := orm.DB.Where("department_id = ?", departmentID).Find(&users).Error; err != nil {
+		return nil, fmt.Errorf("failed to retrieve users: %v", err)
+	}
+	return users, nil
 }
