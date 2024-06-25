@@ -1,6 +1,3 @@
-'use client'
-
-// MUI Imports
 import Card from '@mui/material/Card'
 import CardMedia from '@mui/material/CardMedia'
 import CardContent from '@mui/material/CardContent'
@@ -9,33 +6,9 @@ import Button from '@mui/material/Button'
 import Avatar from 'react-avatar'
 import Chip from '@mui/material/Chip'
 import { useEffect, useState } from 'react'
-
-// Type Imports
 import type { ProfileHeaderType } from '@/types/profileTypes'
 import { fetchUserDetails, UserDetails } from '@/utils/userUtils'
-
-// Function to generate a color based on department name
-const stringToColor = (string: string): string => {
-  let hash = 0;
-  for (let i = 0; i < string.length; i++) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  let color = '#';
-  for (let i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 0xFF;
-    color += ('00' + value.toString(16)).substr(-2);
-  }
-  return color;
-};
-
-// Function to determine if a color is light or dark
-const isColorDark = (color: string): boolean => {
-  const r = parseInt(color.substr(1, 2), 16);
-  const g = parseInt(color.substr(3, 2), 16);
-  const b = parseInt(color.substr(5, 2), 16);
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-  return brightness < 128;
-};
+import { stringToColor, isColorDark } from '@/utils/colorUtils' // Import the utility functions
 
 const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
@@ -64,14 +37,15 @@ const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
               name={`${userDetails.firstName} ${userDetails.lastName}`}
               round
               size="120"
-              color=''  // Enables random background color
+              color={stringToColor(userDetails.username)}
+              src={userDetails.picture || ""}
             />
           ) : (
             <Avatar
               name="Unknown User"
               round
               size="120"
-              color=''  // Enables random background color
+              color=''
             />
           )}
         </div>

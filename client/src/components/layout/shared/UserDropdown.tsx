@@ -3,7 +3,7 @@ import type { MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
-import Avatar from '@mui/material/Avatar';
+import Avatar from 'react-avatar';
 import Popper from '@mui/material/Popper';
 import Fade from '@mui/material/Fade';
 import Paper from '@mui/material/Paper';
@@ -15,6 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import { useSettings } from '@core/hooks/useSettings';
 import { fetchUserDetails, UserDetails } from '@/utils/userUtils';
+import { stringToColor } from '@/utils/colorUtils'; // Import the utility function
 
 const BadgeContentSpan = styled('span')({
   width: 8,
@@ -27,7 +28,22 @@ const BadgeContentSpan = styled('span')({
 
 const UserDropdown = () => {
   const [open, setOpen] = useState(false);
-  const [userDetails, setUserDetails] = useState<UserDetails>({ username: '', email: '' });
+  const [userDetails, setUserDetails] = useState<UserDetails>({
+    username: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    picture: '',
+    phoneNumber: '',
+    address: '',
+    roleId: 0,
+    departmentId: 0,
+    createdAt: '',
+    clientName: '',
+    departmentName: '',
+    departments: [],
+    jobTitle: '',
+  });
   const anchorRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { settings } = useSettings();
@@ -44,7 +60,7 @@ const UserDropdown = () => {
   }, []);
 
   const handleDropdownOpen = () => {
-    !open ? setOpen(true) : setOpen(false);
+    setOpen(!open);
   };
 
   const handleDropdownClose = (event?: MouseEvent<HTMLLIElement> | (MouseEvent | TouchEvent), url?: string) => {
@@ -62,18 +78,18 @@ const UserDropdown = () => {
   const handleUserLogout = async () => {
     const response = await fetch('http://localhost:8383/logout', {
       method: 'POST',
-      credentials: 'include', // This will include the cookie which is needed for the server to identify the user
+      credentials: 'include',
     });
 
     if (response.ok) {
-      // Clear the access_token cookie
       document.cookie = "access_token=; Max-Age=-1; path=/";
       router.push('/login');
     } else {
-      // Handle any errors here
       console.error('Logout failed');
     }
   };
+
+  const avatarColor = stringToColor(userDetails.username);
 
   return (
     <>
@@ -84,13 +100,15 @@ const UserDropdown = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         className="mis-2"
       >
-        <Avatar
-          ref={anchorRef}
-          alt={userDetails.username}
-          src="/images/avatars/1.png"
-          onClick={handleDropdownOpen}
-          className="cursor-pointer bs-[38px] is-[38px]"
-        />
+        <div ref={anchorRef} onClick={handleDropdownOpen} className="cursor-pointer bs-[38px] is-[38px]">
+          <Avatar
+            name={userDetails.username}
+            round
+            size="38"
+            color={avatarColor}
+            src={userDetails.picture || "/images/avatars/1.png"}
+          />
+        </div>
       </Badge>
       <Popper
         open={open}
@@ -111,7 +129,13 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className="flex items-center plb-2 pli-6 gap-2" tabIndex={-1}>
-                    <Avatar alt={userDetails.username} src="/images/avatars/1.png" />
+                    <Avatar
+                      name={userDetails.username}
+                      round
+                      size="38"
+                      color={avatarColor}
+                      src={userDetails.picture || "/images/avatars/1.png"}
+                    />
                     <div className="flex items-start flex-col">
                       <Typography className="font-medium" color="text.primary">
                         {userDetails.username}
@@ -124,15 +148,15 @@ const UserDropdown = () => {
                     <i className="tabler-user text-[22px]" />
                     <Typography color="text.primary">My Profile</Typography>
                   </MenuItem>
-                  <MenuItem className="mli-2 gap-3" onClick={e => handleDropdownClose(e)}>
+                  <MenuItem className="mli-2 gap-3" onClick={handleDropdownClose}>
                     <i className="tabler-settings text-[22px]" />
                     <Typography color="text.primary">Settings</Typography>
                   </MenuItem>
-                  <MenuItem className="mli-2 gap-3" onClick={e => handleDropdownClose(e)}>
+                  <MenuItem className="mli-2 gap-3" onClick={handleDropdownClose}>
                     <i className="tabler-currency-dollar text-[22px]" />
                     <Typography color="text.primary">Pricing</Typography>
                   </MenuItem>
-                  <MenuItem className="mli-2 gap-3" onClick={e => handleDropdownClose(e)}>
+                  <MenuItem className="mli-2 gap-3" onClick={handleDropdownClose}>
                     <i className="tabler-help-circle text-[22px]" />
                     <Typography color="text.primary">FAQ</Typography>
                   </MenuItem>
