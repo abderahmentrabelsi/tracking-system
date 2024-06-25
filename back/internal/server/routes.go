@@ -67,6 +67,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.DELETE("/task/:id", middleware.AuthMiddleware(), taskController.DeleteTask)
 	r.GET("/tasks/user/:user_id", middleware.AuthMiddleware(), taskController.GetTasksByUserID)
 
+	// Task status change routes
+	r.PUT("/task/:id/request-status-change", middleware.AuthMiddleware(), taskController.RequestTaskStatusChange)
+	r.PUT("/task/:id/approve-status-change", middleware.AuthMiddleware(), middleware.AuthorizeRole("Manager"), taskController.ApproveTaskStatusChange)
+
 	// Comment routes
 	commentController := controller.NewTaskController(s.taskService)
 	r.POST("/comments", middleware.AuthMiddleware(), commentController.CreateComment)

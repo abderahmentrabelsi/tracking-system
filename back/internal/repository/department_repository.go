@@ -73,7 +73,7 @@ func (r *DepartmentRepositoryImpl) GetAllDepartmentsByClient(clientName string) 
 }
 func (r *DepartmentRepositoryImpl) GetDepartmentByID(id uint) (*models.Department, error) {
 	var department models.Department
-	if err := orm.DB.Preload("ParentDepartment").Where("id = ? AND parent_department_id IS NOT NULL", id).First(&department).Error; err != nil {
+	if err := orm.DB.Preload("ParentDepartment").Preload("Users").Where("id = ?", id).First(&department).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("department with ID %d not found", id)
 		}

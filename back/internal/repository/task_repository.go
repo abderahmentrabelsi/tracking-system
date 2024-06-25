@@ -24,6 +24,7 @@ func (tr *TaskRepository) CreateTask(task *models.Task) error {
 	}
 	return nil
 }
+
 func (tr *TaskRepository) GetTaskByID(taskID uint) (*models.Task, error) {
 	var task models.Task
 	if err := orm.DB.Preload("Comments").Preload("Assignee").Preload("Manager").Preload("Department").First(&task, taskID).Error; err != nil {
@@ -31,6 +32,7 @@ func (tr *TaskRepository) GetTaskByID(taskID uint) (*models.Task, error) {
 	}
 	return &task, nil
 }
+
 func (tr *TaskRepository) UpdateTask(taskID uint, updatedTask *models.Task) error {
 	var task models.Task
 	if err := orm.DB.First(&task, taskID).Error; err != nil {
@@ -44,7 +46,6 @@ func (tr *TaskRepository) UpdateTask(taskID uint, updatedTask *models.Task) erro
 	task.AssigneeID = updatedTask.AssigneeID
 	task.ManagerID = updatedTask.ManagerID
 	task.DueDate = updatedTask.DueDate
-	task.DepartmentID = updatedTask.DepartmentID
 
 	if err := orm.DB.Save(&task).Error; err != nil {
 		return fmt.Errorf("failed to update task: %v", err)
@@ -58,12 +59,42 @@ func (tr *TaskRepository) DeleteTask(taskID uint) error {
 	}
 	return nil
 }
+
 func (tr *TaskRepository) GetTasksByUserID(userID uint) ([]models.Task, error) {
 	var tasks []models.Task
-	if err := orm.DB.Where("assignee_id = ?", userID).Find(&tasks).Error; err != nil {
+	if err := orm.DB.Preload("Comments").Preload("Assignee").Preload("Manager").Preload("Department").Where("assignee_id = ?", userID).Find(&tasks).Error; err != nil {
 		return nil, fmt.Errorf("failed to retrieve tasks: %v", err)
 	}
 	return tasks, nil
+}
+
+func (tr *TaskRepository) RequestTaskStatusChange(taskID uint, requestedStatus string) error {
+	var task models.Task
+	if err := orm.DB.First(&task, taskID).Error; err != nil {
+		return fmt.Errorf("failed to retrieve task: %v", err)
+	}
+
+	task.RequestedStatus = requestedStatus
+
+	if err := orm.DB.Save(&task).Error; err != nil {
+		return fmt.Errorf("failed to request task status change: %v", err)
+	}
+	return nil
+}
+
+func (tr *TaskRepository) ApproveTaskStatusChange(taskID uint) error {
+	var task models.Task
+	if err := orm.DB.First(&task, taskID).Error; err != nil {
+		return fmt.Errorf("failed to retrieve task: %v", err)
+	}
+
+	task.Status = task.RequestedStatus
+	task.RequestedStatus = ""
+
+	if err := orm.DB.Save(&task).Error; err != nil {
+		return fmt.Errorf("failed to approve task status change: %v", err)
+	}
+	return nil
 }
 
 func (cr *CommentRepository) CreateComment(comment *models.Comment) error {
@@ -72,6 +103,7 @@ func (cr *CommentRepository) CreateComment(comment *models.Comment) error {
 	}
 	return nil
 }
+
 func (cr *CommentRepository) GetCommentsByTaskID(taskID uint) ([]models.Comment, error) {
 	var comments []models.Comment
 	if err := orm.DB.Preload("User").Preload("Task").Where("task_id = ?", taskID).Find(&comments).Error; err != nil {
@@ -79,6 +111,7 @@ func (cr *CommentRepository) GetCommentsByTaskID(taskID uint) ([]models.Comment,
 	}
 	return comments, nil
 }
+
 func (cr *CommentRepository) UpdateComment(commentID uint, updatedComment *models.Comment) error {
 	var comment models.Comment
 	if err := orm.DB.First(&comment, commentID).Error; err != nil {
@@ -92,6 +125,7 @@ func (cr *CommentRepository) UpdateComment(commentID uint, updatedComment *model
 	}
 	return nil
 }
+
 func (cr *CommentRepository) DeleteComment(commentID uint) error {
 	if err := orm.DB.Delete(&models.Comment{}, commentID).Error; err != nil {
 		return fmt.Errorf("failed to delete comment: %v", err)

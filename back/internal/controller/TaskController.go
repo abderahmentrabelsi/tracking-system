@@ -200,6 +200,93 @@ func (tc *TaskController) GetTasksByUserID(c *gin.Context) {
 	})
 }
 
+func (tc *TaskController) RequestTaskStatusChange(c *gin.Context) {
+	taskID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": "Invalid task ID",
+				"msg":   "Invalid task ID",
+			},
+		})
+		return
+	}
+
+	var request struct {
+		RequestedStatus string `json:"requestedStatus"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "Invalid request body",
+			},
+		})
+		return
+	}
+
+	if err := tc.taskService.RequestTaskStatusChange(uint(taskID), request.RequestedStatus); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "Error requesting task status change",
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":   nil,
+		"status": "success",
+		"message": gin.H{
+			"error": "",
+			"msg":   "Task status change requested successfully",
+		},
+	})
+}
+func (tc *TaskController) ApproveTaskStatusChange(c *gin.Context) {
+	taskID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": "Invalid task ID",
+				"msg":   "Invalid task ID",
+			},
+		})
+		return
+	}
+
+	if err := tc.taskService.ApproveTaskStatusChange(uint(taskID)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "Error approving task status change",
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":   nil,
+		"status": "success",
+		"message": gin.H{
+			"error": "",
+			"msg":   "Task status change approved successfully",
+		},
+	})
+}
+
 func (tc *TaskController) CreateComment(c *gin.Context) {
 	var comment models.Comment
 	if err := c.ShouldBindJSON(&comment); err != nil {

@@ -31,6 +31,13 @@ func (ts *TaskService) GetTasksByUserID(userID uint) ([]models.Task, error) {
 	return ts.taskRepo.GetTasksByUserID(userID)
 }
 
+func (ts *TaskService) RequestTaskStatusChange(taskID uint, requestedStatus string) error {
+	return ts.taskRepo.RequestTaskStatusChange(taskID, requestedStatus)
+}
+func (ts *TaskService) ApproveTaskStatusChange(taskID uint) error {
+	return ts.taskRepo.ApproveTaskStatusChange(taskID)
+}
+
 func (ts *TaskService) CreateComment(comment *models.Comment) error {
 	return ts.commentRepo.CreateComment(comment)
 }

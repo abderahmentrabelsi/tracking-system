@@ -71,10 +71,12 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
     try {
       const redirectUri = searchParams.get('redirect') || '/home'
       const response = await axios.post(`http://localhost:8383/login`, { Identifier: identifier, Password: password, RedirectURI: redirectUri })
-      const { access_token, redirect_uri,userRole } = response.data.data
+      const { access_token, redirect_uri,userRole,departmentId,UserID } = response.data.data
 
       document.cookie = `access_token=${access_token}; path=/`
       localStorage.setItem('userRole', userRole);
+      localStorage.setItem('departmentId', departmentId.toString())
+      localStorage.setItem('userID',UserID.toString())
 
       router.push(redirect_uri || '/home')
     } catch (error) {
