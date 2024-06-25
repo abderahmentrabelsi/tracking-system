@@ -39,12 +39,14 @@ const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
               name={`${userDetails.firstName} ${userDetails.lastName}`}
               round
               size="120"
+              color=''  // Enables random background color
             />
           ) : (
             <Avatar
               name="Unknown User"
               round
               size="120"
+              color=''  // Enables random background color
             />
           )}
         </div>
