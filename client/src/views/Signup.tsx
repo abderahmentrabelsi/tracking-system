@@ -30,7 +30,7 @@ type FormDataType = {
   roleName: string | null;
   username: string;
   clientName: string;
-  jobTitle: string; // Add jobTitle property
+  jobTitle: string;
 };
 
 type RoleType = {
@@ -82,7 +82,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
     departmentID: '',
     roleName: '',
     clientName: '',
-    jobTitle: '' // Add jobTitle initialization
+    jobTitle: ''
   });
 
   const [touchedFields, setTouchedFields] = useState<{ [key: string]: boolean }>({
@@ -165,7 +165,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       roleName: '',
       username: '',
       clientName: '',
-      jobTitle: '' // Add jobTitle initialization
+      jobTitle: ''
     });
     setTouchedFields({ email: false, username: false });
   };
@@ -313,7 +313,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       formData.departmentID !== '' &&
       formData.roleName !== '' &&
       formData.clientName !== '' &&
-      formData.jobTitle.trim() !== '' // Add jobTitle validation
+      formData.jobTitle.trim() !== ''
     );
   };
 
