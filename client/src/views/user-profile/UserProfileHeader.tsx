@@ -6,6 +6,7 @@ import CardMedia from '@mui/material/CardMedia'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import Avatar from 'react-avatar'
 
 // Type Imports
 import type { ProfileHeaderType } from '@/types/profileTypes'
@@ -32,8 +33,20 @@ const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
     <Card>
       <CardMedia image={data?.coverImg} className='bs-[250px]' />
       <CardContent className='flex gap-5 justify-center flex-col items-center md:items-end md:flex-row !pt-0 md:justify-start'>
-        <div className='flex rounded-bs-md mbs-[-40px] border-[5px] mis-[-5px] border-be-0  border-backgroundPaper bg-backgroundPaper'>
-          <img height={120} width={120} src={data?.profileImg} className='rounded' alt='Profile Background' />
+        <div className='flex rounded-bs-md mbs-[-40px] border-[5px] mis-[-5px] border-be-0 border-backgroundPaper bg-backgroundPaper'>
+          {userDetails ? (
+            <Avatar
+              name={`${userDetails.firstName} ${userDetails.lastName}`}
+              round
+              size="120"
+            />
+          ) : (
+            <Avatar
+              name="Unknown User"
+              round
+              size="120"
+            />
+          )}
         </div>
         <div className='flex is-full justify-start self-end flex-col items-center gap-6 sm-gap-0 sm:flex-row sm:justify-between sm:items-end '>
           <div className='flex flex-col items-center sm:items-start gap-2'>
