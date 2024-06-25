@@ -381,8 +381,11 @@ func (dc *DepartmentController) UpdateClient(c *gin.Context) {
 }
 func (dc *DepartmentController) GetAllDepartmentsByClient(c *gin.Context) {
 	clientName := c.Param("client")
+	log.Printf("Fetching departments for client: %s", clientName)
+
 	departments, err := dc.departmentService.GetAllDepartmentsByClient(clientName)
 	if err != nil {
+		log.Printf("Error fetching departments for client %s: %v", clientName, err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"data":   nil,
 			"status": "error",
@@ -394,6 +397,7 @@ func (dc *DepartmentController) GetAllDepartmentsByClient(c *gin.Context) {
 		return
 	}
 
+	log.Printf("Departments retrieved successfully for client %s", clientName)
 	c.JSON(http.StatusOK, gin.H{
 		"data":   departments,
 		"status": "success",

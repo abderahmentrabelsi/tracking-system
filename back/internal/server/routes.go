@@ -19,22 +19,22 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/logout", userController.LogoutHandler)
 	r.GET("/roles", middleware.AuthMiddleware(), userController.GetAllRoles)
 	r.GET("/user/:id", middleware.AuthMiddleware(), userController.GetUserByID)
-	r.GET("/users", middleware.AuthMiddleware(), userController.GetAllUsers)
+	r.GET("/users", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), userController.GetAllUsers)
 
 	// Department routes
 	departmentController := controller.NewDepartmentController(s.departmentService)
 	r.POST("/department/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.CreateDepartment)
 	r.GET("/department/:id", middleware.AuthMiddleware(), departmentController.GetDepartmentByID)
 	r.PUT("/department/update/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateDepartment)
-	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(), departmentController.DeleteDepartment)
+	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.DeleteDepartment)
 	r.GET("/departments/:client", middleware.AuthMiddleware(), departmentController.GetAllDepartmentsByClient)
 
 	// Client routes
-	r.POST("/client/create", middleware.AuthMiddleware(), departmentController.CreateClient)
-	r.GET("/client/", middleware.AuthMiddleware(), departmentController.GetAllClients)
-	r.GET("/client/:id", middleware.AuthMiddleware(), departmentController.GetClientByID)
-	r.PUT("/client/update/:id", middleware.AuthMiddleware(), departmentController.UpdateClient)
-	r.DELETE("/client/delete/:id", middleware.AuthMiddleware(), departmentController.DeleteClient)
+	r.POST("/client/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.CreateClient)
+	r.GET("/client/", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetAllClients)
+	r.GET("/client/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetClientByID)
+	r.PUT("/client/update/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateClient)
+	r.DELETE("/client/delete/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.DeleteClient)
 
 	// Role routes
 	roleController := controller.NewRoleController(s.roleService)

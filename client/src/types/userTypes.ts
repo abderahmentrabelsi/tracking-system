@@ -9,6 +9,7 @@ export interface UsersType {
   company: string;
   country: string;
   contact: string;
+  DepartmentID : number;
   role: string;
   currentPlan: string;
   billing: string;
