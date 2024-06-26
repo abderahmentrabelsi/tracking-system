@@ -450,3 +450,61 @@ func (uc *UserController) GetUserByUsername(c *gin.Context) {
 		},
 	})
 }
+
+func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
+	username := c.Param("username")
+	user, err := uc.userService.GetUserByUsername(username)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "User not found",
+		})
+		return
+	}
+
+	department, err := uc.departmentService.GetDepartmentByIDd(user.DepartmentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch department"})
+		return
+	}
+
+	var clientName string
+	var clientDepartments []*model.Department
+
+	if department.ParentDepartmentID != nil {
+		parentDepartment, err := uc.departmentService.GetDepartmentByIDd(*department.ParentDepartmentID)
+		if err != nil {
+			clientName = "Unknown"
+		} else {
+			clientName = parentDepartment.Name
+			clientDepartments, err = uc.departmentService.GetAllDepartmentsByClient(parentDepartment.Name)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch departments"})
+				return
+			}
+		}
+	} else {
+		clientName = department.Name
+		clientDepartments, err = uc.departmentService.GetAllDepartmentsByClient(department.Name)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch departments"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"username":       user.Username,
+		"email":          user.Email,
+		"firstName":      user.FirstName,
+		"lastName":       user.LastName,
+		"picture":        user.Picture,
+		"phoneNumber":    user.PhoneNumber,
+		"address":        user.Address,
+		"roleId":         user.RoleID,
+		"departmentId":   user.DepartmentID,
+		"createdAt":      user.CreatedAt.Format(time.RFC3339),
+		"clientName":     clientName,
+		"departmentName": department.Name,
+		"departments":    clientDepartments,
+		"jobTitle":       user.JobTitle,
+	})
+}

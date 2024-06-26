@@ -1,3 +1,4 @@
+//client/src/utils/userUtils.ts
 export interface UserDetails {
   username: string;
   email: string;
@@ -67,5 +68,24 @@ export const fetchUsersByDepartment = async (departmentId: number): Promise<User
   } catch (error) {
     console.error(`Error fetching users for department ${departmentId}:`, error);
     return [];
+  }
+};
+
+export const fetchUserDetailsByUsername = async (username: string): Promise<UserDetails | null> => {
+  try {
+    const response = await fetch(`http://localhost:8383/user/profile/${username}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      console.error('Failed to fetch user details');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    return null;
   }
 };
