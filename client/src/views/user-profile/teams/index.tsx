@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
+
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -14,7 +16,7 @@ import Box from '@mui/material/Box'
 import CloseIcon from '@mui/icons-material/Close'
 import Avatar from '@mui/material/Avatar'
 
-import type { Department, User, UserDetails } from '@/utils/userUtils'
+import { Department, fetchUserDetailsByUsername, User, UserDetails } from '@/utils/userUtils'
 import { fetchUserDetails, fetchUsersByDepartment } from '@/utils/userUtils'
 
 const getInitials = (name: string) => {
@@ -74,20 +76,26 @@ const renderDepartmentCards = (departments: Department[], handleOpenModal: (user
   ))
 }
 
-const Teams = ({ data }: { data: UserDetails }) => {
-  const [departments, setDepartments] = useState<Department[]>(data.departments)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalUsers, setModalUsers] = useState<User[]>([])
+// Teams.tsx
+
+const Teams = () => {
+  const { username } = useParams<{ username: string }>() // Ensure username is treated as string
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
 
   useEffect(() => {
-    const loadUserDetails = async () => {
-      if (data) {
-        setDepartments(data.departments)
+    const getUserDetails = async () => {
+      if (username) {
+        const details = await fetchUserDetailsByUsername(username)
+        if (details) {
+          setUserDetails(details);
+        }
       }
     }
 
-    loadUserDetails()
-  }, [data])
+    getUserDetails()
+  }, [username]);
+
+
 
   const handleOpenModal = (users: User[]) => {
     setModalUsers(users)

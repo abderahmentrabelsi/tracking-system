@@ -38,6 +38,8 @@ const getData = async () => {
 const ProfilePage = async () => {
   // Vars
   const data = await getData()
+  console.log(data) // Log the fetched data
+
 
   return <UserProfile data={data} tabContentList={tabContentList(data)} />
 }

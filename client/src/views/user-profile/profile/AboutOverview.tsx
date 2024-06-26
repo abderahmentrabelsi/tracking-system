@@ -1,12 +1,13 @@
 'use client'
 import Grid from '@mui/material/Grid';
+import { useParams } from 'next/navigation'
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
 import { Icon } from '@iconify/react';
 import React, { useEffect, useState } from 'react';
 import type { ProfileTeamsType, ProfileCommonType } from '@/types/profileTypes';
-import { fetchUserDetails, UserDetails } from '@/utils/userUtils';
+import { fetchUserDetails, fetchUserDetailsByUsername, UserDetails } from '@/utils/userUtils'
 
 const renderList = (list: ProfileCommonType[]) => {
   return (
@@ -40,20 +41,27 @@ const renderTeams = (teams: ProfileTeamsType[]) => {
   );
 };
 
-const AboutOverview = ({ data }: { data: UserDetails }) => {
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(data);
+// AboutOverview.tsx
+
+const AboutOverview = () => {
+  const { username } = useParams<{ username: string }>() // Ensure username is treated as string
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
 
   useEffect(() => {
-    if (!userDetails) {
-      fetchUserDetails()
-        .then(data => {
-          if (data) {
-            setUserDetails(data);
-          }
-        })
-        .catch(error => console.error(error));
+    const getUserDetails = async () => {
+      if (username) {
+        const details = await fetchUserDetailsByUsername(username)
+        if (details) {
+          setUserDetails(details);
+        }
+      }
     }
-  }, [userDetails]);
+
+    getUserDetails()
+  }, [username]);
+
+  // Rest of the component
+
 
   const about = [
     { property: 'fullName', value: `${userDetails?.firstName || ''} ${userDetails?.lastName || ''}`, icon: 'mdi:account' },
