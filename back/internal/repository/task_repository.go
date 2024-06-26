@@ -42,9 +42,6 @@ func (tr *TaskRepository) UpdateTask(taskID uint, updatedTask *models.Task) erro
 	// Update the task fields
 	task.Title = updatedTask.Title
 	task.Description = updatedTask.Description
-	task.Status = updatedTask.Status
-	task.AssigneeID = updatedTask.AssigneeID
-	task.ManagerID = updatedTask.ManagerID
 	task.DueDate = updatedTask.DueDate
 
 	if err := orm.DB.Save(&task).Error; err != nil {

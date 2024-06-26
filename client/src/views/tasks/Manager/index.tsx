@@ -1,73 +1,124 @@
-'use client'
 import React, { useEffect, useState } from 'react';
+import { Grid, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { getDepartmentById, getTasksByUserId } from '@/app/api/taskApi';
 import { DepartmentType, UserType } from '@/types/departmentTypes';
 import { TaskType } from '@/types/taskTypes';
-import { Card, CardContent, Typography, List, ListItem, Grid } from '@mui/material';
+import UserCard from './UserCard';
 import TaskDetails from './TaskDetails';
 import CreateTaskForm from './CreateTaskForm';
+import TaskList from './TaskList';
 
 const ManagerDashboard: React.FC = () => {
   const [department, setDepartment] = useState<DepartmentType | null>(null);
-  const [tasks, setTasks] = useState<{ [key: number]: TaskType[] }>({});
-  const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [tasks, setTasks] = useState<TaskType[]>([]);
+  const [selectedTask, setSelectedTask] = useState<TaskType | null>(null);
+  const [openTaskDialog, setOpenTaskDialog] = useState(false);
+  const [openCreateTaskDialog, setOpenCreateTaskDialog] = useState(false);
 
   useEffect(() => {
-    const fetchDepartmentAndTasks = async () => {
-      const storedDepartmentId = localStorage.getItem('departmentId');
-      if (storedDepartmentId) {
-        try {
-          const departmentData = await getDepartmentById(parseInt(storedDepartmentId, 10));
-          setDepartment(departmentData);
-
-          const tasksByUser: { [key: number]: TaskType[] } = {};
-          await Promise.all(departmentData.users.map(async (user: UserType) => {
-            const userTasks = await getTasksByUserId(user.ID);
-            tasksByUser[user.ID] = userTasks;
-          }));
-          setTasks(tasksByUser);
-        } catch (error) {
-          console.error('Failed to fetch department or tasks', error);
-        }
-      }
-      setLoading(false);
-    };
-
-    fetchDepartmentAndTasks();
+    const departmentId = parseInt(localStorage.getItem('departmentId') || '0', 10);
+    fetchDepartment(departmentId);
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const fetchDepartment = async (departmentId: number) => {
+    try {
+      const fetchedDepartment = await getDepartmentById(departmentId);
+      setDepartment(fetchedDepartment);
+    } catch (error) {
+      console.error('Failed to fetch department', error);
+    }
+  };
+
+  const handleUserClick = async (user: UserType) => {
+    setSelectedUser(user);
+    try {
+      const fetchedTasks = await getTasksByUserId(user.ID);
+      setTasks(fetchedTasks);
+    } catch (error) {
+      console.error('Failed to fetch tasks for user', user.ID, error);
+      setTasks([]);
+    }
+  };
+
+  const handleTaskCreated = (newTask: TaskType) => {
+    if (selectedUser) {
+      setTasks([...tasks, newTask]);
+    }
+  };
+
+  const handleTaskUpdated = (updatedTask: TaskType) => {
+    setTasks(tasks.map(task => task.ID === updatedTask.ID ? updatedTask : task));
+  };
+
+  const handleTaskClick = (task: TaskType) => {
+    setSelectedTask(task);
+    setOpenTaskDialog(true);
+  };
+
+  const handleCloseTaskDialog = () => {
+    setOpenTaskDialog(false);
+    setSelectedTask(null);
+  };
+
+  const handleOpenCreateTaskDialog = () => {
+    setOpenCreateTaskDialog(true);
+  };
+
+  const handleCloseCreateTaskDialog = () => {
+    setOpenCreateTaskDialog(false);
+  };
 
   return (
     <div>
-      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-        <Typography variant="h4">
-          {department ? `${department.name} - Client: ${department.clientName}` : 'No Department Found'}
-        </Typography>
-      </div>
-      <CreateTaskForm />
-      <Grid container spacing={3} style={{ justifyContent: 'center' }}>
-        {department && department.users.map(user => (
-          <Grid item xs={12} sm={6} md={4} key={user.ID}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6">{user.firstName} {user.lastName}</Typography>
-                <List>
-                  {tasks[user.ID]?.length ? tasks[user.ID].map(task => (
-                    <ListItem key={task.ID}>
-                      <TaskDetails task={task} />
-                    </ListItem>
-                  )) : (
-                    <ListItem>No tasks assigned</ListItem>
-                  )}
-                </List>
-              </CardContent>
-            </Card>
-          </Grid>
+      <Typography variant="h4" align="center" gutterBottom>
+        Task Management Dashboard
+      </Typography>
+      <Typography variant="h6" align="center" gutterBottom>
+        Department: {department?.name} - Client: {department?.clientName}
+      </Typography>
+      <Grid container spacing={2}>
+        {department?.users.map((user) => (
+          <UserCard
+            key={user.ID}
+            user={user}
+            onTaskCreated={handleTaskCreated}
+            departmentId={user.DepartmentID}
+            managerId={parseInt(localStorage.getItem('userID') || '0', 10)}
+            onUserClick={handleUserClick}
+            departmentName={department?.name || 'N/A'}
+          />
         ))}
       </Grid>
+      {selectedTask && (
+        <Dialog open={openTaskDialog} onClose={handleCloseTaskDialog} maxWidth="md" fullWidth>
+          <DialogTitle>Task Details</DialogTitle>
+          <DialogContent>
+            <TaskDetails task={selectedTask} onTaskDeleted={handleCloseTaskDialog} onTaskUpdated={handleTaskUpdated} />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseTaskDialog} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+      <Dialog open={openCreateTaskDialog} onClose={handleCloseCreateTaskDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>Create Task</DialogTitle>
+        <DialogContent>
+          <CreateTaskForm
+            assigneeId={selectedUser ? selectedUser.ID : 0}
+            departmentId={selectedUser ? selectedUser.DepartmentID : 0}
+            managerId={parseInt(localStorage.getItem('userID') || '0', 10)}
+            onTaskCreated={handleTaskCreated}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseCreateTaskDialog} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
