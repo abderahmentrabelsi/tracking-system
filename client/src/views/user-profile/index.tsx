@@ -1,25 +1,16 @@
-//client/src/views/user-profile/index.tsx
 'use client'
 
-// React Imports
 import { useState } from 'react'
 import type { ReactElement, SyntheticEvent } from 'react'
-
-// MUI Imports
 import Grid from '@mui/material/Grid'
 import Tab from '@mui/material/Tab'
 import TabContext from '@mui/lab/TabContext'
 import TabPanel from '@mui/lab/TabPanel'
-
-// Type Imports
 import type { Data } from '@/types/profileTypes'
-
-// Component Imports
 import UserProfileHeader from './UserProfileHeader'
 import CustomTabList from '@core/components/mui/TabList'
 
 const UserProfile = ({ tabContentList, data }: { tabContentList: { [key: string]: ReactElement }; data: Data }) => {
-  // States
   const [activeTab, setActiveTab] = useState('profile')
 
   const handleChange = (event: SyntheticEvent, value: string) => {

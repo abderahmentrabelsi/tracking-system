@@ -1,16 +1,12 @@
-//client/src/views/user-profile/profile/AboutOverview.tsx
 'use client'
-
-import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
-import { Icon } from '@iconify/react'
-
-// Type Imports
-import type { ProfileTeamsType, ProfileCommonType } from '@/types/profileTypes'
-import { fetchUserDetails, UserDetails } from '@/utils/userUtils'
-import React, { useEffect, useState } from 'react'
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import Typography from '@mui/material/Typography';
+import CardContent from '@mui/material/CardContent';
+import { Icon } from '@iconify/react';
+import React, { useEffect, useState } from 'react';
+import type { ProfileTeamsType, ProfileCommonType } from '@/types/profileTypes';
+import { fetchUserDetails, UserDetails } from '@/utils/userUtils';
 
 const renderList = (list: ProfileCommonType[]) => {
   return (
@@ -26,8 +22,8 @@ const renderList = (list: ProfileCommonType[]) => {
         </div>
       </div>
     ))
-  )
-}
+  );
+};
 
 const renderTeams = (teams: ProfileTeamsType[]) => {
   return (
@@ -41,21 +37,23 @@ const renderTeams = (teams: ProfileTeamsType[]) => {
         <Typography>{item.value.charAt(0).toUpperCase() + item.value.slice(1)}</Typography>
       </div>
     ))
-  )
-}
+  );
+};
 
-const AboutOverview = () => {
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
+const AboutOverview = ({ data }: { data: UserDetails }) => {
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(data);
 
   useEffect(() => {
-    fetchUserDetails()
-      .then(data => {
-        if (data) {
-          setUserDetails(data)
-        }
-      })
-      .catch(error => console.error(error))
-  }, [])
+    if (!userDetails) {
+      fetchUserDetails()
+        .then(data => {
+          if (data) {
+            setUserDetails(data);
+          }
+        })
+        .catch(error => console.error(error));
+    }
+  }, [userDetails]);
 
   const about = [
     { property: 'fullName', value: `${userDetails?.firstName || ''} ${userDetails?.lastName || ''}`, icon: 'mdi:account' },
@@ -63,17 +61,17 @@ const AboutOverview = () => {
     { property: 'role', value: 'Developer', icon: 'mdi:crown' },  // Static data example
     { property: 'country', value: userDetails?.address || 'USA', icon: 'mdi:flag' },
     { property: 'language', value: 'English', icon: 'mdi:translate' },  // Static data example
-  ]
+  ];
 
   const contacts = [
     { property: 'contact', value: userDetails?.phoneNumber || '(123) 456-7890', icon: 'mdi:phone' },
     { property: 'email', value: userDetails?.email || 'John.doe@example.com', icon: 'mdi:email' }
-  ]
+  ];
 
   const teams = [
     { property: 'clientName', value: userDetails?.clientName || 'Unknown', icon: 'mdi:briefcase' },
     { property: 'departmentName', value: userDetails?.departmentName || 'Unknown', icon: 'mdi:office-building' }
-  ]
+  ];
 
   return (
     <Grid container spacing={6}>
@@ -102,7 +100,7 @@ const AboutOverview = () => {
         </Card>
       </Grid>
     </Grid>
-  )
-}
+  );
+};
 
-export default AboutOverview
+export default AboutOverview;

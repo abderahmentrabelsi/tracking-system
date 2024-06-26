@@ -430,6 +430,8 @@ func (uc *UserController) GetUserDetails(c *gin.Context) {
 
 func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 	username := c.Param("username")
+
+	// Retrieve user details
 	user, err := uc.userService.GetUserByUsername(username)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -437,25 +439,37 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 		})
 		return
 	}
-
-	department, err := uc.departmentService.GetDepartmentByIDd(user.DepartmentID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch department"})
+	if user == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "User not found",
+		})
 		return
 	}
 
+	// Retrieve department details
+	department, err := uc.departmentService.GetDepartmentByID(user.DepartmentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to fetch department",
+		})
+		return
+	}
+
+	// Retrieve client information based on department's parent
 	var clientName string
 	var clientDepartments []*model.Department
 
 	if department.ParentDepartmentID != nil {
-		parentDepartment, err := uc.departmentService.GetDepartmentByIDd(*department.ParentDepartmentID)
+		parentDepartment, err := uc.departmentService.GetDepartmentByID(*department.ParentDepartmentID)
 		if err != nil {
 			clientName = "Unknown"
 		} else {
 			clientName = parentDepartment.Name
 			clientDepartments, err = uc.departmentService.GetAllDepartmentsByClient(parentDepartment.Name)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch departments"})
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": "Unable to fetch departments",
+				})
 				return
 			}
 		}
@@ -463,12 +477,15 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 		clientName = department.Name
 		clientDepartments, err = uc.departmentService.GetAllDepartmentsByClient(department.Name)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch departments"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Unable to fetch departments",
+			})
 			return
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	// Construct the response
+	response := gin.H{
 		"username":       user.Username,
 		"email":          user.Email,
 		"firstName":      user.FirstName,
@@ -483,5 +500,7 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 		"departmentName": department.Name,
 		"departments":    clientDepartments,
 		"jobTitle":       user.JobTitle,
-	})
+	}
+
+	c.JSON(http.StatusOK, response)
 }

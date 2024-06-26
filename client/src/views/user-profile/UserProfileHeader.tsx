@@ -1,4 +1,5 @@
-//client/src/views/user-profile/UserProfileHeader.tsx
+'use client'
+
 import Card from '@mui/material/Card'
 import CardMedia from '@mui/material/CardMedia'
 import CardContent from '@mui/material/CardContent'
@@ -8,25 +9,33 @@ import Avatar from 'react-avatar'
 import Chip from '@mui/material/Chip'
 import { useEffect, useState } from 'react'
 import type { ProfileHeaderType } from '@/types/profileTypes'
-import { fetchUserDetails, UserDetails } from '@/utils/userUtils'
-import { stringToColor, isColorDark } from '@/utils/colorUtils' // Import the utility functions
+import { fetchUserDetailsByUsername, UserDetails } from '@/utils/userUtils'
+import { stringToColor, isColorDark } from '@/utils/colorUtils'
+import { useParams } from 'next/navigation'
 
 const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
+  const { username } = useParams<{ username: string }>() // Ensure username is treated as string
+
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
 
   useEffect(() => {
     const getUserDetails = async () => {
-      const details = await fetchUserDetails()
-      if (details) {
-        setUserDetails(details)
+      if (username) {
+        const details = await fetchUserDetailsByUsername(username)
+        if (details) {
+          setUserDetails(details)
+        }
       }
     }
 
     getUserDetails()
-  }, [])
+  }, [username])
 
-  const departmentColor = userDetails ? stringToColor(userDetails.departmentName) : '#000';
-  const textColor = isColorDark(departmentColor) ? '#fff' : '#000';
+  // Handle cases where userDetails might be null or undefined
+  const firstName = userDetails?.firstName || ''
+  const lastName = userDetails?.lastName || ''
+  const departmentColor = userDetails ? stringToColor(userDetails.departmentName) : '#000'
+  const textColor = isColorDark(departmentColor) ? '#fff' : '#000'
 
   return (
     <Card>
@@ -35,24 +44,19 @@ const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
         <div className='flex rounded-bs-md mbs-[-40px] border-[5px] mis-[-5px] border-be-0 border-backgroundPaper bg-backgroundPaper'>
           {userDetails ? (
             <Avatar
-              name={`${userDetails.firstName} ${userDetails.lastName}`}
+              name={`${firstName} ${lastName}`}
               round
-              size="120"
+              size='120'
               color={stringToColor(userDetails.username)}
-              src={userDetails.picture || ""}
+              src={userDetails.picture || ''}
             />
           ) : (
-            <Avatar
-              name="Unknown User"
-              round
-              size="120"
-              color=''
-            />
+            <Avatar name='Unknown User' round size='120' color='' />
           )}
         </div>
         <div className='flex is-full justify-start self-end flex-col items-center gap-6 sm-gap-0 sm:flex-row sm:justify-between sm:items-end '>
           <div className='flex flex-col items-center sm:items-start gap-2'>
-            <Typography variant='h4'>{userDetails ? userDetails.firstName : ''}</Typography>
+            <Typography variant='h4'>{firstName}</Typography>
             <div className='flex flex-wrap gap-6 justify-center sm:justify-normal'>
               {userDetails?.jobTitle && (
                 <Chip

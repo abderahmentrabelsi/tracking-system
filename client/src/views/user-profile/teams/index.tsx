@@ -1,4 +1,3 @@
-//client/src/views/user-profile/teams/index.tsx
 'use client'
 
 import React, { useEffect, useState } from 'react'
@@ -15,24 +14,20 @@ import Box from '@mui/material/Box'
 import CloseIcon from '@mui/icons-material/Close'
 import Avatar from '@mui/material/Avatar'
 
-// Type Imports
-import type { Department, User } from '@/utils/userUtils'
-import { fetchUserDetails, fetchUsersByDepartment, UserDetails } from '@/utils/userUtils'
+import type { Department, User, UserDetails } from '@/utils/userUtils'
+import { fetchUserDetails, fetchUsersByDepartment } from '@/utils/userUtils'
 
-// Function to render initials
 const getInitials = (name: string) => {
-  const nameParts = name.split(' ');
-  if (nameParts.length === 1) return nameParts[0].charAt(0);
-  return nameParts[0].charAt(0) + nameParts[1].charAt(0);
+  const nameParts = name.split(' ')
+  if (nameParts.length === 1) return nameParts[0].charAt(0)
+  return nameParts[0].charAt(0) + nameParts[1].charAt(0)
 }
 
-// Function to get a random color for the chip
 const getRandomColor = () => {
-  const colors: Array<'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'> = ['default', 'primary', 'secondary', 'success', 'error', 'warning', 'info'];
-  return colors[Math.floor(Math.random() * colors.length)];
+  const colors: Array<'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'> = ['default', 'primary', 'secondary', 'success', 'error', 'warning', 'info']
+  return colors[Math.floor(Math.random() * colors.length)]
 }
 
-// Function to render department cards
 const renderDepartmentCards = (departments: Department[], handleOpenModal: (users: User[]) => void) => {
   return departments.map((department) => (
     <Grid item key={department.ID} xs={12} md={6} lg={4}>
@@ -62,7 +57,7 @@ const renderDepartmentCards = (departments: Department[], handleOpenModal: (user
                 </Tooltip>
               ))}
               {department.users.length > 3 && (
-                <Tooltip title="Show more">
+                <Tooltip title='Show more'>
                   <Avatar onClick={() => handleOpenModal(department.users.slice(3))}>
                     +{department.users.length - 3}
                   </Avatar>
@@ -79,39 +74,20 @@ const renderDepartmentCards = (departments: Department[], handleOpenModal: (user
   ))
 }
 
-const Teams = () => {
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
-  const [departments, setDepartments] = useState<Department[]>([])
+const Teams = ({ data }: { data: UserDetails }) => {
+  const [departments, setDepartments] = useState<Department[]>(data.departments)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalUsers, setModalUsers] = useState<User[]>([])
 
   useEffect(() => {
     const loadUserDetails = async () => {
-      const details = await fetchUserDetails()
-      if (details) {
-        setUserDetails(details)
-
-        // Log department details
-        console.log('Departments:', details.departments);
-
-        // Fetch users for each department
-        const updatedDepartments = await Promise.all(details.departments.map(async (department) => {
-          if (department.ID) {  // Use correct property name for ID
-            const users = await fetchUsersByDepartment(department.ID)
-            return { ...department, users }
-          } else {
-            return { ...department, users: [] }
-          }
-        }))
-
-        setDepartments(updatedDepartments)
-      } else {
-        console.error("Failed to fetch user details");
+      if (data) {
+        setDepartments(data.departments)
       }
     }
 
     loadUserDetails()
-  }, [])
+  }, [data])
 
   const handleOpenModal = (users: User[]) => {
     setModalUsers(users)
@@ -124,9 +100,9 @@ const Teams = () => {
 
   return (
     <Grid container spacing={6}>
-      {userDetails && (
+      {data && (
         <Grid item xs={12}>
-          <Typography variant='h4'>{userDetails.clientName}</Typography>
+          <Typography variant='h4'>{data.clientName}</Typography>
         </Grid>
       )}
       {departments && renderDepartmentCards(departments, handleOpenModal)}
@@ -134,18 +110,18 @@ const Teams = () => {
       <Modal
         open={modalOpen}
         onClose={handleCloseModal}
-        aria-labelledby="user-list-modal"
-        aria-describedby="user-list-modal-description"
+        aria-labelledby='user-list-modal'
+        aria-describedby='user-list-modal-description'
       >
         <Box sx={{ maxWidth: 400, bgcolor: 'background.paper', p: 4, mx: 'auto', my: '10%', borderRadius: 1, position: 'relative' }}>
           <IconButton
-            aria-label="close"
+            aria-label='close'
             onClick={handleCloseModal}
             sx={{ position: 'absolute', top: 8, right: 8 }}
           >
             <CloseIcon />
           </IconButton>
-          <Typography variant="h6" id="user-list-modal" sx={{ mb: 2 }}>
+          <Typography variant='h6' id='user-list-modal' sx={{ mb: 2 }}>
             Additional Users
           </Typography>
           <div>

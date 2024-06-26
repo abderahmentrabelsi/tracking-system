@@ -1,4 +1,5 @@
 // React Imports
+//client/src/app/(dashboard)/user-profile/[username]/page.tsx
 import type { ReactElement } from 'react'
 
 // Next Imports

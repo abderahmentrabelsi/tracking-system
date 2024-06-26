@@ -14,6 +14,10 @@ export interface UserDetails {
   departmentName: string;
   departments: Department[];
   jobTitle: string;
+  profile: any; // Add these if needed
+  teams: any;   // Add these if needed
+  projects: any; // Add these if needed
+  connections: any; // Add these if needed
 }
 
 export interface User {
@@ -76,16 +80,16 @@ export const fetchUserDetailsByUsername = async (username: string): Promise<User
     const response = await fetch(`http://localhost:8383/user/profile/${username}`, {
       method: 'GET',
       credentials: 'include',
-    });
+    })
     if (response.ok) {
-      const data = await response.json();
-      return data;
+      const data = await response.json()
+      return data
     } else {
-      console.error('Failed to fetch user details');
-      return null;
+      console.error('Failed to fetch user details')
+      return null
     }
   } catch (error) {
-    console.error('Error fetching user details:', error);
-    return null;
+    console.error('Error fetching user details:', error)
+    return null
   }
-};
+}
