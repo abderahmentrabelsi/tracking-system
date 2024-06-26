@@ -1,3 +1,4 @@
+//client/src/views/user-profile/index.tsx
 'use client'
 
 // React Imports
