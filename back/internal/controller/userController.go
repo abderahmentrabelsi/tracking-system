@@ -427,3 +427,26 @@ func (uc *UserController) GetUserDetails(c *gin.Context) {
 		"jobTitle":       user.JobTitle,
 	})
 }
+func (uc *UserController) GetUserByUsername(c *gin.Context) {
+	username := c.Param("username")
+	user, err := uc.userService.GetUserByUsername(username)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "User not found",
+				"error": err.Error(),
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":   user,
+		"status": "success",
+		"message": gin.H{
+			"msg": "User retrieved successfully",
+		},
+	})
+}
