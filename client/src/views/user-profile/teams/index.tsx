@@ -1,8 +1,6 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
-
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -15,9 +13,10 @@ import Modal from '@mui/material/Modal'
 import Box from '@mui/material/Box'
 import CloseIcon from '@mui/icons-material/Close'
 import Avatar from '@mui/material/Avatar'
+import { useParams } from 'next/navigation'
 
-import { Department, fetchUserDetailsByUsername, User, UserDetails } from '@/utils/userUtils'
-import { fetchUserDetails, fetchUsersByDepartment } from '@/utils/userUtils'
+import type { Department, User, UserDetails } from '@/utils/userUtils'
+import { fetchUserDetailsByUsername } from '@/utils/userUtils'
 
 const getInitials = (name: string) => {
   const nameParts = name.split(' ')
@@ -76,26 +75,24 @@ const renderDepartmentCards = (departments: Department[], handleOpenModal: (user
   ))
 }
 
-// Teams.tsx
-
 const Teams = () => {
   const { username } = useParams<{ username: string }>() // Ensure username is treated as string
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalUsers, setModalUsers] = useState<User[]>([])
 
   useEffect(() => {
     const getUserDetails = async () => {
       if (username) {
         const details = await fetchUserDetailsByUsername(username)
         if (details) {
-          setUserDetails(details);
+          setUserDetails(details)
         }
       }
     }
 
     getUserDetails()
-  }, [username]);
-
-
+  }, [username])
 
   const handleOpenModal = (users: User[]) => {
     setModalUsers(users)
@@ -108,12 +105,12 @@ const Teams = () => {
 
   return (
     <Grid container spacing={6}>
-      {data && (
+      {userDetails && (
         <Grid item xs={12}>
-          <Typography variant='h4'>{data.clientName}</Typography>
+          <Typography variant='h4'>{userDetails.clientName}</Typography>
         </Grid>
       )}
-      {departments && renderDepartmentCards(departments, handleOpenModal)}
+      {userDetails?.departments && renderDepartmentCards(userDetails.departments, handleOpenModal)}
 
       <Modal
         open={modalOpen}
