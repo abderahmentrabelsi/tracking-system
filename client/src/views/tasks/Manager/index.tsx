@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-import { getDepartmentById, getTasksByUserId } from '@/app/api/taskApi';
+import { getDepartmentById } from '@/app/api/taskApi';
 import { DepartmentType, UserType } from '@/types/departmentTypes';
 import { TaskType } from '@/types/taskTypes';
 import UserCard from './UserCard';
 import TaskDetails from './TaskDetails';
 import CreateTaskForm from './CreateTaskForm';
-import TaskList from './TaskList';
 
 const ManagerDashboard: React.FC = () => {
   const [department, setDepartment] = useState<DepartmentType | null>(null);
@@ -32,13 +31,6 @@ const ManagerDashboard: React.FC = () => {
 
   const handleUserClick = async (user: UserType) => {
     setSelectedUser(user);
-    try {
-      const fetchedTasks = await getTasksByUserId(user.ID);
-      setTasks(fetchedTasks);
-    } catch (error) {
-      console.error('Failed to fetch tasks for user', user.ID, error);
-      setTasks([]);
-    }
   };
 
   const handleTaskCreated = (newTask: TaskType) => {
@@ -49,6 +41,7 @@ const ManagerDashboard: React.FC = () => {
 
   const handleTaskUpdated = (updatedTask: TaskType) => {
     setTasks(tasks.map(task => task.ID === updatedTask.ID ? updatedTask : task));
+    fetchDepartment(parseInt(localStorage.getItem('departmentId') || '0', 10)); // Ensure the task list is updated
   };
 
   const handleTaskClick = (task: TaskType) => {
@@ -71,11 +64,8 @@ const ManagerDashboard: React.FC = () => {
 
   return (
     <div>
-      <Typography variant="h4" align="center" gutterBottom>
+      <Typography variant="h2" align="center" gutterBottom>
         Task Management Dashboard
-      </Typography>
-      <Typography variant="h6" align="center" gutterBottom>
-        Department: {department?.name} - Client: {department?.clientName}
       </Typography>
       <Grid container spacing={2}>
         {department?.users.map((user) => (
@@ -94,7 +84,7 @@ const ManagerDashboard: React.FC = () => {
         <Dialog open={openTaskDialog} onClose={handleCloseTaskDialog} maxWidth="md" fullWidth>
           <DialogTitle>Task Details</DialogTitle>
           <DialogContent>
-            <TaskDetails task={selectedTask} onTaskDeleted={handleCloseTaskDialog} onTaskUpdated={handleTaskUpdated} />
+            <TaskDetails task={selectedTask} onTaskDeleted={handleCloseTaskDialog} onTaskUpdated={handleTaskUpdated} fetchTasks={fetchDepartment.bind(null, parseInt(localStorage.getItem('departmentId') || '0', 10))} />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseTaskDialog} color="primary">
@@ -111,6 +101,7 @@ const ManagerDashboard: React.FC = () => {
             departmentId={selectedUser ? selectedUser.DepartmentID : 0}
             managerId={parseInt(localStorage.getItem('userID') || '0', 10)}
             onTaskCreated={handleTaskCreated}
+            fetchTasks={fetchDepartment.bind(null, parseInt(localStorage.getItem('departmentId') || '0', 10))}
           />
         </DialogContent>
         <DialogActions>

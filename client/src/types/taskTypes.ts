@@ -18,3 +18,6 @@ export interface CommentType {
   content: string;
   createdAt: string;
 }
+
+export class UsersType {
+}

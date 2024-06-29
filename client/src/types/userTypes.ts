@@ -4,6 +4,7 @@
 export interface UsersType {
   id: number;
   fullName: string;
+  FirstName:string;
   username: string;
   email: string;
   company: string;

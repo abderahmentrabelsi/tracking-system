@@ -43,6 +43,8 @@ func (tr *TaskRepository) UpdateTask(taskID uint, updatedTask *models.Task) erro
 	task.Title = updatedTask.Title
 	task.Description = updatedTask.Description
 	task.DueDate = updatedTask.DueDate
+	task.AssigneeID = updatedTask.AssigneeID
+	task.Status = updatedTask.Status
 
 	if err := orm.DB.Save(&task).Error; err != nil {
 		return fmt.Errorf("failed to update task: %v", err)
