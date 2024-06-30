@@ -35,8 +35,8 @@ const StatusBadge = styled(Box)(({ status }) => ({
 }));
 
 const StatusChangeIndicator = styled(Box)(({ status }) => ({
-  backgroundColor: statusColors[status],
-  color: '#FFFFFF',
+  backgroundColor: '#110a0a',
+  color: '#ffffff',
   padding: '2px 10px',
   borderRadius: '10px',
   display: 'inline-block',
@@ -217,7 +217,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
             {comments.map((comment) => {
               const user = commentUsers[comment.userId];
               const isOwner = comment.userId === parseInt(localStorage.getItem('userID') || '0', 10);
-              const isStatusChangeComment = comment.content.startsWith('[Status Change] ');
+              const isStatusChangeComment = comment.content.startsWith('[Status Change]');
 
               return (
                 <ListItem key={comment.ID} sx={{ display: 'flex', alignItems: 'flex-start', marginBottom: '10px', backgroundColor: "primary", padding: '10px', borderRadius: '5px' }}>

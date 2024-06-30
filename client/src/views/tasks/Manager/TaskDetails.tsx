@@ -18,7 +18,9 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 import DescriptionIcon from '@mui/icons-material/Description';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import UpdateTaskForm from './UpdateTaskForm';
+import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
+import UpdateTaskForm from '@views/tasks/Manager/UpdateTaskForm';
+import RequestStatusChangeDialog from './RequestStatusChangeDialog';
 import { styled } from '@mui/material/styles';
 
 const statusIcons = {
@@ -44,7 +46,16 @@ const StatusBadge = styled(Box)(({ status }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   marginLeft: '20px',
-  marginRight: 'auto', // Added to ensure space between task title and status
+  marginRight: 'auto',
+}));
+
+const StatusChangeIndicator = styled(Box)(({ status }) => ({
+  backgroundColor: statusColors[status],
+  color: '#FFFFFF',
+  padding: '2px 10px',
+  borderRadius: '10px',
+  display: 'inline-block',
+  marginLeft: '10px',
 }));
 
 const CommentContainer = styled(Box)(({ theme }) => ({
@@ -97,35 +108,36 @@ interface TaskDetailsProps {
 }
 
 const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUpdated, fetchTasks }) => {
-  const [taskDetails, setTaskDetails] = useState<TaskType>(task);
+  const [taskDetails, setTaskDetails] = useState<TaskType | null>(task);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [commentUsers, setCommentUsers] = useState<Record<number, UsersType>>({});
   const [newComment, setNewComment] = useState<string>('');
-  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
-  const [editingComment, setEditingComment] = useState<string>('');
   const [editingTask, setEditingTask] = useState<TaskType | null>(null);
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [requestStatusDialogOpen, setRequestStatusDialogOpen] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
-    setTaskDetails(task);
-    const fetchCommentsAndUsers = async () => {
-      try {
-        const fetchedComments = await getCommentsByTaskId(task.ID);
-        setComments(fetchedComments);
+    if (task) {
+      setTaskDetails(task);
+      const fetchCommentsAndUsers = async () => {
+        try {
+          const fetchedComments = await getCommentsByTaskId(task.ID);
+          setComments(fetchedComments);
 
-        const userFetchPromises = fetchedComments.map(comment => fetchUserById(comment.userId));
-        const users = await Promise.all(userFetchPromises);
-        const usersById = users.reduce((acc, user) => ({ ...acc, [user.ID]: user }), {});
-        setCommentUsers(usersById);
-      } catch (error) {
-        console.error('Failed to fetch comments or users', error);
-      }
-    };
+          const userFetchPromises = fetchedComments.map(comment => fetchUserById(comment.userId));
+          const users = await Promise.all(userFetchPromises);
+          const usersById = users.reduce((acc, user) => ({ ...acc, [user.ID]: user }), {});
+          setCommentUsers(usersById);
+        } catch (error) {
+          console.error('Failed to fetch comments or users', error);
+        }
+      };
 
-    fetchCommentsAndUsers();
+      fetchCommentsAndUsers();
+    }
   }, [task]);
 
   const handleAddComment = async () => {
@@ -133,7 +145,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
       const userId = parseInt(localStorage.getItem('userID') || '0', 10);
       const comment: CommentType = {
         ID: 0,
-        taskId: taskDetails.ID,
+        taskId: taskDetails!.ID,
         userId,
         content: newComment,
         createdAt: new Date().toISOString(),
@@ -163,7 +175,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
 
   const handleDeleteTask = async () => {
     try {
-      await deleteTask(taskDetails.ID);
+      await deleteTask(taskDetails!.ID);
       onTaskDeleted();
       fetchTasks(); // Ensure the task list is updated
       setSnackbarMessage('Task deleted successfully');
@@ -180,7 +192,13 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
   };
   const handleDeleteDialogOpen = () => setDeleteDialogOpen(true);
   const handleDeleteDialogClose = () => setDeleteDialogOpen(false);
+  const handleRequestStatusDialogOpen = () => setRequestStatusDialogOpen(true);
+  const handleRequestStatusDialogClose = () => setRequestStatusDialogOpen(false);
   const handleSnackbarClose = () => setOpenSnackbar(false);
+
+  if (!taskDetails) {
+    return null; // Or a loading indicator
+  }
 
   return (
     <>
@@ -192,10 +210,17 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
                 <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
                   {taskDetails.title}
                 </Typography>
-                <Box sx={{ width: '20px' }} /> {/* Indent added here */}
+                <Box sx={{ width: '20px' }} />
                 <StatusBadge status={taskDetails.status}>
                   {taskDetails.status}
                 </StatusBadge>
+                {taskDetails.requestedStatus && (
+                  <Tooltip title="Status Change Requested">
+                    <IconButton onClick={handleRequestStatusDialogOpen}>
+                      <NotificationImportantIcon sx={{ color: 'primary', ml: 3 }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
               </Box>
             </Grid>
             <Grid item>
@@ -232,13 +257,24 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
             {comments.map((comment) => {
               const user = commentUsers[comment.userId];
               const isOwner = comment.userId === parseInt(localStorage.getItem('userID') || '0', 10);
+              const isStatusChangeComment = comment.content.startsWith('[Status Change] ');
+              const isRequestStatusComment = comment.content.startsWith('[Request Status Change] ');
 
               return (
-                <ListItem key={comment.ID} sx={{ display: 'flex', alignItems: 'flex-start', marginBottom: '10px', backgroundColor: "primary", padding: '10px', borderRadius: '5px' }}>
+                <ListItem key={comment.ID} sx={{ display: 'flex', alignItems: 'flex-start', marginBottom: '10px', padding: '10px', borderRadius: '5px', backgroundColor: 'primary' }}>
                   <Avatar sx={{ mr: 2 }}>{user ? `${user.firstName[0]}${user.lastName[0]}` : 'U'}</Avatar>
                   <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="body1">{comment.content}</Typography>
-                    <Typography variant="caption" color="textSecondary">{user ? `${user.firstName} ${user.lastName}` : 'Unknown User'} - {new Date(comment.createdAt).toLocaleString()}</Typography>
+                    <Typography variant="body1">
+                      {isStatusChangeComment ? comment.content.split(' ').slice(2).join(' ') : comment.content}
+                      {isRequestStatusComment && (
+                        <StatusChangeIndicator status={taskDetails.requestedStatus}>
+                          REQUEST STATUS
+                        </StatusChangeIndicator>
+                      )}
+                    </Typography>
+                    <Typography variant="caption" color="textSecondary">
+                      {user ? `${user.firstName} ${user.lastName}` : 'Unknown User'} - {new Date(comment.createdAt).toLocaleString()}
+                    </Typography>
                   </Box>
                   {isOwner && (
                     <CommentActions>
@@ -290,6 +326,18 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
           </Button>
         </DialogActions>
       </CustomDialog>
+
+      <RequestStatusChangeDialog
+        task={taskDetails}
+        open={requestStatusDialogOpen}
+        onClose={handleRequestStatusDialogClose}
+        onRequestHandled={(updatedTask) => {
+          setTaskDetails(updatedTask); // Update the task details state
+          onTaskUpdated(updatedTask);
+          setRequestStatusDialogOpen(false);
+        }}
+        fetchComments={() => getCommentsByTaskId(task.ID).then(setComments)}
+      />
 
       {editingTask && (
         <CustomDialog open={openUpdateDialog} onClose={handleCloseUpdateDialog} fullWidth maxWidth="md">

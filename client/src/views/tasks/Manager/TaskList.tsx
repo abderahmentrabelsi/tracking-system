@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Grid, Tooltip, Snackbar, Divider } from '@mui/material';
+import { Box, Typography, Grid, Tooltip, Snackbar, Divider, IconButton } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import CreateTaskForm from './CreateTaskForm';
 import { styled } from '@mui/material/styles';
@@ -7,6 +7,7 @@ import { updateTask } from '@/app/api/taskApi';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import TaskIcon from '@mui/icons-material/Task';
+import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -101,6 +102,13 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskClick, onTaskCreated, 
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
               <TaskIcon sx={{ mr: 1, color: '#3f51b5' }} />
               <Typography variant="h6">{task.title}</Typography>
+              {task.requestedStatus && (
+                <Tooltip title="Status Change Requested">
+                  <IconButton>
+                    <NotificationImportantIcon sx={{ color: 'primary', ml: 1 }} />
+                  </IconButton>
+                </Tooltip>
+              )}
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <DateRangeIcon sx={{ mr: 1, color: '#3f51b5' }} />
