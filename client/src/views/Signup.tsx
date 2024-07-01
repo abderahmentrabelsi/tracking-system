@@ -20,6 +20,7 @@ import ListItem from '@mui/material/ListItem';
 import IconButton from '@mui/material/IconButton';
 import { useDropzone } from 'react-dropzone';
 import { SystemMode } from '@core/types';
+import ProgressLinearWithLabel from '@/components/ProgressLinearWithLabel';
 
 type FormDataType = {
   firstName: string;
@@ -317,7 +318,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
     );
   };
 
-  if (rolesLoading || clientsLoading) return <div>Loading...</div>;
+  if (rolesLoading || clientsLoading) return <ProgressLinearWithLabel />;
   if (rolesError || clientsError) return <div>Error loading data</div>;
 
   return (
