@@ -9,6 +9,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { ProfileTeamsType, ProfileCommonType } from '@/types/profileTypes';
 import { fetchUserDetailsByUsername, UserDetails } from '@/utils/userUtils';
+import ProgressLinearWithLabel from '@/components/ProgressLinearWithLabel';
 
 const renderList = (list: ProfileCommonType[]) => {
   return (
@@ -56,7 +57,7 @@ const AboutOverview = () => {
     }
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <ProgressLinearWithLabel />;
   if (isError || !userDetails) return <div>Error loading user details</div>;
 
   const about = [
