@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -141,19 +142,46 @@ func (fs *FileService) handleUploadComplete(event tusd.HookEvent) {
 
 	fs.logWithMutex(fmt.Sprintf("File stored at %s with size %d", storedFile, fileInfo.Size()))
 
-	// Decode the original filename if necessary and rename the stored file
-	originalFileName, err := decodeBase64IfNeeded(metadata["filename"])
-	if err != nil {
-		fs.logWithMutex(fmt.Sprintf("Error decoding filename: %v, raw: %s", err, metadata["filename"]))
-		return
-	}
-
+	// Use the upload ID directly as the filename
+	originalFileName := upload.ID
 	originalFilePath := filepath.Join(fs.UploadPath, originalFileName)
 	if err := os.Rename(storedFile, originalFilePath); err != nil {
 		fs.logWithMutex(fmt.Sprintf("Error renaming file: %v", err))
 		return
 	}
 	fs.logWithMutex(fmt.Sprintf("File renamed to %s", originalFilePath))
+
+	// Save metadata to a .info file in JSON format
+	infoFilePath := originalFilePath + ".info"
+	infoData := map[string]interface{}{
+		"ID":             upload.ID,
+		"Size":           upload.Size,
+		"SizeIsDeferred": upload.SizeIsDeferred,
+		"Offset":         upload.Offset,
+		"MetaData":       upload.MetaData,
+		"IsPartial":      upload.IsPartial,
+		"IsFinal":        upload.IsFinal,
+		"PartialUploads": upload.PartialUploads,
+		"Storage": map[string]interface{}{
+			"Path": originalFilePath,
+			"Type": "filestore",
+		},
+	}
+
+	infoFile, err := os.Create(infoFilePath)
+	if err != nil {
+		fs.logWithMutex(fmt.Sprintf("Error creating info file: %v", err))
+		return
+	}
+	defer infoFile.Close()
+
+	encoder := json.NewEncoder(infoFile)
+	encoder.SetIndent("", "  ")
+	if err := encoder.Encode(infoData); err != nil {
+		fs.logWithMutex(fmt.Sprintf("Error writing to info file: %v", err))
+		return
+	}
+	fs.logWithMutex(fmt.Sprintf("Metadata saved to %s", infoFilePath))
 
 	// Check if the file already exists in the repository
 	existingFile, err := fs.fileRepository.GetFileByFileID(upload.ID)
@@ -181,27 +209,15 @@ func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]str
 		return fmt.Errorf("filename not provided in metadata")
 	}
 
-	decodedFileName, err := decodeBase64IfNeeded(fileName)
-	if err != nil {
-		fs.logWithMutex(fmt.Sprintf("Error decoding filename: %s, raw: %s", err, fileName))
-		return fmt.Errorf("error decoding filename: %v", err)
-	}
-
 	sizeStr, ok := metadata["size"]
 	if !ok {
 		fs.logWithMutex("Size not provided in metadata")
 		return fmt.Errorf("size not provided in metadata")
 	}
 
-	decodedSizeStr, err := decodeBase64IfNeeded(sizeStr)
+	size, err := strconv.ParseInt(sizeStr, 10, 64)
 	if err != nil {
-		fs.logWithMutex(fmt.Sprintf("Error decoding size: %s, raw: %s", err, sizeStr))
-		return fmt.Errorf("error decoding size: %v", err)
-	}
-
-	size, err := strconv.ParseInt(decodedSizeStr, 10, 64)
-	if err != nil {
-		fs.logWithMutex(fmt.Sprintf("Error parsing size: %v", err, decodedSizeStr))
+		fs.logWithMutex(fmt.Sprintf("Error parsing size: %v", err))
 		return fmt.Errorf("error parsing size: %v", err)
 	}
 
@@ -211,11 +227,11 @@ func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]str
 		return fmt.Errorf("error parsing user ID: %v", err)
 	}
 
-	fs.logWithMutex(fmt.Sprintf("Saving file metadata: filename=%s, path=%s, size=%d", decodedFileName, originalFilePath, size))
+	fs.logWithMutex(fmt.Sprintf("Saving file metadata: filename=%s, path=%s, size=%d", fileName, originalFilePath, size))
 
 	fileUpload := &model.FileUpload{
 		UserID:     uint(userID),
-		FileName:   decodedFileName,
+		FileName:   fileName,
 		FilePath:   originalFilePath,
 		Size:       size,
 		UploadedAt: time.Now(),
