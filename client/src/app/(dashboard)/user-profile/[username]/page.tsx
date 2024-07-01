@@ -12,7 +12,7 @@ import type { Data } from '@/types/profileTypes'
 import UserProfile from '@views/user-profile'
 
 const ProfileTab = dynamic(() => import('@views/user-profile/profile'))
-const TeamsTab = dynamic(() => import('@views/user-profile/teams'))
+const TeamsTab = dynamic<{ data: any }>(() => import('@views/user-profile/teams'))
 const ProjectsTab = dynamic(() => import('@views/user-profile/projects'))
 const ConnectionsTab = dynamic(() => import('@views/user-profile/connections'))
 
