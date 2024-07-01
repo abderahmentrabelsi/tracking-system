@@ -34,9 +34,9 @@ const StatusBadge = styled(Box)(({ status }) => ({
   marginRight: 'auto',
 }));
 
-const StatusChangeIndicator = styled(Box)(({ status }) => ({
-  backgroundColor: '#110a0a',
-  color: '#ffffff',
+const StatusChangeIndicator = styled(Box)(({ theme, status }) => ({
+  backgroundColor: status === 'Declined' ? theme.palette.error.main : status === 'Approved' ? theme.palette.success.main : theme.palette.info.main,
+  color: '#FFFFFF',
   padding: '2px 10px',
   borderRadius: '10px',
   display: 'inline-block',
@@ -142,7 +142,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
         ID: 0,
         taskId: taskDetails.ID,
         userId,
-        content: statusComment,
+        content: `${statusComment}`,
         createdAt: new Date().toISOString(),
       };
       const createdComment = await createComment(comment);
@@ -217,17 +217,17 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
             {comments.map((comment) => {
               const user = commentUsers[comment.userId];
               const isOwner = comment.userId === parseInt(localStorage.getItem('userID') || '0', 10);
-              const isStatusChangeComment = comment.content.startsWith('[Status Change]');
+              const isStatusChangeComment = comment.content.startsWith('[Status Change]') || comment.content.startsWith('[Request Status Change]');
 
               return (
                 <ListItem key={comment.ID} sx={{ display: 'flex', alignItems: 'flex-start', marginBottom: '10px', backgroundColor: "primary", padding: '10px', borderRadius: '5px' }}>
                   <Avatar sx={{ mr: 2 }}>{user ? `${user.firstName[0]}${user.lastName[0]}` : 'U'}</Avatar>
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="body1">
-                      {comment.content.replace('[Status Change]', '')}
+                      {comment.content.replace('[Status Change]', '').replace('[Request Status Change]', '')}
                       {isStatusChangeComment && (
-                        <StatusChangeIndicator status={taskDetails.requestedStatus}>
-                          {taskDetails.requestedStatus}
+                        <StatusChangeIndicator status={comment.content.startsWith('[Status Change]') ? comment.content.split(' ')[2] : 'Requested'}>
+                          {comment.content.startsWith('[Status Change]') ? comment.content.split(' ')[2] : 'REQUEST STATUS'}
                         </StatusChangeIndicator>
                       )}
                     </Typography>
@@ -277,7 +277,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
         <DialogTitle>Request Already Exists</DialogTitle>
         <DialogContent>
           <Alert severity="warning">
-            This task already has a pending status change request.Please wait for it to be processed before submitting another request.
+            This task already has a pending status change request. Please wait for it to be processed before submitting another request.
           </Alert>
         </DialogContent>
         <DialogActions>
@@ -295,4 +295,3 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
 };
 
 export default TaskDetails;
-

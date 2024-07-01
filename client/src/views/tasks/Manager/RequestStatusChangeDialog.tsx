@@ -30,9 +30,9 @@ const RequestStatusChangeDialog: React.FC<RequestStatusChangeDialogProps> = ({ t
       const updatedTask = await approveStatusChange(task.ID);
       onRequestHandled(updatedTask);
       setSnackbarMessage('Status change approved successfully');
-      setOpenSnackbar(true);
-      fetchComments();
       onClose();
+      setTimeout(() => setOpenSnackbar(true), 500);
+      fetchComments();
     } catch (error) {
       console.error('Failed to approve status change', error);
       setSnackbarMessage('Failed to approve status change');
@@ -52,9 +52,9 @@ const RequestStatusChangeDialog: React.FC<RequestStatusChangeDialogProps> = ({ t
       await requestStatusChange(task.ID, '');
       onRequestHandled({ ...task, requestedStatus: '' });
       setSnackbarMessage('Status change declined');
-      setOpenSnackbar(true);
-      fetchComments();
       onClose();
+      setTimeout(() => setOpenSnackbar(true), 500);
+      fetchComments();
     } catch (error) {
       console.error('Failed to decline status change', error);
       setSnackbarMessage('Failed to decline status change');

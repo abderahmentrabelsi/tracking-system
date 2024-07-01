@@ -49,7 +49,7 @@ const RequestStatusChange: React.FC<RequestStatusChangeProps> = ({ task, open, o
   const handleRequestStatusChange = async () => {
     try {
       await requestStatusChange(task.ID, requestedStatus);
-      onRequestSubmitted(requestedStatus, `[Status Change] ${statusComment}`);
+      onRequestSubmitted(requestedStatus, `[Request Status Change] ${statusComment}`);
       onClose();
     } catch (error) {
       console.error('Failed to request status change', error);
