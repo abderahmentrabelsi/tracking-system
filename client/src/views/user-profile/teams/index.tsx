@@ -13,22 +13,27 @@ import Modal from '@mui/material/Modal'
 import Box from '@mui/material/Box'
 import CloseIcon from '@mui/icons-material/Close'
 import Avatar from '@mui/material/Avatar'
+import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
+// Type Imports
 import type { Department, User, UserDetails } from '@/utils/userUtils'
-import { fetchUserDetailsByUsername } from '@/utils/userUtils'
+import { fetchUserDetailsByUsername, fetchUsersByDepartment } from '@/utils/userUtils'
 
+// Function to render initials
 const getInitials = (name: string) => {
   const nameParts = name.split(' ')
   if (nameParts.length === 1) return nameParts[0].charAt(0)
   return nameParts[0].charAt(0) + nameParts[1].charAt(0)
 }
 
+// Function to get a random color for the chip
 const getRandomColor = () => {
   const colors: Array<'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'> = ['default', 'primary', 'secondary', 'success', 'error', 'warning', 'info']
   return colors[Math.floor(Math.random() * colors.length)]
 }
 
+// Function to render department cards
 const renderDepartmentCards = (departments: Department[], handleOpenModal: (users: User[]) => void) => {
   return departments.map((department) => (
     <Grid item key={department.ID} xs={12} md={6} lg={4}>
@@ -54,11 +59,13 @@ const renderDepartmentCards = (departments: Department[], handleOpenModal: (user
             >
               {department.users && department.users.slice(0, 3).map((user, index) => (
                 <Tooltip key={`${department.ID}-${user.id}-${index}`} title={`${user.firstName} ${user.lastName}`}>
-                  <Avatar>{getInitials(`${user.firstName} ${user.lastName}`)}</Avatar>
+                  <Link href={`/user-profile/${user.username}`} passHref>
+                    <Avatar>{getInitials(`${user.firstName} ${user.lastName}`)}</Avatar>
+                  </Link>
                 </Tooltip>
               ))}
               {department.users && department.users.length > 3 && (
-                <Tooltip title='Show more'>
+                <Tooltip title="Show more">
                   <Avatar onClick={() => handleOpenModal(department.users.slice(3))}>
                     +{department.users.length - 3}
                   </Avatar>
@@ -78,20 +85,26 @@ const renderDepartmentCards = (departments: Department[], handleOpenModal: (user
 const Teams = () => {
   const { username } = useParams<{ username: string }>() // Ensure username is treated as string
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
+  const [departments, setDepartments] = useState<Department[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [modalUsers, setModalUsers] = useState<User[]>([])
 
   useEffect(() => {
-    const getUserDetails = async () => {
+    const loadUserDetails = async () => {
       if (username) {
         const details = await fetchUserDetailsByUsername(username)
         if (details) {
-          setUserDetails(details)
+          // Fetch users for each department
+          const updatedDepartments = await Promise.all(details.departments.map(async (department) => {
+            const users = await fetchUsersByDepartment(department.ID)
+            return { ...department, users }
+          }))
+          setUserDetails({ ...details, departments: updatedDepartments })
         }
       }
     }
 
-    getUserDetails()
+    loadUserDetails()
   }, [username])
 
   const handleOpenModal = (users: User[]) => {
@@ -132,7 +145,9 @@ const Teams = () => {
           <div>
             {modalUsers.map(user => (
               <Box key={user.id} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Avatar sx={{ mr: 2 }}>{getInitials(`${user.firstName} ${user.lastName}`)}</Avatar>
+                <Link href={`/user-profile/${user.username}`} passHref>
+                  <Avatar sx={{ mr: 2 }}>{getInitials(`${user.firstName} ${user.lastName}`)}</Avatar>
+                </Link>
                 <Typography>{`${user.firstName} ${user.lastName}`}</Typography>
               </Box>
             ))}
