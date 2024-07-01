@@ -52,12 +52,12 @@ const renderDepartmentCards = (departments: Department[], handleOpenModal: (user
               sx={{ '& .MuiAvatar-root': { width: '2rem', height: '2rem', fontSize: '1rem' } }}
               className='items-center pull-up'
             >
-              {department.users.slice(0, 3).map((user, index) => (
+              {department.users && department.users.slice(0, 3).map((user, index) => (
                 <Tooltip key={`${department.ID}-${user.id}-${index}`} title={`${user.firstName} ${user.lastName}`}>
                   <Avatar>{getInitials(`${user.firstName} ${user.lastName}`)}</Avatar>
                 </Tooltip>
               ))}
-              {department.users.length > 3 && (
+              {department.users && department.users.length > 3 && (
                 <Tooltip title='Show more'>
                   <Avatar onClick={() => handleOpenModal(department.users.slice(3))}>
                     +{department.users.length - 3}

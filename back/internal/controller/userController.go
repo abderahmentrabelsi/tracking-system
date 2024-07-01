@@ -447,7 +447,7 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 	}
 
 	// Retrieve department details
-	department, err := uc.departmentService.GetDepartmentByID(user.DepartmentID)
+	department, err := uc.departmentService.GetDepartmentByIDd(user.DepartmentID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Unable to fetch department",
@@ -460,7 +460,7 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 	var clientDepartments []*model.Department
 
 	if department.ParentDepartmentID != nil {
-		parentDepartment, err := uc.departmentService.GetDepartmentByID(*department.ParentDepartmentID)
+		parentDepartment, err := uc.departmentService.GetDepartmentByIDd(*department.ParentDepartmentID)
 		if err != nil {
 			clientName = "Unknown"
 		} else {
