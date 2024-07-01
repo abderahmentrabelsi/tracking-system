@@ -43,6 +43,10 @@ const UserDropdown = () => {
     departmentName: '',
     departments: [],
     jobTitle: '',
+    profile: {},   // Add appropriate initial structure for profile
+    teams: [],     // Add appropriate initial structure for teams
+    projects: [],  // Add appropriate initial structure for projects
+    connections: []// Add appropriate initial structure for connections
   });
   const anchorRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -144,7 +148,7 @@ const UserDropdown = () => {
                     </div>
                   </div>
                   <Divider className="mlb-1" />
-                  <MenuItem className="mli-2 gap-3" onClick={e => handleDropdownClose(e, `${process.env.NEXT_PUBLIC_APP_URL}/user-profile`)}>
+                  <MenuItem className="mli-2 gap-3" onClick={e => handleDropdownClose(e, `/user-profile/${userDetails.username}`)}>
                     <i className="tabler-user text-[22px]" />
                     <Typography color="text.primary">My Profile</Typography>
                   </MenuItem>
