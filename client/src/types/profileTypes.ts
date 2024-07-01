@@ -38,12 +38,7 @@ export type ProfileTeamsType = {
   property: string
   icon: string
 }
-export type ProfileConnectionsType = {
-  name: string
-  avatar: string
-  isFriend: boolean
-  connections: string
-}
+
 export type ProfileTeamsTechType = {
   title: string
   avatar: string
@@ -79,32 +74,20 @@ export type ProjectsTabType = {
   avatarColor?: ThemeColor
   avatarGroup: ProfileAvatarGroupType[]
 }
-export type ConnectionsTabType = {
-  name: string
-  tasks: string
-  avatar: string
-  projects: string
-  connections: string
-  designation: string
-  isConnected: boolean
-  chips: ProfileChipType[]
-}
+
 export type ProfileTabType = {
   teams: ProfileTeamsType[]
   about: ProfileCommonType[]
   contacts: ProfileCommonType[]
   overview: ProfileCommonType[]
   teamsTech: ProfileTeamsTechType[]
-  connections: ProfileConnectionsType[]
   projectTable: ProjectTableRowType[]
 }
-export type UserProfileActiveTab = ProfileTabType | TeamsTabType[] | ProjectsTabType[] | ConnectionsTabType[]
 
 export type DataType = {
   profile: ProfileTabType
   teams: TeamsTabType[]
   projects: ProjectsTabType[]
-  connections: ConnectionsTabType[]
 }
 export type Data = {
   users: DataType

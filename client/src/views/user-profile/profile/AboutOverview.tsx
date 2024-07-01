@@ -1,13 +1,14 @@
 'use client'
 import Grid from '@mui/material/Grid';
-import { useParams } from 'next/navigation'
+import { useParams } from 'next/navigation';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
 import { Icon } from '@iconify/react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { ProfileTeamsType, ProfileCommonType } from '@/types/profileTypes';
-import { fetchUserDetails, fetchUserDetailsByUsername, UserDetails } from '@/utils/userUtils'
+import { fetchUserDetailsByUsername, UserDetails } from '@/utils/userUtils';
 
 const renderList = (list: ProfileCommonType[]) => {
   return (
@@ -41,44 +42,38 @@ const renderTeams = (teams: ProfileTeamsType[]) => {
   );
 };
 
-// AboutOverview.tsx
-
 const AboutOverview = () => {
-  const { username } = useParams<{ username: string }>() // Ensure username is treated as string
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const { username } = useParams<{ username: string }>();
 
-  useEffect(() => {
-    const getUserDetails = async () => {
-      if (username) {
-        const details = await fetchUserDetailsByUsername(username)
-        if (details) {
-          setUserDetails(details);
-        }
+  const { data: userDetails, isError, isLoading } = useQuery<UserDetails>({
+    queryKey: ['userDetails', username],
+    queryFn: async () => {
+      const details = await fetchUserDetailsByUsername(username);
+      if (!details) {
+        throw new Error('User not found');
       }
+      return details;
     }
+  });
 
-    getUserDetails()
-  }, [username]);
-
-  // Rest of the component
-
+  if (isLoading) return <div>Loading...</div>;
+  if (isError || !userDetails) return <div>Error loading user details</div>;
 
   const about = [
-    { property: 'fullName', value: `${userDetails?.firstName || ''} ${userDetails?.lastName || ''}`, icon: 'mdi:account' },
+    { property: 'full name', value: `${userDetails.firstName} ${userDetails.lastName}`, icon: 'mdi:account' },
     { property: 'status', value: 'Active', icon: 'mdi:check-circle' },  // Static data example
     { property: 'role', value: 'Developer', icon: 'mdi:crown' },  // Static data example
-    { property: 'country', value: userDetails?.address || 'USA', icon: 'mdi:flag' },
-    { property: 'language', value: 'English', icon: 'mdi:translate' },  // Static data example
+    { property: 'country', value: userDetails.address || 'USA', icon: 'mdi:flag' },
   ];
 
   const contacts = [
-    { property: 'contact', value: userDetails?.phoneNumber || '(123) 456-7890', icon: 'mdi:phone' },
-    { property: 'email', value: userDetails?.email || 'John.doe@example.com', icon: 'mdi:email' }
+    { property: 'contact', value: userDetails.phoneNumber || '(123) 456-7890', icon: 'mdi:phone' },
+    { property: 'email', value: userDetails.email || 'John.doe@example.com', icon: 'mdi:email' }
   ];
 
   const teams = [
-    { property: 'clientName', value: userDetails?.clientName || 'Unknown', icon: 'mdi:briefcase' },
-    { property: 'departmentName', value: userDetails?.departmentName || 'Unknown', icon: 'mdi:office-building' }
+    { property: 'client name', value: userDetails.clientName || 'Unknown', icon: 'mdi:briefcase' },
+    { property: 'department name', value: userDetails.departmentName || 'Unknown', icon: 'mdi:office-building' }
   ];
 
   return (
