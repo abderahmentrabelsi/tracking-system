@@ -53,15 +53,6 @@ const AccountSettings = ({ tabContentList }: { tabContentList: { [key: string]: 
               }
               value='notifications'
             />
-            <Tab
-              label={
-                <div className='flex items-center gap-1.5'>
-                  <i className='tabler-link text-lg' />
-                  Connections
-                </div>
-              }
-              value='connections'
-            />
           </CustomTabList>
         </Grid>
         <Grid item xs={12}>

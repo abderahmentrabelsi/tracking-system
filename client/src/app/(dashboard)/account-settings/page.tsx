@@ -21,14 +21,12 @@ const AccountSettingsPage = async () => {
   const Account = dynamic(() => import('@views/account-settings/account'))
   const Security = dynamic(() => import('@views/account-settings/security'))
   const Notifications = dynamic(() => import('@views/account-settings/notifications'))
-  const Connections = dynamic(() => import('@views/account-settings/connections'))
 
   // Mock tab content list, replace with actual content components if necessary
   const tabContentList = {
     account: <Account />,
     security: <Security />,
     notifications: <Notifications />,
-    connections: <Connections />,
   }
 
   return <AccountSettings tabContentList={tabContentList} mode={mode} />
