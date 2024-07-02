@@ -1,3 +1,4 @@
+//client/src/app/(dashboard)/account-settings/[username]/page.tsx
 // Next Imports
 import type { Metadata } from 'next'
 import dynamic from 'next/dynamic'

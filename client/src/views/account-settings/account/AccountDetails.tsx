@@ -1,61 +1,71 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
-import type { ChangeEvent } from 'react'
-
-// MUI Imports
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import MenuItem from '@mui/material/MenuItem'
-import Chip from '@mui/material/Chip'
 import type { SelectChangeEvent } from '@mui/material/Select'
+import type { ChangeEvent } from 'react'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
+import { useQuery } from '@tanstack/react-query'
+import { fetchUserDetailsByUsername, UserDetails } from '@/utils/userUtils'
+import ProgressLinearWithLabel from '@/components/ProgressLinearWithLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Chip from '@mui/material/Chip'
+
+const languageData = ['English', 'Arabic', 'French', 'German', 'Portuguese']
 
 type Data = {
   firstName: string
   lastName: string
   email: string
-  organization: string
   phoneNumber: number | string
   address: string
-  state: string
-  zipCode: string
-  country: string
-  language: string
-  timezone: string
-  currency: string
 }
-
-// Vars
-const initialData: Data = {
-  firstName: 'John',
-  lastName: 'Doe',
-  email: 'john.doe@example.com',
-  organization: 'Pixinvent',
-  phoneNumber: '+1 (917) 543-9876',
-  address: '123 Main St, New York, NY 10001',
-  state: 'New York',
-  zipCode: '634880',
-  country: 'usa',
-  language: 'english',
-  timezone: 'gmt-12',
-  currency: 'usd'
-}
-
-const languageData = ['English', 'Arabic', 'French', 'German', 'Portuguese']
 
 const AccountDetails = () => {
-  // States
+  const { username } = useParams<{ username: string }>()
+  const { data: userDetails, isError, isLoading } = useQuery<UserDetails>({
+    queryKey: ['userDetails', username],
+    queryFn: async () => {
+      const details = await fetchUserDetailsByUsername(username)
+      if (!details) {
+        throw new Error('User not found')
+      }
+      return details
+    }
+  })
+
+  const initialData: Data = {
+    firstName: userDetails?.firstName || '',
+    lastName: userDetails?.lastName || '',
+    email: userDetails?.email || '',
+    phoneNumber: userDetails?.phoneNumber || '',
+    address: userDetails?.address || '',
+  }
+
   const [formData, setFormData] = useState<Data>(initialData)
   const [fileInput, setFileInput] = useState<string>('')
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
   const [language, setLanguage] = useState<string[]>(['English'])
+
+  useEffect(() => {
+    if (userDetails) {
+      setFormData({
+        firstName: userDetails.firstName,
+        lastName: userDetails.lastName,
+        email: userDetails.email,
+        phoneNumber: userDetails.phoneNumber,
+        address: userDetails.address,
+      })
+    }
+  }, [userDetails])
 
   const handleDelete = (value: string) => {
     setLanguage(current => current.filter(item => item !== value))
@@ -69,9 +79,9 @@ const AccountDetails = () => {
     setFormData({ ...formData, [field]: value })
   }
 
-  const handleFileInputChange = (file: ChangeEvent) => {
+  const handleFileInputChange = (file: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader()
-    const { files } = file.target as HTMLInputElement
+    const { files } = file.target
 
     if (files && files.length !== 0) {
       reader.onload = () => setImgSrc(reader.result as string)
@@ -87,6 +97,9 @@ const AccountDetails = () => {
     setFileInput('')
     setImgSrc('/images/avatars/1.png')
   }
+
+  if (isLoading) return <ProgressLinearWithLabel />
+  if (isError) return <div>Error loading user details</div>
 
   return (
     <Card>
@@ -147,15 +160,6 @@ const AccountDetails = () => {
             <Grid item xs={12} sm={6}>
               <CustomTextField
                 fullWidth
-                label='Organization'
-                value={formData.organization}
-                placeholder='Pixinvent'
-                onChange={e => handleFormChange('organization', e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
                 label='Phone Number'
                 value={formData.phoneNumber}
                 placeholder='+1 (234) 567-8901'
@@ -170,39 +174,6 @@ const AccountDetails = () => {
                 placeholder='Address'
                 onChange={e => handleFormChange('address', e.target.value)}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                label='State'
-                value={formData.state}
-                placeholder='New York'
-                onChange={e => handleFormChange('state', e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                type='number'
-                label='Zip Code'
-                value={formData.zipCode}
-                placeholder='123456'
-                onChange={e => handleFormChange('zipCode', e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                select
-                fullWidth
-                label='Country'
-                value={formData.country}
-                onChange={e => handleFormChange('country', e.target.value)}
-              >
-                <MenuItem value='usa'>USA</MenuItem>
-                <MenuItem value='uk'>UK</MenuItem>
-                <MenuItem value='australia'>Australia</MenuItem>
-                <MenuItem value='germany'>Germany</MenuItem>
-              </CustomTextField>
             </Grid>
             <Grid item xs={12} sm={6}>
               <CustomTextField
@@ -234,48 +205,6 @@ const AccountDetails = () => {
                     {name}
                   </MenuItem>
                 ))}
-              </CustomTextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                select
-                fullWidth
-                label='TimeZone'
-                value={formData.timezone}
-                onChange={e => handleFormChange('timezone', e.target.value)}
-                SelectProps={{ MenuProps: { PaperProps: { style: { maxHeight: 250 } } } }}
-              >
-                <MenuItem value='gmt-12'>(GMT-12:00) International Date Line West</MenuItem>
-                <MenuItem value='gmt-11'>(GMT-11:00) Midway Island, Samoa</MenuItem>
-                <MenuItem value='gmt-10'>(GMT-10:00) Hawaii</MenuItem>
-                <MenuItem value='gmt-09'>(GMT-09:00) Alaska</MenuItem>
-                <MenuItem value='gmt-08'>(GMT-08:00) Pacific Time (US & Canada)</MenuItem>
-                <MenuItem value='gmt-08-baja'>(GMT-08:00) Tijuana, Baja California</MenuItem>
-                <MenuItem value='gmt-07'>(GMT-07:00) Chihuahua, La Paz, Mazatlan</MenuItem>
-                <MenuItem value='gmt-07-mt'>(GMT-07:00) Mountain Time (US & Canada)</MenuItem>
-                <MenuItem value='gmt-06'>(GMT-06:00) Central America</MenuItem>
-                <MenuItem value='gmt-06-ct'>(GMT-06:00) Central Time (US & Canada)</MenuItem>
-                <MenuItem value='gmt-06-mc'>(GMT-06:00) Guadalajara, Mexico City, Monterrey</MenuItem>
-                <MenuItem value='gmt-06-sk'>(GMT-06:00) Saskatchewan</MenuItem>
-                <MenuItem value='gmt-05'>(GMT-05:00) Bogota, Lima, Quito, Rio Branco</MenuItem>
-                <MenuItem value='gmt-05-et'>(GMT-05:00) Eastern Time (US & Canada)</MenuItem>
-                <MenuItem value='gmt-05-ind'>(GMT-05:00) Indiana (East)</MenuItem>
-                <MenuItem value='gmt-04'>(GMT-04:00) Atlantic Time (Canada)</MenuItem>
-                <MenuItem value='gmt-04-clp'>(GMT-04:00) Caracas, La Paz</MenuItem>
-              </CustomTextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                select
-                fullWidth
-                label='Currency'
-                value={formData.currency}
-                onChange={e => handleFormChange('currency', e.target.value)}
-              >
-                <MenuItem value='usd'>USD</MenuItem>
-                <MenuItem value='euro'>EUR</MenuItem>
-                <MenuItem value='pound'>Pound</MenuItem>
-                <MenuItem value='bitcoin'>Bitcoin</MenuItem>
               </CustomTextField>
             </Grid>
             <Grid item xs={12} className='flex gap-4 flex-wrap'>
