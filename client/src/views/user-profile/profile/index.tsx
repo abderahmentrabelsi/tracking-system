@@ -7,7 +7,9 @@ import type { ProfileTabType } from '@/types/profileTypes'
 // Component Imports
 import AboutOverview from './AboutOverview'
 import ActivityTimeline from './ActivityTimeline'
-import ProjectsTable from './ProjectsTables'
+
+//dynamic import for about overview with making data can take any type
+
 
 const ProfileTab = ({ data }: { data?: ProfileTabType }) => {
   return (
@@ -21,7 +23,6 @@ const ProfileTab = ({ data }: { data?: ProfileTabType }) => {
             <ActivityTimeline />
           </Grid>
           <Grid item xs={12}>
-            <ProjectsTable projectTable={data?.projectTable} />
           </Grid>
         </Grid>
       </Grid>
