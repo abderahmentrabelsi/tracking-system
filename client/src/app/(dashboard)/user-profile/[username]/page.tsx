@@ -21,6 +21,7 @@ const tabContentList = (data?: Data): { [key: string]: ReactElement } => ({
   profile: <ProfileTab data={data?.users.profile} />,
   teams: <TeamsTab data={data?.users.teams} />,
   projects: <ProjectsTab data={data?.users.projects} />,
+  connections: <ConnectionsTab data={data?.users.connections} />
 })
 
 const getData = async () => {

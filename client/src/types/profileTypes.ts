@@ -20,6 +20,16 @@ export type ProfileHeaderType = {
   designation: string
   designationIcon?: string
 }
+export type ConnectionsTabType = {
+  name: string
+  tasks: string
+  avatar: string
+  projects: string
+  connections: string
+  designation: string
+  isConnected: boolean
+  chips: ProfileChipType[]
+}
 export type ProfileAvatarGroupType = {
   name: string
   avatar: string
@@ -88,6 +98,7 @@ export type DataType = {
   profile: ProfileTabType
   teams: TeamsTabType[]
   projects: ProjectsTabType[]
+  connections: ConnectionsTabType[]
 }
 export type Data = {
   users: DataType
