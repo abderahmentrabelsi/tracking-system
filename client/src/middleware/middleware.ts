@@ -1,20 +1,31 @@
-// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import jwt from 'jsonwebtoken';
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const token = request.cookies.get('access_token');
+export async function middleware(req: NextRequest) {
+  const token = req.cookies.get('access_token')?.value;
 
-  if (pathname.startsWith('/account-settings') || pathname.startsWith('/user-profile')) {
-    if (!token) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
+  if (!token) {
+    return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  return NextResponse.next();
+  try {
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY as string) as jwt.JwtPayload;
+
+    const { Email } = decodedToken;
+
+    const username = req.nextUrl.pathname.split('/').pop();
+
+    if (username !== Email.split('@')[0]) {
+      return NextResponse.redirect(new URL('/not-authorized', req.url));
+    }
+
+    return NextResponse.next();
+  } catch (error) {
+    return NextResponse.redirect(new URL('/login', req.url));
+  }
 }
 
 export const config = {
-  matcher: ['/account-settings/:path*', '/user-profile/:path*'],
+  matcher: '/account-settings/:username*',
 };
