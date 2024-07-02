@@ -4,15 +4,14 @@
   "license": "Commercial",
   "private": true,
   "scripts": {
-    "dev": "bun run prestart && bun run next dev --turbo",
+    "dev": "bun run next dev --turbo",
     "build": "bun run next build",
     "start": "bun run next start",
     "lint": "bun run next lint",
     "lint:fix": "bun run next lint --fix",
     "format": "bun run prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "build:icons": "bun run tsx src/assets/iconify-icons/bundle-icons-css.ts",
-    "postinstall": "bun run build:icons",
-    "prestart": "npx fkill :3000 --force || true"
+    "postinstall": "bun run build:icons"
   },
   "dependencies": {
     "@emotion/cache": "11.11.0",
