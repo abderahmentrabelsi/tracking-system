@@ -28,26 +28,7 @@ const BadgeContentSpan = styled('span')({
 
 const UserDropdown = () => {
   const [open, setOpen] = useState(false);
-  const [userDetails, setUserDetails] = useState<UserDetails>({
-    username: '',
-    email: '',
-    firstName: '',
-    lastName: '',
-    picture: '',
-    phoneNumber: '',
-    address: '',
-    roleId: 0,
-    departmentId: 0,
-    createdAt: '',
-    clientName: '',
-    departmentName: '',
-    departments: [],
-    jobTitle: '',
-    profile: {},   // Add appropriate initial structure for profile
-    teams: [],     // Add appropriate initial structure for teams
-    projects: [],  // Add appropriate initial structure for projects
-    connections: []// Add appropriate initial structure for connections
-  });
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const anchorRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { settings } = useSettings();
@@ -57,6 +38,9 @@ const UserDropdown = () => {
       const data = await fetchUserDetails();
       if (data) {
         setUserDetails(data);
+        console.log("Fetched User Details:", data); // Add logging here
+      } else {
+        console.error('Failed to fetch user details');
       }
     };
 
@@ -93,7 +77,7 @@ const UserDropdown = () => {
     }
   };
 
-  const avatarColor = stringToColor(userDetails.username);
+  const avatarColor = userDetails ? stringToColor(userDetails.username) : '';
 
   return (
     <>
@@ -104,13 +88,12 @@ const UserDropdown = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         className="mis-2"
       >
-        <div ref={anchorRef} onClick={handleDropdownOpen} className="cursor-pointer bs-[38px] is-[38px]">
+        <div onClick={handleDropdownOpen} className="cursor-pointer bs-[38px] is-[38px]">
           <Avatar
-            name={userDetails.username}
+            name={userDetails?.firstName || 'Unknown User'}
             round
             size="38"
             color={avatarColor}
-            src={userDetails.picture || "/images/avatars/1.png"}
           />
         </div>
       </Badge>
@@ -134,21 +117,20 @@ const UserDropdown = () => {
                 <MenuList>
                   <div className="flex items-center plb-2 pli-6 gap-2" tabIndex={-1}>
                     <Avatar
-                      name={userDetails.username}
+                      name={userDetails?.firstName || 'Unknown User'}
                       round
                       size="38"
                       color={avatarColor}
-                      src={userDetails.picture || "/images/avatars/1.png"}
                     />
                     <div className="flex items-start flex-col">
                       <Typography className="font-medium" color="text.primary">
-                        {userDetails.username}
+                        {userDetails?.username || 'Unknown User'}
                       </Typography>
-                      <Typography variant="caption">{userDetails.email}</Typography>
+                      <Typography variant="caption">{userDetails?.email || 'No email'}</Typography>
                     </div>
                   </div>
                   <Divider className="mlb-1" />
-                  <MenuItem className="mli-2 gap-3" onClick={e => handleDropdownClose(e, `/user-profile/${userDetails.username}`)}>
+                  <MenuItem className="mli-2 gap-3" onClick={e => handleDropdownClose(e, `/user-profile/${userDetails?.username}`)}>
                     <i className="tabler-user text-[22px]" />
                     <Typography color="text.primary">My Profile</Typography>
                   </MenuItem>

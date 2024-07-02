@@ -47,15 +47,6 @@ const AccountSettings = ({ tabContentList }: { tabContentList: { [key: string]: 
             <Tab
               label={
                 <div className='flex items-center gap-1.5'>
-                  <i className='tabler-bookmark text-lg' />
-                  Billing & Plans
-                </div>
-              }
-              value='billing-plans'
-            />
-            <Tab
-              label={
-                <div className='flex items-center gap-1.5'>
                   <i className='tabler-bell text-lg' />
                   Notifications
                 </div>
