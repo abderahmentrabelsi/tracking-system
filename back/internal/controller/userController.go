@@ -210,7 +210,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := uc.userService.GenerateToken(user.Email, user.ID, roleEntity.Name, 7*24*time.Hour)
+	accessToken, err := uc.userService.GenerateToken(user.Email, user.Username, user.ID, roleEntity.Name, 7*24*time.Hour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"data":   nil,

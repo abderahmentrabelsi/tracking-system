@@ -56,13 +56,14 @@ func (us *UserService) CreateLoginHistory(userID uint, clientIP string, userAgen
 
 	return nil
 }
-func (us *UserService) GenerateToken(email string, userID uint, role string, duration time.Duration) (string, error) {
+func (us *UserService) GenerateToken(email, username string, userID uint, role string, duration time.Duration) (string, error) {
 	exp := time.Now().Add(duration)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"UserID": strconv.Itoa(int(userID)), // Convert userID to string
-		"Email":  email,
-		"Role":   role,
-		"exp":    exp.Unix(),
+		"UserID":   strconv.Itoa(int(userID)), // Convert userID to string
+		"Email":    email,
+		"Username": username, // Add the username to the token
+		"Role":     role,
+		"exp":      exp.Unix(),
 	})
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }

@@ -11,8 +11,9 @@ import (
 )
 
 type JWTClaims struct {
-	UserID string `json:"UserID"`
-	Role   string `json:"role"`
+	UserID   string `json:"UserID"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
 	jwt.StandardClaims
 }
 
@@ -35,9 +36,11 @@ func AuthMiddleware(userService *service.UserService) gin.HandlerFunc {
 
 		if claims, ok := token.Claims.(*JWTClaims); ok && token.Valid {
 			c.Set("userID", claims.UserID)
+			c.Set("username", claims.Username) // Add username to context
 			c.Set("userRole", claims.Role)
+			fmt.Println("Username set in context:", claims.Username)
 			fmt.Println("Role set in context:", claims.Role)
-			fmt.Println("UserID set in context:", claims.UserID) // Add debug log here
+			fmt.Println("UserID set in context:", claims.UserID)
 			c.Next()
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
