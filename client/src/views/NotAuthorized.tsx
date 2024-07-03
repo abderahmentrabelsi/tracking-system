@@ -49,7 +49,7 @@ const NotAuthorized = ({ mode }: { mode: SystemMode }) => {
           <Typography variant='h4'>You are not authorized! 🔐</Typography>
           <Typography>You don&#39;t have permission to access this page. Go Home!</Typography>
         </div>
-        <Button href='/' component={Link} variant='contained'>
+        <Button href='/home' component={Link} variant='contained'>
           Back To Home
         </Button>
         <img
