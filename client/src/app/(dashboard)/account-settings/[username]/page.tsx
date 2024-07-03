@@ -1,36 +1,57 @@
-//client/src/app/(dashboard)/account-settings/[username]/page.tsx
 // Next Imports
-import type { Metadata } from 'next'
-import dynamic from 'next/dynamic'
+import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
+import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
+import { redirect } from 'next/navigation';
 
 // Component Imports
-const AccountSettings = dynamic(() => import('@views/account-settings'), { ssr: false })
-
-// Server Action Imports
-import { getServerMode } from '@core/utils/serverHelpers'
+const AccountSettings = dynamic(() => import('@views/account-settings'), { ssr: false });
 
 // Metadata
 export const metadata: Metadata = {
   title: 'Account Settings',
   description: 'Manage your account settings'
-}
+};
 
-const AccountSettingsPage = async () => {
-  const mode = getServerMode()
+const getPayloadFromToken = (token: string) => {
+  try {
+    return jwt.decode(token) as jwt.JwtPayload;
+  } catch (error) {
+    return null;
+  }
+};
+
+const AccountSettingsPage = async ({ params }: { params: { username: string } }) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get('access_token')?.value;
+  let isAuthorized = false;
+
+  if (token) {
+    const payload = getPayloadFromToken(token);
+    if (payload && payload.Username === params.username) {
+      isAuthorized = true;
+    }
+  }
+
+  if (!isAuthorized) {
+    // Redirect to forbidden page if not authorized
+    redirect('/forbidden');
+  }
 
   // Import the content for each tab dynamically
-  const Account = dynamic(() => import('@views/account-settings/account'))
-  const Security = dynamic(() => import('@views/account-settings/security'))
-  const Notifications = dynamic(() => import('@views/account-settings/notifications'))
+  const Account = dynamic(() => import('@views/account-settings/account'));
+  const Security = dynamic(() => import('@views/account-settings/security'));
+  const Notifications = dynamic(() => import('@views/account-settings/notifications'));
 
   // Mock tab content list, replace with actual content components if necessary
   const tabContentList = {
     account: <Account />,
     security: <Security />,
     notifications: <Notifications />,
-  }
+  };
 
-  return <AccountSettings tabContentList={tabContentList} mode={mode} />
-}
+  return <AccountSettings tabContentList={tabContentList} mode="account" />;
+};
 
-export default AccountSettingsPage
+export default AccountSettingsPage;
