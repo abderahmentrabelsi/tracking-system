@@ -134,7 +134,7 @@ const UserDropdown = () => {
                     <i className="tabler-user text-[22px]" />
                     <Typography color="text.primary">My Profile</Typography>
                   </MenuItem>
-                  <MenuItem className="mli-2 gap-3" onClick={e => handleDropdownClose(e, '/account-settings')}>
+                  <MenuItem className="mli-2 gap-3" onClick={e => handleDropdownClose(e, `/account-settings/${userDetails?.username}`)}>
                     <i className="tabler-settings text-[22px]" />
                     <Typography color="text.primary">Settings</Typography>
                   </MenuItem>
