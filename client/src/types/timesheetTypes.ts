@@ -1,9 +1,10 @@
+// timesheetTypes.ts
 export interface WorkHours {
   ID: number;
   UserID: number;
   TaskID?: number | null;
-  Checkin: string;
-  Checkout?: string | null;
+  Checkin: number; // timestamp
+  Checkout?: number | null; // timestamp
   Duration: number;
   WorkType: string;
   Location: string;
@@ -12,14 +13,6 @@ export interface WorkHours {
   RequestedEdit: boolean;
   EditRequestMsg: string;
   ManagerComment: string;
-}
-
-export interface Timesheet {
-  data: WorkHours[];
-  message: {
-    msg: string;
-  };
-  status: string;
 }
 
 export interface CheckInData {
@@ -32,20 +25,4 @@ export interface CheckInData {
 
 export interface CheckOutData {
   workHoursID: number;
-}
-
-export interface EditRequestData {
-  workHoursID: number;
-  editRequestMsg: string;
-}
-
-export interface ApproveEditData {
-  workHoursID: number;
-  approved: boolean;
-  managerComment: string;
-}
-
-export interface DateRangeFilter {
-  startDate: string;
-  endDate: string;
 }
