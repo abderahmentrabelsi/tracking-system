@@ -82,3 +82,6 @@ func (us *UserService) GetUserByID(id uint) (*model.User, error) {
 func (us *UserService) GetAllUsers() ([]*model.User, error) {
 	return us.userRepository.GetAllUsers()
 }
+func (us *UserService) UpdateUserProfile(user *model.User) error {
+	return us.userRepository.UpdateUser(user)
+}

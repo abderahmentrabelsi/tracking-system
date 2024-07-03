@@ -20,7 +20,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/user/:id", middleware.AuthMiddleware(s.userService), userController.GetUserByID)
 	r.GET("/users", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), userController.GetAllUsers)
 	r.GET("/user/details", middleware.AuthMiddleware(s.userService), userController.GetUserDetails)
-	r.GET("/user/profile/:username", userController.GetUserDetailsByUsername) // New endpoint
+	r.GET("/user/profile/:username", userController.GetUserDetailsByUsername)
+	r.PUT("/user/profile/:username", middleware.AuthMiddleware(s.userService), userController.UpdateUserProfile) // New route
 
 	// Department routes
 	departmentController := controller.NewDepartmentController(s.departmentService)

@@ -427,7 +427,6 @@ func (uc *UserController) GetUserDetails(c *gin.Context) {
 		"jobTitle":       user.JobTitle,
 	})
 }
-
 func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 	username := c.Param("username")
 
@@ -503,4 +502,52 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+func (uc *UserController) UpdateUserProfile(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	username := c.Param("username")
+	loggedInUsername := c.GetString("username")
+
+	if loggedInUsername != username {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You can only update your own profile"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var body struct {
+		FirstName   string `json:"firstName"`
+		LastName    string `json:"lastName"`
+		Email       string `json:"email"`
+		PhoneNumber string `json:"phoneNumber"`
+		Address     string `json:"address"`
+	}
+
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	user, err := uc.userService.GetUserByID(uint(userID))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	user.FirstName = body.FirstName
+	user.LastName = body.LastName
+	user.Email = body.Email
+	user.PhoneNumber = body.PhoneNumber
+	user.Address = body.Address
+
+	if err := uc.userService.UpdateUserProfile(user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to update user profile"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
 }

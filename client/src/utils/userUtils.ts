@@ -93,3 +93,27 @@ export const fetchUserDetailsByUsername = async (username: string): Promise<User
     return null
   }
 }
+
+export const updateUserProfile = async (data: {
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string | number;
+  address: string;
+}): Promise<void> => {
+  const response = await fetch(`http://localhost:8383/user/profile/${data.username}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to update profile");
+  }
+};
+
