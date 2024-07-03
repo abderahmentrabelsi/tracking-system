@@ -35,8 +35,8 @@ const AccountSettingsPage = async ({ params }: { params: { username: string } })
   }
 
   if (!isAuthorized) {
-    // Redirect to forbidden page if not authorized
-    redirect('/forbidden');
+    // Redirect to notauthorized page if not authorized
+    redirect('/notauthorized');
   }
 
   // Import the content for each tab dynamically
@@ -51,7 +51,7 @@ const AccountSettingsPage = async ({ params }: { params: { username: string } })
     notifications: <Notifications />,
   };
 
-  return <AccountSettings tabContentList={tabContentList} mode="account" />;
+  return <AccountSettings tabContentList={tabContentList} mode="light" />;
 };
 
 export default AccountSettingsPage;
