@@ -78,6 +78,15 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.PUT("/comments/:id", middleware.AuthMiddleware(), commentController.UpdateComment)
 	r.DELETE("/comments/:id", middleware.AuthMiddleware(), commentController.DeleteComment)
 
+	// Timesheet Routes
+	timesheetController := controller.NewTimesheetController(s.WorkHoursService)
+	r.POST("/checkin", middleware.AuthMiddleware(), timesheetController.CheckIn)
+	r.PUT("/checkout/:id", middleware.AuthMiddleware(), timesheetController.CheckOut)
+	r.GET("/timesheet/:userID", middleware.AuthMiddleware(), timesheetController.GetTimesheet)
+	r.POST("/timesheet/edit-request", middleware.AuthMiddleware(), timesheetController.RequestEdit)
+	r.POST("/timesheet/approve-edit", middleware.AuthMiddleware(), timesheetController.ApproveEdit)
+	r.POST("/timesheet/date-range", middleware.AuthMiddleware(), timesheetController.GetTimesheetByDateRange)
+
 	return r
 }
 

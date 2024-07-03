@@ -98,6 +98,11 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
           Tasks
         </MenuItem>
 
+        <MenuItem href='/timesheet' icon={<i className='tabler-clock' />} className='menu-item-timesheet'>
+          Timesheet
+        </MenuItem>
+
+
 
       </Menu>
       {/* <Menu

@@ -56,13 +56,19 @@ type LoginHistory struct {
 
 type WorkHours struct {
 	gorm.Model
-	UserID   uint      `json:"userId"`
-	Checkin  time.Time `json:"checkin"`
-	Checkout time.Time `json:"checkout"`
-	Duration float32   `json:"duration"`
-	WorkType string    `json:"workType"`
-	Location string    `json:"location"`
-	Comments string    `json:"comments"`
+	ID             uint       `gorm:"primaryKey"`
+	UserID         uint       `json:"userId"`
+	TaskID         *uint      `json:"taskId,omitempty"`
+	Checkin        time.Time  `json:"checkin"`
+	Checkout       *time.Time `json:"checkout,omitempty"`
+	Duration       float32    `json:"duration"`
+	WorkType       string     `json:"workType"`
+	Location       string     `json:"location"`
+	Comments       string     `json:"comments"`
+	Approved       bool       `json:"approved"`
+	RequestedEdit  bool       `json:"requestedEdit"`
+	EditRequestMsg string     `json:"editRequestMsg"`
+	ManagerComment string     `json:"managerComment"`
 }
 
 type TokenDetails struct {
