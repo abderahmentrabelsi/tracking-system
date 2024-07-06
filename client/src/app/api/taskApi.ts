@@ -59,6 +59,17 @@ export const getTasksByUserId = async (userId: number): Promise<TaskType[]> => {
   }
 };
 
+export const getTaskById = async (id: number): Promise<TaskType[]> => {
+  const response = await apiClient.get(`/task/${id}`);
+  if (response.status === 200) {
+    return response.data.data;
+  } else {
+    throw new Error('Failed to fetch tasks');
+  }
+};
+
+
+
 export const createComment = async (comment: CommentType): Promise<CommentType> => {
   const response = await apiClient.post('/comments', comment);
   if (response.status === 201) {

@@ -1,18 +1,24 @@
-// timesheetTypes.ts
 export interface WorkHours {
   ID: number;
-  UserID: number;
-  TaskID?: number | null;
-  Checkin: number; // timestamp
-  Checkout?: number | null; // timestamp
-  Duration: number;
-  WorkType: string;
-  Location: string;
-  Comments: string;
-  Approved: boolean;
-  RequestedEdit: boolean;
-  EditRequestMsg: string;
-  ManagerComment: string;
+  userID: number;
+  taskID?: number | null;
+  checkin: number;
+  checkout?: number | null;
+  duration: number;
+  workType: string;
+  location: string;
+  comments: string;
+  approved: boolean;
+  requestedEdit: boolean;
+  editRequestMsg: string;
+  managerComment: string;
+}
+
+export interface TaskType {
+  ID: number;
+  title: string;
+  description: string;
+  // Add other fields as necessary
 }
 
 export interface CheckInData {

@@ -1,9 +1,21 @@
 'use client'
+
 import React from 'react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
 import TimesheetDashboard from '@/views/timesheet';
 
-const DashboardPage: React.FC = () => {
-  return <TimesheetDashboard />;
-};
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+});
 
-export default DashboardPage;
+const App: React.FC = () => (
+  <ThemeProvider theme={theme}>
+    <CssBaseline />
+    <TimesheetDashboard />
+  </ThemeProvider>
+);
+
+export default App;

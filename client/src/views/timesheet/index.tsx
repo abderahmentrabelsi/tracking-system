@@ -2,6 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import ManagerDashboard from './Manager';
 import EmployeeDashboard from './Employee';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+});
 
 const TimesheetDashboard: React.FC = () => {
   const [role, setRole] = useState<string | null>(null);
@@ -22,7 +29,10 @@ const TimesheetDashboard: React.FC = () => {
       {role === 'Manager' ? (
         <ManagerDashboard />
       ) : (
-        <EmployeeDashboard />
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <EmployeeDashboard />
+        </ThemeProvider>
       )}
     </div>
   );

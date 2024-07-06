@@ -1,94 +1,151 @@
+import React, { useState, useEffect } from 'react';
+import { Box, Button, Card, CardContent, Grid, Switch, Typography, TextField, MenuItem, CircularProgress, FormControlLabel, FormControl, InputLabel, Select } from '@mui/material';
+import { format } from 'date-fns';
+import { CheckInData, CheckOutData, WorkHours, TaskType } from '@/types/timesheetTypes';
+import { checkIn, checkOut, getTimesheet, getTasksByUserId } from '@/app/api/timesheetApi';
+import { AccessTime, Timer, Work } from '@mui/icons-material';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import TimesheetHistory from './timesheethistory';
+import { styled } from '@mui/system';
+import { getDepartmentById } from '@/app/api/taskApi';
+import DurationClock from './DurationClock';
+import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 
-'use client';
+import { BusinessCenter, WatchLater, MeetingRoom, School, LocalCafe, Assignment, Build, DirectionsCar, Call, Science, DeveloperMode } from '@mui/icons-material';
 
-import React, { useEffect, useState } from 'react';
-import { getTimesheet, checkIn, checkOut } from '@/app/api/timesheetApi';
-import { getTasksByUserId } from '@/app/api/taskApi';
-import { WorkHours, CheckInData } from '@/types/timesheetTypes';
-import {TaskType} from '@/types/taskTypes'
-import {
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Grid,
-  TextField,
-  Box,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
-  CircularProgress,
-} from '@mui/material';
-import { formatDistanceToNow, parseISO } from 'date-fns';
+const primaryColor = 'rgba(21,20,20,0.87)'; // Update this with your primary color
 
-const EmployeeDashboard: React.FC = () => {
+const StyledCard = styled(Card)({
+  transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'scale(1.02)',
+    boxShadow: '0 10px 20px rgba(0,0,0,0.12)',
+  },
+  marginBottom: '20px',
+  border: `2px solid ${primaryColor}`,
+  borderRadius: '10px',
+});
+
+const StyledFormControl = styled(FormControl)({
+  border: `2px solid primary`,
+  borderRadius: '10px',
+  padding: '8px',
+});
+
+const ScrollBox = styled(Box)({
+  maxHeight: '500px',
+  overflowY: 'auto',
+  overflowX: 'hidden',
+  scrollbarWidth: 'thin',
+  paddingRight: '15px',
+  '&::-webkit-scrollbar': {
+    width: '10px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: primaryColor,
+    borderRadius: '10px',
+    border: '2px solid #1b1b1b',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    backgroundColor: '#388E3C',
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: '#2b2b2b',
+    borderRadius: '10px',
+  },
+});
+
+const workTypeIcons = {
+  "Workday": <BusinessCenter style={{ marginRight: 8, color: 'black' }} />,
+  "Overtime": <WatchLater style={{ marginRight: 8, color: 'black' }} />,
+  "Meeting": <MeetingRoom style={{ marginRight: 8, color: 'black' }} />,
+  "Training": <School style={{ marginRight: 8, color: 'black' }} />,
+  "Break": <LocalCafe style={{ marginRight: 8, color: 'black' }} />,
+  "Administrative": <Assignment style={{ marginRight: 8, color: 'black' }} />,
+  "Task": <Assignment style={{ marginRight: 8, color: 'black' }} />,
+  "Client Work": <Build style={{ marginRight: 8, color: 'black' }} />,
+  "Travel": <DirectionsCar style={{ marginRight: 8, color: 'black' }} />,
+  "On Call": <Call style={{ marginRight: 8, color: 'black' }} />,
+  "Research": <Science style={{ marginRight: 8, color: 'black' }} />,
+  "Support": <AccessTime style={{ marginRight: 8, color: 'black' }} />,
+  "Development": <DeveloperMode style={{ marginRight: 8, color: 'black' }} />,
+};
+
+const EmployeeDashboard = () => {
   const [timesheet, setTimesheet] = useState<WorkHours[]>([]);
+  const [taskMode, setTaskMode] = useState(false);
+  const [currentCheckIns, setCurrentCheckIns] = useState<WorkHours[]>([]);
+  const [checkInData, setCheckInData] = useState<CheckInData>({ userID: Number(localStorage.getItem('userID')), workType: taskMode ? 'Task' : 'Workday', location: 'QORE ENTREPRISES, TUNIS, TUNISIA', comments: '', taskID: null });
   const [tasks, setTasks] = useState<TaskType[]>([]);
-  const [normalCheckIn, setNormalCheckIn] = useState<CheckInData>({
-    userID: parseInt(localStorage.getItem('userID') || '0'),
-    workType: '',
-    location: '',
-    comments: '',
-  });
-  const [taskCheckIn, setTaskCheckIn] = useState<CheckInData>({
-    userID: parseInt(localStorage.getItem('userID') || '0'),
-    workType: '',
-    location: '',
-    comments: '',
-    taskID: null,
-  });
   const [loading, setLoading] = useState(false);
-  const [liveCheckIn, setLiveCheckIn] = useState<WorkHours | null>(null);
+
+  const [isRemote, setIsRemote] = useState(false);
+  const [departmentId, setDepartmentId] = useState<number | null>(null);
+  const [departmentName, setDepartmentName] = useState<string>('');
+  const [clientName, setClientName] = useState<string>('');
+  const [JobTitle, setJobTitle]=useState<string>('');
 
   useEffect(() => {
-    const fetchTimesheet = async () => {
-      try {
-        const userID = parseInt(localStorage.getItem('userID') || '0');
-        const data = await getTimesheet(userID);
-        setTimesheet(data);
-        const ongoingCheckIn = data.find((entry) => !entry.Checkout);
-        setLiveCheckIn(ongoingCheckIn || null);
-      } catch (error) {
-        console.error('Error fetching timesheet:', error);
-      }
-    };
+    setCheckInData(prevData => ({
+      ...prevData,
+      workType: taskMode ? 'Task' : 'Workday'
+    }));
+  }, [taskMode]);
 
-    const fetchTasks = async () => {
-      try {
-        const userID = parseInt(localStorage.getItem('userID') || '0');
-        const data = await getTasksByUserId(userID);
-        setTasks(data);
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-      }
-    };
+  useEffect(() => {
+    const storedDepartmentId = typeof window !== 'undefined' ? parseInt(localStorage.getItem('departmentId') || '0', 10) : 0;
+    setDepartmentId(storedDepartmentId);
+    if (storedDepartmentId) {
+      fetchDepartmentDetails(storedDepartmentId);
+    }
+  }, []);
 
+  const fetchDepartmentDetails = async (id: number) => {
+    try {
+      const response = await getDepartmentById(id);
+      const department = response;
+      setDepartmentName(department.name);
+      const parentDepartment = await getDepartmentById(department.parentDepartmentId);
+      setClientName(parentDepartment.name);
+    } catch (error) {
+      console.error('Failed to fetch department details:', error);
+    }
+  };
+
+  useEffect(() => {
     fetchTimesheet();
     fetchTasks();
   }, []);
 
-  const handleNormalCheckIn = async () => {
-    setLoading(true);
+  const fetchTimesheet = async () => {
     try {
-      const checkInData = await checkIn(normalCheckIn);
-      setTimesheet((prev) => [...prev, checkInData]);
-      setLiveCheckIn(checkInData);
-      setNormalCheckIn({ ...normalCheckIn, workType: '', location: '', comments: '' });
+      const data = await getTimesheet(checkInData.userID);
+      setTimesheet(data);
+      const activeCheckIns = data.filter(entry => !entry.checkout);
+      setCurrentCheckIns(activeCheckIns);
     } catch (error) {
-      console.error('Error checking in:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error fetching timesheet:', error);
     }
   };
 
-  const handleTaskCheckIn = async () => {
+  const fetchTasks = async () => {
+    try {
+      const data = await getTasksByUserId(checkInData.userID);
+      setTasks(data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  const handleCheckIn = async () => {
     setLoading(true);
     try {
-      const checkInData = await checkIn(taskCheckIn);
-      setTimesheet((prev) => [...prev, checkInData]);
-      setLiveCheckIn(checkInData);
-      setTaskCheckIn({ ...taskCheckIn, workType: '', location: '', comments: '', taskID: null });
+      const response = await checkIn(checkInData);
+      setCurrentCheckIns(prev => [...prev, response]);
+      fetchTimesheet();
+      resetForm();
     } catch (error) {
       console.error('Error checking in:', error);
     } finally {
@@ -100,10 +157,8 @@ const EmployeeDashboard: React.FC = () => {
     setLoading(true);
     try {
       await checkOut({ workHoursID });
-      const userID = parseInt(localStorage.getItem('userID') || '0');
-      const data = await getTimesheet(userID);
-      setTimesheet(data);
-      setLiveCheckIn(null);
+      setCurrentCheckIns(prev => prev.filter(entry => entry.ID !== workHoursID));
+      fetchTimesheet();
     } catch (error) {
       console.error('Error checking out:', error);
     } finally {
@@ -111,179 +166,260 @@ const EmployeeDashboard: React.FC = () => {
     }
   };
 
-  const formatDate = (timestamp: string) => {
-    const date = parseISO(timestamp);
-    if (isNaN(date.getTime())) {
-      return 'Invalid date';
+  const formatTime = (timestamp: number) => {
+    if (!timestamp) {
+      console.error('Invalid timestamp:', timestamp);
+      return 'Invalid time';
     }
-    return date.toLocaleString();
+    const date = new Date(timestamp * 1000);
+    if (isNaN(date.getTime())) {
+      console.error('Invalid date:', date);
+      return 'Invalid time';
+    }
+    return format(date, 'Pp');
+  };
+
+  const handleToggleTaskMode = () => setTaskMode((prev) => !prev);
+  const handleToggleRemote = () => setIsRemote((prev) => !prev);
+
+  useEffect(() => {
+    if (isRemote) {
+      setCheckInData((prev) => ({ ...prev, location: 'Remote' }));
+    } else {
+      setCheckInData((prev) => ({ ...prev, location: 'QORE ENTREPRISES, TUNIS, TUNISIA' }));
+    }
+  }, [isRemote]);
+
+  const getTaskTitle = (taskId: number | null) => {
+    const task = tasks.find(task => task.ID === taskId);
+    return task ? task.title : 'N/A';
+  };
+
+  const resetForm = () => {
+    setCheckInData({
+      userID: Number(localStorage.getItem('userID')),
+      workType: 'Workday',
+      location: isRemote ? 'Remote' : 'QORE ENTREPRISES, TUNIS, TUNISIA',
+      comments: '',
+      taskID: null
+    });
   };
 
   return (
-    <Box sx={{ padding: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Employee Timesheet Dashboard
-      </Typography>
-      <Grid container spacing={3}>
+    <Box padding={4}>
+      <Grid container spacing={7}>
         <Grid item xs={12} md={6}>
-          <Card>
+          <StyledCard>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Normal Work Check-In
-              </Typography>
-              <FormControl fullWidth margin="normal">
-                <TextField
-                  label="Work Type"
-                  value={normalCheckIn.workType}
-                  onChange={(e) => setNormalCheckIn({ ...normalCheckIn, workType: e.target.value })}
-                  fullWidth
-                  margin="normal"
+              <Grid container justifyContent="space-between" alignItems="center">
+                <Typography variant="h6">Employee Timesheet Dashboard</Typography>
+                <FormControlLabel
+                  control={<Switch checked={taskMode} onChange={handleToggleTaskMode} color="primary" />}
+                  label="Switch to Task Time"
                 />
-              </FormControl>
-              <FormControl fullWidth margin="normal">
-                <TextField
-                  label="Location"
-                  value={normalCheckIn.location}
-                  onChange={(e) => setNormalCheckIn({ ...normalCheckIn, location: e.target.value })}
-                  fullWidth
-                  margin="normal"
-                />
-              </FormControl>
-              <FormControl fullWidth margin="normal">
-                <TextField
-                  label="Comments"
-                  value={normalCheckIn.comments}
-                  onChange={(e) => setNormalCheckIn({ ...normalCheckIn, comments: e.target.value })}
-                  fullWidth
-                  margin="normal"
-                />
-              </FormControl>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleNormalCheckIn}
-                disabled={loading}
-                startIcon={loading && <CircularProgress size={20} />}
-              >
-                Check In
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Task Timer
-              </Typography>
-              <FormControl fullWidth margin="normal">
-                <InputLabel id="task-label">Select Task</InputLabel>
-                <Select
-                  labelId="task-label"
-                  value={taskCheckIn.taskID || ''}
-                  onChange={(e) => setTaskCheckIn({ ...taskCheckIn, taskID: e.target.value as number })}
-                >
-                  {tasks.map((task) => (
-                    <MenuItem key={task.ID} value={task.ID}>
-                      {task.title}
+              </Grid>
+              <Box marginTop={2}>
+                {taskMode ? (
+                  <FormControl fullWidth margin="normal">
+                    <InputLabel>Select Task</InputLabel>
+                    <Select
+                      value={checkInData.taskID || ''}
+                      onChange={(e) => setCheckInData({ ...checkInData, taskID: e.target.value as number })}
+                    >
+                      {tasks.map((task) => (
+                        <MenuItem key={task.ID} value={task.ID}>
+                          {task.title}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                ) : null}
+                <StyledFormControl fullWidth margin="normal" variant="outlined">
+                  <InputLabel htmlFor="work-type-select" style={{ top: '-8px' }}>Work Type</InputLabel>
+                  <Select
+                    value={checkInData.workType}
+                    onChange={(e) => {
+                      const selectedValue = e.target.value;
+                      setCheckInData({ ...checkInData, workType: selectedValue });
+                      if (selectedValue === 'Task') {
+                        handleToggleTaskMode();
+                      }
+                    }}
+                    label="Work Type"
+                    inputProps={{
+                      name: 'work-type',
+                      id: 'work-type-select',
+                      startAdornment: <Work style={{ color: 'black', marginRight: 8 }} />,
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          backgroundColor: '#2a2a2a',
+                          color: 'white',
+                        },
+                      },
+                    }}
+                    style={{ padding: '8px 14px', height: '56px', display: 'flex', alignItems: 'center' }}
+                  >
+                    <MenuItem value="Workday">
+                      <BusinessCenter style={{ marginRight: 8 }} /> Workday
                     </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth margin="normal">
+                    <MenuItem value="Overtime">
+                      <WatchLater style={{ marginRight: 8 }} /> Overtime
+                    </MenuItem>
+                    <MenuItem value="Meeting">
+                      <MeetingRoom style={{ marginRight: 8 }} /> Meeting
+                    </MenuItem>
+                    <MenuItem value="Training">
+                      <School style={{ marginRight: 8 }} /> Training
+                    </MenuItem>
+                    <MenuItem value="Break">
+                      <LocalCafe style={{ marginRight: 8 }} /> Break
+                    </MenuItem>
+                    <MenuItem value="Administrative">
+                      <Assignment style={{ marginRight: 8 }} /> Administrative
+                    </MenuItem>
+                    <MenuItem value="Task">
+                      <Assignment style={{ marginRight: 8 }} /> Task
+                    </MenuItem>
+                    <MenuItem value="Client Work">
+                      <Build style={{ marginRight: 8 }} /> Client Work
+                    </MenuItem>
+                    <MenuItem value="Travel">
+                      <DirectionsCar style={{ marginRight: 8 }} /> Travel
+                    </MenuItem>
+                    <MenuItem value="On Call">
+                      <Call style={{ marginRight: 8 }} /> On Call
+                    </MenuItem>
+                    <MenuItem value="Research">
+                      <Science style={{ marginRight: 8 }} /> Research
+                    </MenuItem>
+                    <MenuItem value="Support">
+                      <AccessTime style={{ marginRight: 8 }} /> Support
+                    </MenuItem>
+                    <MenuItem value="Development">
+                      <DeveloperMode style={{ marginRight: 8 }} /> Development
+                    </MenuItem>
+                  </Select>
+                </StyledFormControl>
+                <FormControlLabel
+                  control={<Switch checked={isRemote} onChange={handleToggleRemote} color="primary" />}
+                  label="Remote Work"
+                />
+                {!isRemote && (
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Location"
+                    value={checkInData.location}
+                    onChange={(e) => setCheckInData({ ...checkInData, location: e.target.value })}
+                    InputProps={{
+                      startAdornment: <LocationOnIcon style={{ color: 'black' }} />,
+                    }}
+                  />
+                )}
+
                 <TextField
-                  label="Work Type"
-                  value={taskCheckIn.workType}
-                  onChange={(e) => setTaskCheckIn({ ...taskCheckIn, workType: e.target.value })}
                   fullWidth
                   margin="normal"
-                />
-              </FormControl>
-              <FormControl fullWidth margin="normal">
-                <TextField
-                  label="Location"
-                  value={taskCheckIn.location}
-                  onChange={(e) => setTaskCheckIn({ ...taskCheckIn, location: e.target.value })}
-                  fullWidth
-                  margin="normal"
-                />
-              </FormControl>
-              <FormControl fullWidth margin="normal">
-                <TextField
                   label="Comments"
-                  value={taskCheckIn.comments}
-                  onChange={(e) => setTaskCheckIn({ ...taskCheckIn, comments: e.target.value })}
-                  fullWidth
-                  margin="normal"
+                  value={checkInData.comments}
+                  onChange={(e) => setCheckInData({ ...checkInData, comments: e.target.value })}
+                  InputProps={{
+                    startAdornment: <AccessTime style={{ color: 'black' }} />,
+                  }}
                 />
-              </FormControl>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleTaskCheckIn}
-                disabled={loading}
-                startIcon={loading && <CircularProgress size={20} />}
-              >
-                Start Task Timer
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-        {liveCheckIn && (
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Current Check-In
-                </Typography>
-                <Typography variant="body2">
-                  Check-in Time: {formatDate(liveCheckIn.Checkin)}
-                </Typography>
-                <Typography variant="body2">
-                  Duration: {formatDistanceToNow(parseISO(liveCheckIn.Checkin))}
-                </Typography>
+                <Box display="flex" justifyContent="space-between">
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Department Name"
+                    value={departmentName}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Client Name"
+                    value={clientName}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Box>
                 <Button
                   variant="contained"
-                  color="secondary"
-                  onClick={() => handleCheckOut(liveCheckIn.ID)}
-                  disabled={loading}
+                  color="primary"
+                  onClick={handleCheckIn}
+                  style={{ float: 'right', marginTop: '30px', marginBottom: '30px' }}
+                  fullWidth
                 >
-                  Check Out
+                  Check In
                 </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        )}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Check-In/Check-Out History
-              </Typography>
-              <Box sx={{ maxHeight: '400px', overflowY: 'auto' }}>
-                {timesheet
-                  .filter((entry) => entry.Checkout)
-                  .map((entry) => (
-                    <Card key={entry.ID} sx={{ marginBottom: 2 }}>
-                      <CardContent>
-                        <Typography variant="body2">
-                          Check-in: {formatDate(entry.Checkin)}
-                        </Typography>
-                        <Typography variant="body2">
-                          Check-out: {entry.Checkout ? formatDate(entry.Checkout) : 'In Progress'}
-                        </Typography>
-                        <Typography variant="body2">
-                          Duration: {entry.Duration.toFixed(2)} hours
-                        </Typography>
-                        <Typography variant="body2">
-                          Comments: {entry.Comments}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  ))}
               </Box>
             </CardContent>
-          </Card>
+          </StyledCard>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <ScrollBox style={{ maxHeight: '600px' }}>
+            {currentCheckIns.map(checkIn => (
+              <StyledCard key={checkIn.ID}>
+                <CardContent>
+                  <Grid container justifyContent="space-between" alignItems="center">
+                    <Typography variant="h6" gutterBottom>
+                      Current Check-In
+                    </Typography>
+                    <Box display="flex" alignItems="center">
+                      {workTypeIcons[checkIn.workType] || <WorkOutlineIcon style={{ marginRight: 8, color: 'black' }} />}
+                      <Typography variant="h6" style={{ marginLeft: '5px' }}>
+                        {checkIn.workType.toUpperCase()}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Box display="flex" alignItems="center" marginTop={1}>
+                    <AccessTime style={{ marginRight: '8px', color: 'black' }} />
+                    <Typography>Check-in Time: {formatTime(checkIn.checkin)}</Typography>
+                  </Box>
+                  {checkIn.taskId && (
+                    <Box display="flex" alignItems="center" marginTop={1}>
+                      <Assignment style={{ marginRight: '8px', color: 'black' }} />
+                      <Typography>Current Task: {tasks.find(task => task.ID === checkIn.taskId)?.title}</Typography>
+                    </Box>
+                  )}
+                  <Box display="flex" alignItems="center" marginTop={1}>
+                    <LocationOnIcon style={{ marginRight: '8px', color: 'black' }} />
+                    <Typography>{checkIn.location === 'Remote' ? 'REMOTE' : checkIn.location}</Typography>
+                  </Box>
+                  <Box display="flex" justifyContent="space-between" alignItems="center" marginTop={2}>
+                    <DurationClock startTime={checkIn.checkin}  />
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleCheckOut(checkIn.ID)}
+                      style={{
+                        float: 'left',
+                        marginTop: '30px',
+                        marginBottom: '30px',
+                        transform: 'scale(1.3)', // Increase size
+                        marginRight: '20px', // Move slightly to the left
+                        borderRadius: '40px',
+                        boxShadow: '0 0 20px rgba(0, 0, 0, 0.9)',
+                      }}
+                      startIcon={<ExitToAppIcon />}
+                    >
+                      Check Out
+                    </Button>
+
+                  </Box>
+                </CardContent>
+              </StyledCard>
+            ))}
+          </ScrollBox>
+        </Grid>
+        <Grid item xs={12}>
+          <TimesheetHistory workHours={timesheet} tasks={tasks} />
         </Grid>
       </Grid>
     </Box>

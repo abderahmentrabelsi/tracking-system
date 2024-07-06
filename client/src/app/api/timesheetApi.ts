@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { WorkHours, CheckInData, CheckOutData } from '@/types/timesheetTypes';
-
+import { WorkHours, CheckInData, CheckOutData, TaskType } from '@/types/timesheetTypes';
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:8383',
@@ -20,4 +19,18 @@ export const checkOut = async (data: CheckOutData): Promise<WorkHours> => {
 export const getTimesheet = async (userID: number): Promise<WorkHours[]> => {
   const response = await apiClient.get(`/timesheet/${userID}`);
   return response.data.data;
+};
+
+export const getTasksByUserId = async (userID: number): Promise<TaskType[]> => {
+  const response = await apiClient.get(`/tasks/user/${userID}`);
+  return response.data.data;
+};
+
+export const getTaskById = async (id: number): Promise<TaskType[]> => {
+  const response = await apiClient.get(`/task/${id}`);
+  if (response.status === 200) {
+    return response.data.data;
+  } else {
+    throw new Error('Failed to fetch tasks');
+  }
 };
