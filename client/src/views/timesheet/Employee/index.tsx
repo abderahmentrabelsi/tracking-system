@@ -235,7 +235,7 @@ const EmployeeDashboard = () => {
                   </FormControl>
                 ) : null}
                 <StyledFormControl fullWidth margin="normal" variant="outlined">
-                  <InputLabel htmlFor="work-type-select" style={{ top: '-8px' }}>Work Type</InputLabel>
+                  <InputLabel htmlFor="work-type-select" style={{ top: '-10px' }}>Work Type</InputLabel>
                   <Select
                     value={checkInData.workType}
                     onChange={(e) => {

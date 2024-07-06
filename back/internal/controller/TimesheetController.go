@@ -19,7 +19,6 @@ func NewTimesheetController(workHoursService *service.WorkHoursService) *Timeshe
 	}
 }
 
-// CheckIn allows a user to check in to work or a task
 func (tc *TimesheetController) CheckIn(c *gin.Context) {
 	var body struct {
 		UserID   uint   `json:"userID"`
@@ -63,7 +62,6 @@ func (tc *TimesheetController) CheckIn(c *gin.Context) {
 	})
 }
 
-// CheckOut allows a user to check out from work or a task
 func (tc *TimesheetController) CheckOut(c *gin.Context) {
 	workHoursID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -100,7 +98,6 @@ func (tc *TimesheetController) CheckOut(c *gin.Context) {
 	})
 }
 
-// GetTimesheet retrieves the timesheet for a specific user
 func (tc *TimesheetController) GetTimesheet(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("userID"), 10, 64)
 	if err != nil {
@@ -137,7 +134,6 @@ func (tc *TimesheetController) GetTimesheet(c *gin.Context) {
 	})
 }
 
-// RequestEdit allows a user to request an edit for a work hours entry
 func (tc *TimesheetController) RequestEdit(c *gin.Context) {
 	var body struct {
 		WorkHoursID    uint   `json:"workHoursID"`
@@ -178,7 +174,6 @@ func (tc *TimesheetController) RequestEdit(c *gin.Context) {
 	})
 }
 
-// ApproveEdit allows a manager to approve or deny an edit request
 func (tc *TimesheetController) ApproveEdit(c *gin.Context) {
 	var body struct {
 		WorkHoursID    uint   `json:"workHoursID"`
@@ -220,7 +215,6 @@ func (tc *TimesheetController) ApproveEdit(c *gin.Context) {
 	})
 }
 
-// GetTimesheetByDateRange retrieves work hours entries within a specific date range
 func (tc *TimesheetController) GetTimesheetByDateRange(c *gin.Context) {
 	var body struct {
 		StartDate string `json:"startDate"`

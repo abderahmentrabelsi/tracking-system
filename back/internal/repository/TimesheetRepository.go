@@ -48,7 +48,7 @@ func (r *WorkHoursRepository) GetWorkHoursByUserID(userID uint) ([]*models.WorkH
 
 func (r *WorkHoursRepository) GetWorkHoursByDateRange(startDate, endDate time.Time) ([]*models.WorkHours, error) {
 	var workHours []*models.WorkHours
-	if err := orm.DB.Where("checkin >= ? AND checkout <= ?", startDate, endDate).Find(&workHours).Error; err != nil {
+	if err := orm.DB.Where("checkin >= ? AND checkout <= ?", startDate.Unix(), endDate.Unix()).Find(&workHours).Error; err != nil {
 		return nil, err
 	}
 	return workHours, nil

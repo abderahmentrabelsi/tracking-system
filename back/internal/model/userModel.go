@@ -15,6 +15,7 @@ type User struct {
 	Role         Role   `gorm:"foreignKey:RoleID"`
 	FirstName    string `json:"firstName"`
 	LastName     string `json:"lastName"`
+	JobName      string `json:"JobName"`
 	Picture      string `json:"picture"`
 	PhoneNumber  string `json:"phoneNumber"`
 	Address      string `json:"address"`
@@ -56,19 +57,19 @@ type LoginHistory struct {
 
 type WorkHours struct {
 	gorm.Model
-	ID             uint       `gorm:"primaryKey"`
-	UserID         uint       `json:"userId"`
-	TaskID         *uint      `json:"taskId,omitempty"`
-	Checkin        time.Time  `json:"checkin"`
-	Checkout       *time.Time `json:"checkout,omitempty"`
-	Duration       float32    `json:"duration"`
-	WorkType       string     `json:"workType"`
-	Location       string     `json:"location"`
-	Comments       string     `json:"comments"`
-	Approved       bool       `json:"approved"`
-	RequestedEdit  bool       `json:"requestedEdit"`
-	EditRequestMsg string     `json:"editRequestMsg"`
-	ManagerComment string     `json:"managerComment"`
+	ID             uint    `gorm:"primaryKey"`
+	UserID         uint    `json:"userId"`
+	TaskID         *uint   `json:"taskId,omitempty"`
+	Checkin        int64   `json:"checkin"`
+	Checkout       *int64  `json:"checkout,omitempty"`
+	Duration       float32 `json:"duration"`
+	WorkType       string  `json:"workType"`
+	Location       string  `json:"location"`
+	Comments       string  `json:"comments"`
+	Approved       bool    `json:"approved"`
+	RequestedEdit  bool    `json:"requestedEdit"`
+	EditRequestMsg string  `json:"editRequestMsg"`
+	ManagerComment string  `json:"managerComment"`
 }
 
 type TokenDetails struct {
