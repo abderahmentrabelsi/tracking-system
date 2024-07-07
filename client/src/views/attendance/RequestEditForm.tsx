@@ -32,7 +32,7 @@ import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import CheckIcon from '@mui/icons-material/Check';
 import { styled } from '@mui/material/styles';
 
-const steps = ['Select Workday', 'Enter Request Message', 'Submit'];
+const steps = ['Select Workday', 'Enter Request Message', 'Review Request'];
 
 const months = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -65,7 +65,7 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
 
 const CustomDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
-    border: '2px solid black',
+    border: '3px solid black',
     padding: theme.spacing(2),
   },
 }));
@@ -130,7 +130,7 @@ const RequestEditForm = ({ userID, onClose }) => {
 
   const handleSubmit = async () => {
     try {
-      await requestEdit(selectedWorkHoursID, editRequestMsg);
+      await requestEdit({ workHoursID: Number(selectedWorkHoursID), editRequestMsg});
       setSnackbarMessage('Edit request submitted successfully');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
@@ -178,7 +178,7 @@ const RequestEditForm = ({ userID, onClose }) => {
                 <>
                   {activeStep === 0 && (
                     <Box>
-                      <FormControl fullWidth sx={{ mb: 2 }}>
+                      <FormControl fullWidth sx={{ mb: 10 }}>
                         <InputLabel>Month</InputLabel>
                         <Select
                           value={selectedMonth}
@@ -211,8 +211,8 @@ const RequestEditForm = ({ userID, onClose }) => {
                     </Box>
                   )}
                   {activeStep === 1 && selectedWorkHours && (
-                    <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 }, mt: 2 }}>
-                      <Typography variant="h6" mb={2}>Workday Details</Typography>
+                    <Box component="form" sx={{ '& .MuiTextField-root': { mb: 7 }, mt: 7 }}>
+                      <Typography variant="h6" mb={6}>Workday Details</Typography>
                       <CustomTextField
                         label="Date"
                         fullWidth
@@ -287,8 +287,8 @@ const RequestEditForm = ({ userID, onClose }) => {
                     </Box>
                   )}
                   {activeStep === 2 && selectedWorkHours && (
-                    <Box>
-                      <Typography variant="h6" mb={2}>Review Request</Typography>
+                    <Box sx={{ '& .MuiTextField-root': { mb: 7 }, mt: 7 }}>
+                      <Typography variant="h6" mb={7}>Review Request</Typography>
                       <CustomTextField
                         label="Date"
                         fullWidth

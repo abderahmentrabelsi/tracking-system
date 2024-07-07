@@ -32,3 +32,9 @@ export interface CheckInData {
 export interface CheckOutData {
   workHoursID: number;
 }
+
+
+export interface RequestEditData {
+  workHoursID: number;
+  editRequestMsg: string;
+}

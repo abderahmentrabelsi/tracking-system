@@ -23,6 +23,9 @@ import StyledVerticalNavExpandIcon from '@menu/styles/vertical/StyledVerticalNav
 import menuItemStyles from '@core/styles/vertical/menuItemStyles'
 import menuSectionStyles from '@core/styles/vertical/menuSectionStyles'
 
+// React Imports
+import { useEffect, useState } from 'react'
+
 type RenderExpandIconProps = {
   open?: boolean
   transitionDuration?: VerticalMenuContextProps['transitionDuration']
@@ -44,7 +47,15 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
   const verticalNavOptions = useVerticalNav()
   const { settings } = useSettings()
   const { isBreakpointReached } = useVerticalNav()
-  const userRole = localStorage.getItem('userRole');
+
+  // State to store user role
+  const [userRole, setUserRole] = useState<string | null>(null)
+
+  // Retrieve user role from local storage on the client side
+  useEffect(() => {
+    const role = localStorage.getItem('userRole')
+    setUserRole(role)
+  }, [])
 
   // Vars
   const { transitionDuration } = verticalNavOptions
@@ -57,13 +68,13 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
     <ScrollWrapper
       {...(isBreakpointReached
         ? {
-            className: 'bs-full overflow-y-auto overflow-x-hidden',
-            onScroll: container => scrollMenu(container, false)
-          }
+          className: 'bs-full overflow-y-auto overflow-x-hidden',
+          onScroll: container => scrollMenu(container, false)
+        }
         : {
-            options: { wheelPropagation: false, suppressScrollX: true },
-            onScrollY: container => scrollMenu(container, true)
-          })}
+          options: { wheelPropagation: false, suppressScrollX: true },
+          onScrollY: container => scrollMenu(container, true)
+        })}
     >
       {/* Incase you also want to scroll NavHeader to scroll with Vertical Menu, remove NavHeader from above and paste it below this comment */}
       {/* Vertical Menu */}
@@ -81,60 +92,53 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
           About
         </MenuItem>
         {userRole !== 'Employee' && (
-        <MenuItem href='/signup' icon={<i className='tabler-users-plus' />}>
-          Signup
-        </MenuItem>
+          <MenuItem href='/signup' icon={<i className='tabler-users-plus' />}>
+            Signup
+          </MenuItem>
         )}
         {userRole !== 'Employee' && (
-        <SubMenu label="Roles & Permissions" icon={<i className='tabler-lock' />}>
-          <MenuItem href='/roles' icon={<i className='tabler-user' />}>
-            Role
-          </MenuItem>
-          <MenuItem href='/permissions' icon={<i className='tabler-shield-check' />}>
-            Permissions
-          </MenuItem>
-
-        </SubMenu>
+          <SubMenu label="Roles & Permissions" icon={<i className='tabler-lock' />}>
+            <MenuItem href='/roles' icon={<i className='tabler-user' />}>
+              Role
+            </MenuItem>
+            <MenuItem href='/permissions' icon={<i className='tabler-shield-check' />}>
+              Permissions
+            </MenuItem>
+          </SubMenu>
         )}
         {userRole !== 'Employee' && (
           <MenuItem href='/departments' icon={<i className='tabler-shield-check' />}>
             Departments
           </MenuItem>
         )}
-        <MenuItem href='/tasks' icon={<i className='tabler-clipboard-list' />}>
-          Tasks
-        </MenuItem>
-
+        {userRole === 'Manager' && (
+          <SubMenu label="Management" icon={<i className='tabler-lock' style={{ fontSize: '24px' }} />}>
+            <MenuItem href='/management/projects' icon={<i className='tabler-briefcase' style={{ fontSize: '24px' }} />}>
+              Projects
+            </MenuItem>
+            <MenuItem href='/tasks' icon={<i className='tabler-clipboard-list' style={{ fontSize: '24px' }} />}>
+              Tasks
+            </MenuItem>
+            <MenuItem href='/management/timesheet/' icon={<i className='tabler-calendar' style={{ fontSize: '24px' }} />}>
+              Timesheet
+            </MenuItem>
+          </SubMenu>
+        )}
+        {userRole === 'Employee' && (
+          <MenuItem href='/tasks' icon={<i className='tabler-clipboard-list' />}>
+            Tasks
+          </MenuItem>
+        )}
         <MenuItem href='/timesheet' icon={<i className='tabler-clock' />} className='menu-item-timesheet'>
           Timesheet
         </MenuItem>
-
         <MenuItem className='attendance-tab' href='/attendance' icon={<i className='tabler-clipboard' />} >
           Attendance
         </MenuItem>
-
         <MenuItem className='workhours-menu-item' href='/attendance/workhours' icon={<i className='tabler-briefcase' />} >
-          Workhours
+          Time Tracker
         </MenuItem>
-
-
-
-
-
-
-
-
-
       </Menu>
-      {/* <Menu
-        popoutMenuOffset={{ mainAxis: 23 }}
-        menuItemStyles={menuItemStyles(verticalNavOptions, theme, settings)}
-        renderExpandIcon={({ open }) => <RenderExpandIcon open={open} transitionDuration={transitionDuration} />}
-        renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
-        menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
-      >
-        <GenerateVerticalMenu menuData={menuData(dictionary, params)} />
-      </Menu> */}
     </ScrollWrapper>
   )
 }

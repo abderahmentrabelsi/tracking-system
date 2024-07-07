@@ -68,14 +68,21 @@ const TitleContainer = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   marginBottom: '20px',
-  padding: '10px',
+  padding: '10px 16px', // Adjust padding for better alignment
   backgroundColor: theme.palette.primary.main,
-  color: '#FFFFFF',
+  color: '#e8e5e5',
   borderRadius: '15px',
-  border: '2px solid transparent',
+  border: '1px solid rgba(255, 255, 255, 0.2)', // Subtle border for visibility
   backgroundClip: 'padding-box',
-  boxShadow: '0px 6px 8px rgba(0, 0, 0, 0.7)',
+  boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.7), 0 -6px 16px rgba(255, 255, 255, 0.3)', // Enhanced box shadow
   position: 'relative',
+  textAlign: 'center', // Center text horizontally
+  fontSize: '1.5rem',
+  fontWeight: 'bold',
+  transition: 'all 0.3s ease', // Smooth transition for hover effect
+  '&:hover': {
+    boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 -6px 16px rgba(255, 255, 255, 0.2)', // Hover effect
+  },
   '&:before': {
     content: '""',
     position: 'absolute',
@@ -91,7 +98,6 @@ const TitleContainer = styled(Box)(({ theme }) => ({
     maskComposite: 'exclude',
   },
 }));
-
 const Attendance = () => {
   const theme = useTheme();
   const [timesheet, setTimesheet] = useState([]);
@@ -191,7 +197,7 @@ const Attendance = () => {
   return (
     <TimesheetContainer>
       <TitleContainer>
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" gutterBottom sx={{ color: '#000000', fontWeight: 'bold' }}>
           Check-In/Check-Out: WORKDAY
         </Typography>
       </TitleContainer>
@@ -244,10 +250,10 @@ const Attendance = () => {
             variant="outlined"
             sx={{
               height: '56px',
-              borderColor: '#000',
+              borderColor: 'primary',
               color: '#000',
               '&:hover': {
-                borderColor: '#000',
+                borderColor: 'primary',
                 backgroundColor: '#f0f0f0',
               }
             }}
@@ -261,7 +267,7 @@ const Attendance = () => {
             sx={{
               height: '56px',
               marginLeft: '20px',
-              borderColor: '#000',
+              borderColor: 'primary',
               color: '#000',
               '&:hover': {
                 borderColor: '#000',
@@ -271,7 +277,7 @@ const Attendance = () => {
             startIcon={<CalendarTodayIcon style={{ fontSize: '2em' }} />}
             onClick={() => setCalendarOpen(true)}
           >
-            View Calendar
+            Calendar View
           </Button>
         </Box>
       </FilterContainer>
