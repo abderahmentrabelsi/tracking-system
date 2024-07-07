@@ -23,6 +23,7 @@ export interface UserType {
   roleId: number;
   firstName: string;
   lastName: string;
+  JobName:string;
   picture: string;
   phoneNumber: string;
   address: string;

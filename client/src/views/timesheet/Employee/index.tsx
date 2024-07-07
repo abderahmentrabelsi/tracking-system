@@ -212,7 +212,7 @@ const EmployeeDashboard = () => {
           <StyledCard>
             <CardContent>
               <Grid container justifyContent="space-between" alignItems="center">
-                <Typography variant="h6">Employee Timesheet Dashboard</Typography>
+                <Typography variant="h6">Timesheet Dashboard</Typography>
                 <FormControlLabel
                   control={<Switch checked={taskMode} onChange={handleToggleTaskMode} color="primary" />}
                   label="Switch to Task Time"

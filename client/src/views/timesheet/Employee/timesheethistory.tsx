@@ -7,6 +7,7 @@ import { WorkHours, TaskType } from '@/types/timesheetTypes';
 import { FirstPage, LastPage, KeyboardArrowLeft, KeyboardArrowRight, EventNote, Work, Home, BusinessCenter, WatchLater, MeetingRoom, School, LocalCafe, Assignment, Build, DirectionsCar, Call, Science, AccessTime, DeveloperMode } from '@mui/icons-material';
 import { fetchUserById } from '@/app/api/userApi';
 import { Person } from '@mui/icons-material';
+
 interface TimesheetHistoryProps {
   workHours: WorkHours[];
   tasks: TaskType[];
@@ -23,9 +24,10 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ workHours, tasks })
   const [filterWorkType, setFilterWorkType] = useState<string | null>('');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const [durationFilter, setDurationFilter] = useState<string | null>('');
   const [orderBy, setOrderBy] = useState<string | null>('checkin');
   const [orderDirection, setOrderDirection] = useState<'asc' | 'desc'>('desc');
-  const [user, setUser] = useState<{ firstName: string; lastName: string; jobName: string } | null>(null);
+  const [user, setUser] = useState<{ firstName: string; lastName: string; JobName: string } | null>(null);
 
   const userId = Number(localStorage.getItem('userID'));
 
@@ -36,7 +38,7 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ workHours, tasks })
         setUser({
           firstName: userData.firstName,
           lastName: userData.lastName,
-          jobName: userData.JobName.trim()
+          JobName: userData.JobName.trim()
         });
       } catch (error) {
         console.error('Failed to fetch user data:', error);
@@ -93,6 +95,7 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ workHours, tasks })
     setFilterWorkType('');
     setStartDate(null);
     setEndDate(null);
+    setDurationFilter('');
   };
 
   const sortedWorkHours = workHours.sort((a, b) => {
@@ -109,6 +112,27 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ workHours, tasks })
     if (filterWorkType && filterWorkType !== entry.workType) return false;
     if (startDate && new Date(entry.checkin * 1000) < startDate) return false;
     if (endDate && new Date(entry.checkin * 1000) > endDate) return false;
+    if (durationFilter) {
+      const duration = calculateDuration(entry.checkin, entry.checkout);
+      if (duration === 'N/A') return false;
+      const durationHours = parseInt(duration.split(':')[0], 10);
+      switch (durationFilter) {
+        case '< 2 hours':
+          if (durationHours >= 2) return false;
+          break;
+        case '< 5 hours':
+          if (durationHours >= 5) return false;
+          break;
+        case '< 8 hours':
+          if (durationHours >= 8) return false;
+          break;
+        case '8+ hours':
+          if (durationHours < 8) return false;
+          break;
+        default:
+          break;
+      }
+    }
     return true;
   });
 
@@ -127,7 +151,7 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ workHours, tasks })
                   border: `2px solid ${primaryColor}`, // Primary color solid border
                   borderRadius: '8px', // Rounded corners
                   padding: '8px', // Padding inside the box
-                  marginLeft: '500px', // Margin to the left
+                  marginLeft: '200px', // Margin to the left
                   boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
                   backgroundColor: 'primary', // Light background color with some opacity
                   transition: 'all 0.3s ease', // Smooth transition for hover effects
@@ -138,7 +162,7 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ workHours, tasks })
                 }}
               >
                 <Person style={{ marginRight: '8px' }} />
-                {`${user.firstName} ${user.lastName} - ${user.jobName}`}
+                {`${user.firstName} ${user.lastName} - ${user.JobName}`}
               </Box>
 
             )}
@@ -168,7 +192,7 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ workHours, tasks })
         <div style={{ margin: '20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box display="flex" alignItems="center">
             <TextField
-              label="Check-In Date"
+              label="Start Date"
               type="date"
               InputLabelProps={{ shrink: true }}
               value={startDate ? format(startDate, 'yyyy-MM-dd') : ''}
@@ -178,7 +202,7 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ workHours, tasks })
               size="small"
             />
             <TextField
-              label="Check-Out Date"
+              label="End Date"
               type="date"
               InputLabelProps={{ shrink: true }}
               value={endDate ? format(endDate, 'yyyy-MM-dd') : ''}
@@ -388,6 +412,29 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ workHours, tasks })
                   <DeveloperMode style={{ marginRight: 8 }} /> Development
                 </Box>
               </MenuItem>
+            </Select>
+            <Select
+              value={durationFilter}
+              onChange={(e) => setDurationFilter(e.target.value as string)}
+              displayEmpty
+              inputProps={{ 'aria-label': 'Filter by duration' }}
+              style={{ minWidth: 150, marginLeft: 10 }}
+              variant="outlined"
+              size="small"
+              renderValue={(selected) => {
+                if (!selected) {
+                  return <em>All Durations</em>;
+                }
+                return selected;
+              }}
+            >
+              <MenuItem value="">
+                <em>All Durations</em>
+              </MenuItem>
+              <MenuItem value="< 2 hours">&lt; 2 hours</MenuItem>
+              <MenuItem value="< 5 hours">&lt; 5 hours</MenuItem>
+              <MenuItem value="< 8 hours">&lt; 8 hours</MenuItem>
+              <MenuItem value="8+ hours">8+ hours</MenuItem>
             </Select>
           </Box>
         </div>

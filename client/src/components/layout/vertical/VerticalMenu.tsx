@@ -44,6 +44,7 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
   const verticalNavOptions = useVerticalNav()
   const { settings } = useSettings()
   const { isBreakpointReached } = useVerticalNav()
+  const userRole = localStorage.getItem('userRole');
 
   // Vars
   const { transitionDuration } = verticalNavOptions
@@ -79,9 +80,12 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         <MenuItem href='/about' icon={<i className='tabler-info-circle' />}>
           About
         </MenuItem>
+        {userRole !== 'Employee' && (
         <MenuItem href='/signup' icon={<i className='tabler-users-plus' />}>
           Signup
         </MenuItem>
+        )}
+        {userRole !== 'Employee' && (
         <SubMenu label="Roles & Permissions" icon={<i className='tabler-lock' />}>
           <MenuItem href='/roles' icon={<i className='tabler-user' />}>
             Role
@@ -91,9 +95,12 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
           </MenuItem>
 
         </SubMenu>
-        <MenuItem href='/departments' icon={<i className='tabler-shield-check' />}>
-          Departments
-        </MenuItem>
+        )}
+        {userRole !== 'Employee' && (
+          <MenuItem href='/departments' icon={<i className='tabler-shield-check' />}>
+            Departments
+          </MenuItem>
+        )}
         <MenuItem href='/tasks' icon={<i className='tabler-clipboard-list' />}>
           Tasks
         </MenuItem>
@@ -101,6 +108,20 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         <MenuItem href='/timesheet' icon={<i className='tabler-clock' />} className='menu-item-timesheet'>
           Timesheet
         </MenuItem>
+
+        <MenuItem className='attendance-tab' href='/attendance' icon={<i className='tabler-clipboard' />} >
+          Attendance
+        </MenuItem>
+
+        <MenuItem className='workhours-menu-item' href='/attendance/workhours' icon={<i className='tabler-briefcase' />} >
+          Workhours
+        </MenuItem>
+
+
+
+
+
+
 
 
 

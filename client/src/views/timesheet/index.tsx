@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import ManagerDashboard from './Manager';
+// import ManagerDashboard from './Manager';
 import EmployeeDashboard from './Employee';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
@@ -27,7 +27,7 @@ const TimesheetDashboard: React.FC = () => {
   return (
     <div>
       {role === 'Manager' ? (
-        <ManagerDashboard />
+        <EmployeeDashboard />
       ) : (
         <ThemeProvider theme={theme}>
           <CssBaseline />

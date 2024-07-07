@@ -34,3 +34,12 @@ export const getTaskById = async (id: number): Promise<TaskType[]> => {
     throw new Error('Failed to fetch tasks');
   }
 };
+
+
+export const requestEdit = async (workHoursID: number, editRequestMsg: string): Promise<WorkHours> => {
+  const response = await apiClient.post('/timesheet/edit-request', {
+    workHoursID,
+    editRequestMsg,
+  });
+  return response.data.data;
+};
