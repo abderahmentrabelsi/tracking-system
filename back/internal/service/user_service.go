@@ -85,3 +85,6 @@ func (us *UserService) GetAllUsers() ([]*model.User, error) {
 func (us *UserService) UpdateUserProfile(user *model.User) error {
 	return us.userRepository.UpdateUser(user)
 }
+func (us *UserService) UpdatePassword(userID uint, newPassword string) error {
+	return us.userRepository.UpdatePassword(userID, newPassword)
+}

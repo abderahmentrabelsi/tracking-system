@@ -86,3 +86,10 @@ func (ur *UserRepository) UpdateUser(user *model.User) error {
 	}
 	return nil
 }
+
+func (ur *UserRepository) UpdatePassword(userID uint, newPassword string) error {
+	if err := orm.DB.Model(&model.User{}).Where("id = ?", userID).Update("password", newPassword).Error; err != nil {
+		return fmt.Errorf("failed to update password for user ID %d: %v", userID, err)
+	}
+	return nil
+}

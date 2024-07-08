@@ -4,6 +4,8 @@ import (
 	model "back/internal/model"
 	"back/internal/service"
 	"back/internal/store"
+	"back/internal/utils"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -555,4 +557,64 @@ func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
+}
+func (uc *UserController) ChangePassword(c *gin.Context) {
+	var body struct {
+		CurrentPassword string `json:"currentPassword"`
+		NewPassword     string `json:"newPassword"`
+	}
+
+	if err := c.Bind(&body); err != nil {
+		fmt.Println("Error binding request body:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	userIDStr := c.GetString("userID")
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		fmt.Println("Error parsing user ID:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	fmt.Println("User ID:", userID)
+
+	user, err := uc.userService.GetUserByID(uint(userID))
+	if err != nil {
+		fmt.Println("Error fetching user:", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	fmt.Println("User found:", user)
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.CurrentPassword))
+	if err != nil {
+		fmt.Println("Current password mismatch:", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Current password is incorrect"})
+		return
+	}
+
+	if !utils.ValidatePassword(body.NewPassword) {
+		fmt.Println("New password does not meet criteria")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "New password does not meet the criteria"})
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(body.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println("Error hashing new password:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing new password"})
+		return
+	}
+
+	err = uc.userService.UpdatePassword(uint(userID), string(hash))
+	if err != nil {
+		fmt.Println("Error updating password:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to update password"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
 }

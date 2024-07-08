@@ -122,3 +122,20 @@ export const updateUserProfile = async (data: {
     throw new Error(errorData.message || "Failed to update profile");
   }
 };
+
+
+export const updateUserPassword = async (data: { currentPassword: string, newPassword: string }): Promise<void> => {
+  const response = await fetch(`http://localhost:8383/user/change-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to update password');
+  }
+};

@@ -3,7 +3,6 @@ package middleware
 import (
 	"back/internal/service"
 	"back/internal/store"
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -38,9 +37,6 @@ func AuthMiddleware(userService *service.UserService) gin.HandlerFunc {
 			c.Set("userID", claims.UserID)
 			c.Set("username", claims.Username) // Add username to context
 			c.Set("userRole", claims.Role)
-			fmt.Println("Username set in context:", claims.Username)
-			fmt.Println("Role set in context:", claims.Role)
-			fmt.Println("UserID set in context:", claims.UserID)
 			c.Next()
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
