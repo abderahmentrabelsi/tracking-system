@@ -145,8 +145,9 @@ const AccountDetails = () => {
       onSuccess: async () => {
         console.log('Upload finished:', upload.url);
         setIsUploading(false);
-        const newImageUrl = upload.url; // Get the uploaded image URL
-        setImgSrc(newImageUrl); // Update imgSrc state with the new URL
+        const newImageUrl = upload.url;
+        // @ts-ignore
+        setImgSrc(newImageUrl);
         mutation.mutate({
           username,
           ...formData,
