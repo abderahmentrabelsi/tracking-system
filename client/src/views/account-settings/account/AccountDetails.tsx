@@ -1,6 +1,5 @@
-'use client';
-
-import { ChangeEvent, useEffect, useState } from 'react'
+'use client'
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import {
   Grid,
@@ -10,13 +9,15 @@ import {
   Typography,
   MenuItem,
   Chip, SelectChangeEvent
-} from '@mui/material'
+} from '@mui/material';
 import Avatar from 'react-avatar';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import CustomTextField from '@core/components/mui/TextField';
 import ProgressLinearWithLabel from '@/components/ProgressLinearWithLabel';
 import { fetchUserDetailsByUsername, UserDetails, updateUserProfile } from '@/utils/userUtils';
 import { stringToColor } from '@/utils/colorUtils';
+import { Upload } from 'tus-js-client';
+import Cookies from 'js-cookie';
 
 const languageData = ['English', 'Arabic', 'French', 'German', 'Portuguese'];
 
@@ -59,9 +60,11 @@ const AccountDetails = () => {
   const [fileInput, setFileInput] = useState<string>('');
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
   const [language, setLanguage] = useState<string[]>(['English']);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   useEffect(() => {
     if (userDetails) {
+      console.log('User details fetched:', userDetails); // Debug log
       setFormData({
         firstName: userDetails.firstName,
         lastName: userDetails.lastName,
@@ -69,8 +72,18 @@ const AccountDetails = () => {
         phoneNumber: userDetails.phoneNumber,
         address: userDetails.address,
       });
+      setImgSrc(userDetails.picture || '/images/avatars/1.png'); // Use a default image if picture is null
     }
   }, [userDetails]);
+
+  const getUserIdFromToken = () => {
+    const token = Cookies.get('access_token');
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      return decodedToken.UserID;
+    }
+    return null;
+  };
 
   const handleDelete = (value: string) => {
     setLanguage((current) => current.filter((item) => item !== value));
@@ -87,12 +100,60 @@ const AccountDetails = () => {
   const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     if (file) {
+      console.log('File selected:', file); // Debug log
       const reader = new FileReader();
       reader.onloadend = () => {
         setImgSrc(reader.result as string);
       };
       reader.readAsDataURL(file);
+
+      const userId = userDetails?.id?.toString() || getUserIdFromToken();
+      if (userId) {
+        uploadProfilePicture(file, userId);
+      } else {
+        console.error('User details not loaded or user ID is undefined');
+      }
     }
+  };
+
+  const uploadProfilePicture = (file: File, userId: string) => {
+    if (!userId) {
+      console.error('Invalid user ID:', userId);
+      return;
+    }
+
+    console.log('Starting upload with user ID:', userId); // Debug log
+    const upload = new Upload(file, {
+      endpoint: 'http://localhost:8383/files/',
+      metadata: {
+        filename: file.name,
+        filetype: file.type,
+        size: file.size.toString(),
+        userId, // Ensure user ID is passed correctly
+      },
+      onError: (error) => {
+        console.error('Upload failed:', error);
+        setIsUploading(false);
+      },
+      onProgress: (bytesUploaded, bytesTotal) => {
+        const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+        console.log(bytesUploaded, bytesTotal, percentage + '%');
+      },
+      onSuccess: async () => {
+        console.log('Upload finished:', upload.url);
+        setIsUploading(false);
+        const newImageUrl = upload.url; // Get the uploaded image URL
+        setImgSrc(newImageUrl); // Update imgSrc state with the new URL
+        mutation.mutate({
+          username,
+          ...formData,
+          picture: newImageUrl, // Update picture URL
+        });
+      }
+    });
+
+    setIsUploading(true);
+    upload.start();
   };
 
   const handleFileInputReset = () => {
@@ -101,7 +162,11 @@ const AccountDetails = () => {
   };
 
   const handleSubmit = () => {
-    mutation.mutate({ username, ...formData });
+    if (userDetails) {
+      mutation.mutate({ username, ...formData, picture: imgSrc });
+    } else {
+      console.error('User details not loaded');
+    }
   };
 
   if (isLoading) return <ProgressLinearWithLabel />;
@@ -200,8 +265,8 @@ const AccountDetails = () => {
               </CustomTextField>
             </Grid>
             <Grid item xs={12} className="flex gap-4 flex-wrap">
-              <Button variant="contained" onClick={handleSubmit}>
-                Save Changes
+              <Button variant="contained" onClick={handleSubmit} disabled={isUploading}>
+                {isUploading ? 'Uploading...' : 'Save Changes'}
               </Button>
               <Button
                 variant="tonal"

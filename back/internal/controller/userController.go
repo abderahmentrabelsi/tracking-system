@@ -16,13 +16,16 @@ type UserController struct {
 	userService       *service.UserService
 	departmentService *service.DepartmentService
 	roleService       *service.RoleService
+	fileService       *service.FileService // Add this line
+
 }
 
-func NewUserController(userService *service.UserService, departmentService *service.DepartmentService, roleService *service.RoleService) *UserController {
+func NewUserController(userService *service.UserService, departmentService *service.DepartmentService, roleService *service.RoleService, fileService *service.FileService) *UserController {
 	return &UserController{
 		userService:       userService,
 		departmentService: departmentService,
 		roleService:       roleService,
+		fileService:       fileService,
 	}
 }
 
@@ -504,7 +507,6 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 func (uc *UserController) UpdateUserProfile(c *gin.Context) {
-	userIDStr := c.GetString("userID")
 	username := c.Param("username")
 	loggedInUsername := c.GetString("username")
 
@@ -513,22 +515,10 @@ func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 		return
 	}
 
+	userIDStr := c.GetString("userID")
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	var body struct {
-		FirstName   string `json:"firstName"`
-		LastName    string `json:"lastName"`
-		Email       string `json:"email"`
-		PhoneNumber string `json:"phoneNumber"`
-		Address     string `json:"address"`
-	}
-
-	if err := c.BindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
@@ -538,11 +528,35 @@ func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 		return
 	}
 
+	var body struct {
+		FirstName   string `json:"firstName"`
+		LastName    string `json:"lastName"`
+		Email       string `json:"email"`
+		PhoneNumber string `json:"phoneNumber"`
+		Address     string `json:"address"`
+		FileID      string `json:"fileId"`
+	}
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
 	user.FirstName = body.FirstName
 	user.LastName = body.LastName
 	user.Email = body.Email
 	user.PhoneNumber = body.PhoneNumber
 	user.Address = body.Address
+
+	if body.FileID != "" {
+		file, err := uc.fileService.GetFileByFileID(body.FileID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve file"})
+			return
+		}
+		if file != nil {
+			user.Picture = file.FilePath
+		}
+	}
 
 	if err := uc.userService.UpdateUserProfile(user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to update user profile"})

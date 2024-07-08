@@ -118,18 +118,16 @@ func decodeBase64IfNeeded(value string) (string, error) {
 }
 
 func (fs *FileService) handleUploadComplete(event tusd.HookEvent) {
-	upload := event.Upload // Get the upload from the event
+	upload := event.Upload
 	fs.logWithMutex(fmt.Sprintf("Processing upload: %s", upload.ID))
 
-	metadata := upload.MetaData                           // Get metadata from the upload
-	storedFile := filepath.Join(fs.UploadPath, upload.ID) // Path to the stored file
+	metadata := upload.MetaData
+	storedFile := filepath.Join(fs.UploadPath, upload.ID)
 
-	// Log each metadata key-value pair
 	for key, value := range metadata {
 		fs.logWithMutex(fmt.Sprintf("Metadata - Key: %s, Value: %s", key, value))
 	}
 
-	// Get file information and check if it exists and is not empty
 	fileInfo, err := os.Stat(storedFile)
 	if err != nil {
 		fs.logWithMutex(fmt.Sprintf("Error stating file: %v", err))
@@ -142,7 +140,6 @@ func (fs *FileService) handleUploadComplete(event tusd.HookEvent) {
 
 	fs.logWithMutex(fmt.Sprintf("File stored at %s with size %d", storedFile, fileInfo.Size()))
 
-	// Use the upload ID directly as the filename
 	originalFileName := upload.ID
 	originalFilePath := filepath.Join(fs.UploadPath, originalFileName)
 	if err := os.Rename(storedFile, originalFilePath); err != nil {
@@ -151,7 +148,6 @@ func (fs *FileService) handleUploadComplete(event tusd.HookEvent) {
 	}
 	fs.logWithMutex(fmt.Sprintf("File renamed to %s", originalFilePath))
 
-	// Save metadata to a .info file in JSON format
 	infoFilePath := originalFilePath + ".info"
 	infoData := map[string]interface{}{
 		"ID":             upload.ID,
@@ -183,14 +179,12 @@ func (fs *FileService) handleUploadComplete(event tusd.HookEvent) {
 	}
 	fs.logWithMutex(fmt.Sprintf("Metadata saved to %s", infoFilePath))
 
-	// Check if the file already exists in the repository
 	existingFile, err := fs.fileRepository.GetFileByFileID(upload.ID)
 	if err != nil {
 		fs.logWithMutex(fmt.Sprintf("Error checking for existing file: %v", err))
 		return
 	}
 	if existingFile == nil {
-		// Save file metadata to the repository if it doesn't already exist
 		if err := fs.saveFileMetadata(upload.ID, metadata, originalFilePath); err != nil {
 			fs.logWithMutex(fmt.Sprintf("Error saving file metadata: %v", err))
 			return
@@ -201,7 +195,6 @@ func (fs *FileService) handleUploadComplete(event tusd.HookEvent) {
 	}
 }
 
-// saveFileMetadata saves the file metadata to the repository.
 func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]string, originalFilePath string) error {
 	fileName, ok := metadata["filename"]
 	if !ok {
@@ -221,15 +214,22 @@ func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]str
 		return fmt.Errorf("error parsing size: %v", err)
 	}
 
-	userID, err := strconv.Atoi(metadata["userId"])
+	userIDStr, ok := metadata["userId"]
+	if !ok {
+		fs.logWithMutex("User ID not provided in metadata")
+		return fmt.Errorf("user ID not provided in metadata")
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
 	if err != nil {
 		fs.logWithMutex(fmt.Sprintf("Error parsing user ID: %v", err))
 		return fmt.Errorf("error parsing user ID: %v", err)
 	}
 
-	fs.logWithMutex(fmt.Sprintf("Saving file metadata: filename=%s, path=%s, size=%d", fileName, originalFilePath, size))
+	fs.logWithMutex(fmt.Sprintf("Saving file metadata: filename=%s, path=%s, size=%d, userID=%d", fileName, originalFilePath, size, userID))
 
 	fileUpload := &model.FileUpload{
+		UploadID:   uploadID,
 		UserID:     uint(userID),
 		FileName:   fileName,
 		FilePath:   originalFilePath,
@@ -238,6 +238,10 @@ func (fs *FileService) saveFileMetadata(uploadID string, metadata map[string]str
 	}
 
 	return fs.fileRepository.SaveFileUpload(fileUpload)
+}
+
+func (fs *FileService) GetFileByFileID(fileID string) (*model.FileUpload, error) {
+	return fs.fileRepository.GetFileByFileID(fileID)
 }
 
 // SaveFile saves a file's metadata to the repository.

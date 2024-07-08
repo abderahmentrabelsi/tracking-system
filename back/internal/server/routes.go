@@ -12,7 +12,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
 
 	// User routes
-	userController := controller.NewUserController(s.userService, s.departmentService, s.roleService)
+	userController := controller.NewUserController(s.userService, s.departmentService, s.roleService, s.fileService)
 	r.POST("/signup", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), userController.SignUp)
 	r.POST("/login", userController.LoginHandler)
 	r.POST("/logout", userController.LogoutHandler)
@@ -21,7 +21,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/users", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), userController.GetAllUsers)
 	r.GET("/user/details", middleware.AuthMiddleware(s.userService), userController.GetUserDetails)
 	r.GET("/user/profile/:username", userController.GetUserDetailsByUsername)
-	r.PUT("/user/profile/:username", middleware.AuthMiddleware(s.userService), userController.UpdateUserProfile) // New route
+	r.PUT("/user/profile/:username", middleware.AuthMiddleware(s.userService), userController.UpdateUserProfile)
 
 	// Department routes
 	departmentController := controller.NewDepartmentController(s.departmentService)

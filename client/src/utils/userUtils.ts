@@ -1,10 +1,11 @@
 //client/src/utils/userUtils.ts
 export interface UserDetails {
+  id: number;
   username: string;
   email: string;
   firstName: string;
   lastName: string;
-  picture: string;
+  picture: string | null; // Allow null
   phoneNumber: string;
   address: string;
   roleId: number;
@@ -14,10 +15,10 @@ export interface UserDetails {
   departmentName: string;
   departments: Department[];
   jobTitle: string;
-  profile: any; // Add these if needed
-  teams: any;   // Add these if needed
-  projects: any; // Add these if needed
-  connections: any; // Add these if needed
+  profile: any;
+  teams: any;
+  projects: any;
+  connections: any;
 }
 
 export interface User {
@@ -101,14 +102,19 @@ export const updateUserProfile = async (data: {
   email: string;
   phoneNumber: string | number;
   address: string;
+  picture?: string | null; // Allow null for picture
 }): Promise<void> => {
+  // Remove picture if it's null to avoid sending it in the request
+  const { picture, ...restData } = data;
+  const requestData = picture === null ? restData : data;
+
   const response = await fetch(`http://localhost:8383/user/profile/${data.username}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
-    body: JSON.stringify(data),
+    body: JSON.stringify(requestData),
   });
 
   if (!response.ok) {
@@ -116,4 +122,3 @@ export const updateUserProfile = async (data: {
     throw new Error(errorData.message || "Failed to update profile");
   }
 };
-
