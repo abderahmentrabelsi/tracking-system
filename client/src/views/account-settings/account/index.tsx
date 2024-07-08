@@ -3,7 +3,6 @@ import Grid from '@mui/material/Grid'
 
 // Component Imports
 import AccountDetails from './AccountDetails'
-import AccountDelete from './AccountDelete'
 
 const Account = () => {
   return (
@@ -12,7 +11,6 @@ const Account = () => {
         <AccountDetails />
       </Grid>
       <Grid item xs={12}>
-        <AccountDelete />
       </Grid>
     </Grid>
   )
