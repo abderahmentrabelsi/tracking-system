@@ -15,7 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import { useSettings } from '@core/hooks/useSettings';
 import { fetchUserDetails, UserDetails } from '@/utils/userUtils';
-import { stringToColor } from '@/utils/colorUtils'; // Import the utility function
+import { stringToColor } from '@/utils/colorUtils';
 
 const BadgeContentSpan = styled('span')({
   width: 8,
@@ -89,12 +89,20 @@ const UserDropdown = () => {
         className="mis-2"
       >
         <div onClick={handleDropdownOpen} className="cursor-pointer bs-[38px] is-[38px]">
-          <Avatar
-            name={userDetails?.firstName || 'Unknown User'}
-            round
-            size="38"
-            color={avatarColor}
-          />
+          {userDetails?.picture ? (
+            <img
+              src={userDetails.picture}
+              alt={userDetails.firstName || 'Unknown User'}
+              style={{ width: 38, height: 38, borderRadius: '50%' }}
+            />
+          ) : (
+            <Avatar
+              name={`${userDetails?.firstName || 'Unknown'} ${userDetails?.lastName || 'User'}`}
+              round
+              size="38"
+              color={avatarColor}
+            />
+          )}
         </div>
       </Badge>
       <Popper
@@ -116,12 +124,20 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className="flex items-center plb-2 pli-6 gap-2" tabIndex={-1}>
-                    <Avatar
-                      name={userDetails?.firstName || 'Unknown User'}
-                      round
-                      size="38"
-                      color={avatarColor}
-                    />
+                    {userDetails?.picture ? (
+                      <img
+                        src={userDetails.picture}
+                        alt={userDetails.firstName || 'Unknown User'}
+                        style={{ width: 38, height: 38, borderRadius: '50%' }}
+                      />
+                    ) : (
+                      <Avatar
+                        name={`${userDetails?.firstName || 'Unknown'} ${userDetails?.lastName || 'User'}`}
+                        round
+                        size="38"
+                        color={avatarColor}
+                      />
+                    )}
                     <div className="flex items-start flex-col">
                       <Typography className="font-medium" color="text.primary">
                         {userDetails?.username || 'Unknown User'}

@@ -1,5 +1,4 @@
 'use client'
-'use client'
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import {
@@ -74,7 +73,7 @@ const AccountDetails = () => {
         email: userDetails.email,
         phoneNumber: userDetails.phoneNumber,
         address: userDetails.address,
-        picture: userDetails.picture || '/images/avatars/1.png', // Update this line
+        picture: userDetails.picture || '', // Update this line
       });
       setImgSrc(userDetails.picture || '/images/avatars/1.png'); // Use a default image if picture is null
     }
@@ -182,19 +181,19 @@ const AccountDetails = () => {
     <Card>
       <CardContent className="mbe-4">
         <div className="flex max-sm:flex-col items-center gap-6">
-          {imgSrc === '/images/avatars/1.png' ? (
-            <Avatar
-              name={userDetails?.firstName || 'Unknown User'}
-              round
-              size="100"
-              color={avatarColor}
-            />
-          ) : (
+          {formData.picture ? (
             <img
               src={imgSrc}
               alt="Uploaded Avatar"
               className="rounded-full"
               style={{ width: '100px', height: '100px' }}
+            />
+          ) : (
+            <Avatar
+              name={`${formData.firstName} ${formData.lastName}`}
+              round
+              size="100"
+              color={avatarColor}
             />
           )}
           <div className="flex flex-grow flex-col gap-4">
