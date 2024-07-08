@@ -58,6 +58,15 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ tabContentList, mode 
               }
               value='notifications'
             />
+            <Tab
+              label={
+                <div className='flex items-center gap-1.5'>
+                  <i className='tabler-device-desktop text-lg' />
+                  Recent Devices
+                </div>
+              }
+              value='recentDevices'
+            />
           </CustomTabList>
         </Grid>
         <Grid item xs={12}>
