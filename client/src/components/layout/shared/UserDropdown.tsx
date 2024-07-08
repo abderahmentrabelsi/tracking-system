@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
-import { useSettings } from '@core/hooks/useSettings';
+import { useQuery } from '@tanstack/react-query';
 import { fetchUserDetails, UserDetails } from '@/utils/userUtils';
 import { stringToColor } from '@/utils/colorUtils';
 
@@ -28,25 +28,14 @@ const BadgeContentSpan = styled('span')({
 
 const UserDropdown = () => {
   const [open, setOpen] = useState(false);
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const anchorRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { settings } = useSettings();
 
-  useEffect(() => {
-    const getUserDetails = async () => {
-      const data = await fetchUserDetails();
-      if (data) {
-        setUserDetails(data);
-        console.log("Fetched User Details:", data); // Add logging here
-      } else {
-        console.error('Failed to fetch user details');
-      }
-    };
-
-    getUserDetails();
-  }, []);
-
+  // Assuming fetchUserDetails cannot be changed, adjust the useQuery call to handle null
+  const { data: userDetails, isLoading, isError } = useQuery<UserDetails | null>({
+    queryKey: ['userDropdownDetails'],
+    queryFn: fetchUserDetails,
+  });
   const handleDropdownOpen = () => {
     setOpen(!open);
   };
@@ -77,8 +66,8 @@ const UserDropdown = () => {
     }
   };
 
-  const avatarColor = userDetails ? stringToColor(userDetails.username) : '';
-
+// Ensure userDetails is not null before accessing its properties
+  const avatarColor = userDetails ? stringToColor(userDetails?.username ?? '') : '';
   return (
     <>
       <Badge
@@ -120,7 +109,7 @@ const UserDropdown = () => {
               transformOrigin: placement === 'bottom-end' ? 'right top' : 'left top',
             }}
           >
-            <Paper className={settings.skin === 'bordered' ? 'border shadow-none' : 'shadow-lg'}>
+            <Paper>
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className="flex items-center plb-2 pli-6 gap-2" tabIndex={-1}>

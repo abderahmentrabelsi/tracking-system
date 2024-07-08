@@ -47,6 +47,7 @@ const AccountDetails = () => {
     mutationFn: updateUserProfile,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userDetails', username] });
+      queryClient.invalidateQueries({ queryKey: ['userDropdownDetails'] }); // Invalidate the query for the dropdown
     },
   });
 
