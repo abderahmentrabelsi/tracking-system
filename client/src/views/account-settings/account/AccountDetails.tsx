@@ -1,20 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation';
-import Grid from '@mui/material/Grid';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import type { SelectChangeEvent } from '@mui/material/Select';
-import type { ChangeEvent } from 'react';
-import CustomTextField from '@core/components/mui/TextField';
+import {
+  Grid,
+  Card,
+  CardContent,
+  Button,
+  Typography,
+  MenuItem,
+  Chip, SelectChangeEvent
+} from '@mui/material'
+import Avatar from 'react-avatar';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchUserDetailsByUsername, UserDetails, updateUserProfile } from '@/utils/userUtils';
+import CustomTextField from '@core/components/mui/TextField';
 import ProgressLinearWithLabel from '@/components/ProgressLinearWithLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Chip from '@mui/material/Chip';
+import { fetchUserDetailsByUsername, UserDetails, updateUserProfile } from '@/utils/userUtils';
+import { stringToColor } from '@/utils/colorUtils';
 
 const languageData = ['English', 'Arabic', 'French', 'German', 'Portuguese'];
 
@@ -29,13 +31,12 @@ type Data = {
 const AccountDetails = () => {
   const { username } = useParams<{ username: string }>();
   const queryClient = useQueryClient();
+
   const { data: userDetails, isError, isLoading } = useQuery<UserDetails>({
     queryKey: ['userDetails', username],
     queryFn: async () => {
       const details = await fetchUserDetailsByUsername(username);
-      if (!details) {
-        throw new Error('User not found');
-      }
+      if (!details) throw new Error('User not found');
       return details;
     },
   });
@@ -47,15 +48,14 @@ const AccountDetails = () => {
     },
   });
 
-  const initialData: Data = {
-    firstName: userDetails?.firstName || '',
-    lastName: userDetails?.lastName || '',
-    email: userDetails?.email || '',
-    phoneNumber: userDetails?.phoneNumber || '',
-    address: userDetails?.address || '',
-  };
+  const [formData, setFormData] = useState<Data>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    address: '',
+  });
 
-  const [formData, setFormData] = useState<Data>(initialData);
   const [fileInput, setFileInput] = useState<string>('');
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
   const [language, setLanguage] = useState<string[]>(['English']);
@@ -77,27 +77,21 @@ const AccountDetails = () => {
   };
 
   const handleChange = (event: SelectChangeEvent<unknown>) => {
-    const {
-      target: { value },
-    } = event;
-    setLanguage(value as string[]);
+    setLanguage(event.target.value as string[]);
   };
 
   const handleFormChange = (field: keyof Data, value: Data[keyof Data]) => {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleFileInputChange = (file: ChangeEvent<HTMLInputElement>) => {
-    const reader = new FileReader();
-    const { files } = file.target;
-
-    if (files && files.length !== 0) {
-      reader.onload = () => setImgSrc(reader.result as string);
-      reader.readAsDataURL(files[0]);
-
-      if (reader.result !== null) {
-        setFileInput(reader.result as string);
-      }
+  const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImgSrc(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -113,14 +107,34 @@ const AccountDetails = () => {
   if (isLoading) return <ProgressLinearWithLabel />;
   if (isError) return <div>Error loading user details</div>;
 
+  const avatarColor = stringToColor(userDetails?.username || 'Unknown User');
+
   return (
     <Card>
       <CardContent className="mbe-4">
         <div className="flex max-sm:flex-col items-center gap-6">
-          <img height={100} width={100} className="rounded" src={imgSrc} alt="Profile" />
+          {imgSrc === '/images/avatars/1.png' ? (
+            <Avatar
+              name={userDetails?.firstName || 'Unknown User'}
+              round
+              size="100"
+              color={avatarColor}
+            />
+          ) : (
+            <img
+              src={imgSrc}
+              alt="Uploaded Avatar"
+              className="rounded-full"
+              style={{ width: '100px', height: '100px' }}
+            />
+          )}
           <div className="flex flex-grow flex-col gap-4">
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button component="label" variant="contained" htmlFor="account-settings-upload-image">
+              <Button
+                component="label"
+                variant="contained"
+                htmlFor="account-settings-upload-image"
+              >
                 Upload New Photo
                 <input
                   hidden
@@ -142,51 +156,17 @@ const AccountDetails = () => {
       <CardContent>
         <form onSubmit={(e) => e.preventDefault()}>
           <Grid container spacing={6}>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                label="First Name"
-                value={formData.firstName}
-                placeholder="John"
-                onChange={(e) => handleFormChange('firstName', e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                label="Last Name"
-                value={formData.lastName}
-                placeholder="Doe"
-                onChange={(e) => handleFormChange('lastName', e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                label="Email"
-                value={formData.email}
-                placeholder="john.doe@gmail.com"
-                onChange={(e) => handleFormChange('email', e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                label="Phone Number"
-                value={formData.phoneNumber}
-                placeholder="+1 (234) 567-8901"
-                onChange={(e) => handleFormChange('phoneNumber', e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                label="Address"
-                value={formData.address}
-                placeholder="Address"
-                onChange={(e) => handleFormChange('address', e.target.value)}
-              />
-            </Grid>
+            {['firstName', 'lastName', 'email', 'phoneNumber', 'address'].map((field) => (
+              <Grid item xs={12} sm={6} key={field}>
+                <CustomTextField
+                  fullWidth
+                  label={field.replace(/^\w/, (c) => c.toUpperCase())}
+                  value={formData[field as keyof Data]}
+                  placeholder={field === 'phoneNumber' ? '+1 (234) 567-8901' : field}
+                  onChange={(e) => handleFormChange(field as keyof Data, e.target.value)}
+                />
+              </Grid>
+            ))}
             <Grid item xs={12} sm={6}>
               <CustomTextField
                 select
@@ -223,7 +203,12 @@ const AccountDetails = () => {
               <Button variant="contained" onClick={handleSubmit}>
                 Save Changes
               </Button>
-              <Button variant="tonal" type="reset" color="secondary" onClick={() => setFormData(initialData)}>
+              <Button
+                variant="tonal"
+                type="reset"
+                color="secondary"
+                onClick={() => setFormData(userDetails as Data)}
+              >
                 Reset
               </Button>
             </Grid>
