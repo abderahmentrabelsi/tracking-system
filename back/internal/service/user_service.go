@@ -6,6 +6,7 @@ import (
 	"back/internal/repository"
 	"github.com/dgrijalva/jwt-go"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -22,11 +23,9 @@ func NewUserService(userRepository *repository.UserRepository, roleRepository *r
 		fileService:    fileService,    // Initialize fileService
 	}
 }
-
 func (us *UserService) GetUserByEmail(email string) (*model.User, error) {
 	return us.userRepository.GetUserByEmail(email)
 }
-
 func (us *UserService) CreateUser(user *model.User, files []model.FileUpload) error {
 	err := us.userRepository.CreateUser(user)
 	if err != nil {
@@ -43,7 +42,6 @@ func (us *UserService) CreateUser(user *model.User, files []model.FileUpload) er
 
 	return nil
 }
-
 func (us *UserService) CreateLoginHistory(userID uint, clientIP string, userAgent string) error {
 	history := model.LoginHistory{
 		UserID:      userID,
@@ -58,33 +56,35 @@ func (us *UserService) CreateLoginHistory(userID uint, clientIP string, userAgen
 
 	return nil
 }
-
-func (us *UserService) GenerateToken(email string, role string, duration time.Duration) (string, error) {
+func (us *UserService) GenerateToken(email, username string, userID uint, role string, duration time.Duration) (string, error) {
 	exp := time.Now().Add(duration)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"UserID": email,
-		"Role":   role,
-		"exp":    exp.Unix(),
+		"UserID":   strconv.Itoa(int(userID)), // Convert userID to string
+		"Email":    email,
+		"Username": username, // Add the username to the token
+		"Role":     role,
+		"exp":      exp.Unix(),
 	})
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
-
 func (us *UserService) GetRoleByID(roleID uint) (*model.Role, error) {
 	return us.roleRepository.GetRoleByID(roleID)
 }
-
 func (us *UserService) GetUserByEmailOrUsername(identifier string) (*model.User, error) {
 	return us.userRepository.GetUserByEmailOrUsername(identifier) // rename GetUserByEmail to GetUserByEmailOrUsername
 }
-
 func (us *UserService) GetUserByUsername(username string) (*model.User, error) {
 	return us.userRepository.GetUserByUsername(username)
 }
-
 func (us *UserService) GetUserByID(id uint) (*model.User, error) {
 	return us.userRepository.GetUserByID(id)
 }
-
 func (us *UserService) GetAllUsers() ([]*model.User, error) {
 	return us.userRepository.GetAllUsers()
+}
+func (us *UserService) UpdateUserProfile(user *model.User) error {
+	return us.userRepository.UpdateUser(user)
+}
+func (us *UserService) UpdatePassword(userID uint, newPassword string) error {
+	return us.userRepository.UpdatePassword(userID, newPassword)
 }

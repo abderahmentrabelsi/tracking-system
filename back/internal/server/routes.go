@@ -1,62 +1,65 @@
 package server
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-
 	"back/internal/controller"
 	"back/internal/middleware"
+	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
 
 	// User routes
-	userController := controller.NewUserController(s.userService, s.departmentService, s.roleService)
-	r.POST("/signup", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), userController.SignUp)
+	userController := controller.NewUserController(s.userService, s.departmentService, s.roleService, s.fileService)
+	r.POST("/signup", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), userController.SignUp)
 	r.POST("/login", userController.LoginHandler)
 	r.POST("/logout", userController.LogoutHandler)
-	r.GET("/roles", middleware.AuthMiddleware(), userController.GetAllRoles)
-	r.GET("/user/:id", middleware.AuthMiddleware(), userController.GetUserByID)
-	r.GET("/users", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), userController.GetAllUsers)
+	r.GET("/roles", middleware.AuthMiddleware(s.userService), userController.GetAllRoles)
+	r.GET("/user/:id", middleware.AuthMiddleware(s.userService), userController.GetUserByID)
+	r.GET("/users", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), userController.GetAllUsers)
+	r.GET("/user/details", middleware.AuthMiddleware(s.userService), userController.GetUserDetails)
+	r.GET("/user/profile/:username", userController.GetUserDetailsByUsername)
+	r.PUT("/user/profile/:username", middleware.AuthMiddleware(s.userService), userController.UpdateUserProfile)
+	r.POST("/user/change-password", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager", "Employee"), userController.ChangePassword) // Add this line
 
 	// Department routes
 	departmentController := controller.NewDepartmentController(s.departmentService)
-	r.POST("/department/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.CreateDepartment)
-	r.GET("/department/:id", middleware.AuthMiddleware(), departmentController.GetDepartmentByID)
-	r.PUT("/department/update/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateDepartment)
-	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.DeleteDepartment)
-	r.GET("/departments/:client", middleware.AuthMiddleware(), departmentController.GetAllDepartmentsByClient)
+	r.POST("/department/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.CreateDepartment)
+	r.GET("/department/:id", middleware.AuthMiddleware(s.userService), departmentController.GetDepartmentByID)
+	r.PUT("/department/update/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateDepartment)
+	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.DeleteDepartment)
+	r.GET("/departments/:client", middleware.AuthMiddleware(s.userService), departmentController.GetAllDepartmentsByClient)
+	r.GET("/department/:id/users", middleware.AuthMiddleware(s.userService), departmentController.GetUsersByDepartment)
 
 	// Client routes
-	r.POST("/client/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.CreateClient)
-	r.GET("/client/", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetAllClients)
-	r.GET("/client/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetClientByID)
-	r.PUT("/client/update/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateClient)
-	r.DELETE("/client/delete/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.DeleteClient)
+	r.POST("/client/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.CreateClient)
+	r.GET("/client/", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetAllClients)
+	r.GET("/client/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetClientByID)
+	r.PUT("/client/update/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateClient)
+	r.DELETE("/client/delete/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.DeleteClient)
 
 	// Role routes
 	roleController := controller.NewRoleController(s.roleService)
-	r.POST("/role", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), roleController.CreateRole)
-	r.POST("/permission", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), roleController.CreatePermission)
-	r.POST("/role_permission", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), roleController.CreateRolePermission)
+	r.POST("/role", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), roleController.CreateRole)
+	r.POST("/permission", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), roleController.CreatePermission)
+	r.POST("/role_permission", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), roleController.CreateRolePermission)
 
 	// Payroll routes
 	payrollController := controller.NewPayrollController(s.payrollService)
-	r.POST("/salary/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), payrollController.CreateSalaryRecord)
-	r.PUT("/salary/user/:userId", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), payrollController.UpdateSalaryRecordByUserID)
-	r.GET("/salary/user/:id", middleware.AuthMiddleware(), payrollController.GetSalaryRecordsByUserID)
-	r.DELETE("/salary/user/:userId", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), payrollController.DeleteSalaryRecordByUserID)
-	r.POST("/contract/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), payrollController.CreateContractRecord)
-	r.PUT("/contract/user/:userId", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), payrollController.UpdateContractByUserID)
-	r.GET("/contract/user/:userId", middleware.AuthMiddleware(), payrollController.GetContractByUserID)
-	r.DELETE("/contract/user/:userId", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), payrollController.DeleteContractByUserID)
+	r.POST("/salary/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), payrollController.CreateSalaryRecord)
+	r.PUT("/salary/user/:userId", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), payrollController.UpdateSalaryRecordByUserID)
+	r.GET("/salary/user/:id", middleware.AuthMiddleware(s.userService), payrollController.GetSalaryRecordsByUserID)
+	r.DELETE("/salary/user/:userId", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), payrollController.DeleteSalaryRecordByUserID)
+	r.POST("/contract/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), payrollController.CreateContractRecord)
+	r.PUT("/contract/user/:userId", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), payrollController.UpdateContractByUserID)
+	r.GET("/contract/user/:userId", middleware.AuthMiddleware(s.userService), payrollController.GetContractByUserID)
+	r.DELETE("/contract/user/:userId", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), payrollController.DeleteContractByUserID)
 
 	// Hook routes
 	hookController := controller.NewHookController(s.fileService)
-	r.POST("/hooks/upload", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), hookController.UploadHook)
-	r.GET("/files", middleware.AuthMiddleware(), hookController.GetFiles)
+	r.POST("/hooks/upload", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), hookController.UploadHook)
+	r.GET("/files", middleware.AuthMiddleware(s.userService), hookController.GetFiles)
 	r.Any("/files/*any", gin.WrapH(http.StripPrefix("/files/", corsWrapper(s.fileService.TusdHandler))))
 
 	return r

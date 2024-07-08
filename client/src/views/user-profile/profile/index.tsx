@@ -1,0 +1,33 @@
+// MUI Imports
+import Grid from '@mui/material/Grid'
+
+// Type Imports
+import type { ProfileTabType } from '@/types/profileTypes'
+
+// Component Imports
+import AboutOverview from './AboutOverview'
+import ActivityTimeline from './ActivityTimeline'
+
+//dynamic import for about overview with making data can take any type
+
+
+const ProfileTab = ({ data }: { data?: ProfileTabType }) => {
+  return (
+    <Grid container spacing={6}>
+      <Grid item lg={4} md={5} xs={12}>
+        <AboutOverview data={data} />
+      </Grid>
+      <Grid item lg={8} md={7} xs={12}>
+        <Grid container spacing={6}>
+          <Grid item xs={12}>
+            <ActivityTimeline />
+          </Grid>
+          <Grid item xs={12}>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  )
+}
+
+export default ProfileTab

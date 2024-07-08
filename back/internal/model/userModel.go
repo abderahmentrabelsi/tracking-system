@@ -17,6 +17,7 @@ type User struct {
 	Picture      string `json:"picture"`
 	PhoneNumber  string `json:"phoneNumber"`
 	Address      string `json:"address"`
+	JobTitle     string `json:"jobTitle"` // Add jobTitle field
 	DepartmentID uint
 	Department   Department     `gorm:"foreignKey:DepartmentID"`
 	LoginHistory []LoginHistory `gorm:"foreignKey:UserID" json:"loginHistory"`

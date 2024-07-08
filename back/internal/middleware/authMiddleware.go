@@ -1,8 +1,8 @@
 package middleware
 
 import (
+	"back/internal/service"
 	"back/internal/store"
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -10,12 +10,13 @@ import (
 )
 
 type JWTClaims struct {
-	UserID string `json:"userId"`
-	Role   string `json:"role"`
+	UserID   string `json:"UserID"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
 	jwt.StandardClaims
 }
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(userService *service.UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := getTokenFromRequest(c)
 		if tokenString == "" || store.IsTokenRevoked(tokenString) {
@@ -34,8 +35,8 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		if claims, ok := token.Claims.(*JWTClaims); ok && token.Valid {
 			c.Set("userID", claims.UserID)
+			c.Set("username", claims.Username) // Add username to context
 			c.Set("userRole", claims.Role)
-			fmt.Println("Role set in context:", claims.Role)
 			c.Next()
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
