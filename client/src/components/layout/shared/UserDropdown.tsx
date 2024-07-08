@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import {  useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { styled } from '@mui/material/styles';
