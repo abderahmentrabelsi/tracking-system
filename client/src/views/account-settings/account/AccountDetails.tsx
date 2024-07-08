@@ -1,4 +1,5 @@
 'use client'
+'use client'
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import {
@@ -27,6 +28,7 @@ type Data = {
   email: string;
   phoneNumber: number | string;
   address: string;
+  picture: string; // Add this line
 };
 
 const AccountDetails = () => {
@@ -55,6 +57,7 @@ const AccountDetails = () => {
     email: '',
     phoneNumber: '',
     address: '',
+    picture: '', // Add this line
   });
 
   const [fileInput, setFileInput] = useState<string>('');
@@ -71,6 +74,7 @@ const AccountDetails = () => {
         email: userDetails.email,
         phoneNumber: userDetails.phoneNumber,
         address: userDetails.address,
+        picture: userDetails.picture || '/images/avatars/1.png', // Update this line
       });
       setImgSrc(userDetails.picture || '/images/avatars/1.png'); // Use a default image if picture is null
     }

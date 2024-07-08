@@ -534,8 +534,9 @@ func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 		Email       string `json:"email"`
 		PhoneNumber string `json:"phoneNumber"`
 		Address     string `json:"address"`
-		FileID      string `json:"fileId"`
+		Picture     string `json:"picture"` // Add this line
 	}
+
 	if err := c.BindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
@@ -546,17 +547,7 @@ func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 	user.Email = body.Email
 	user.PhoneNumber = body.PhoneNumber
 	user.Address = body.Address
-
-	if body.FileID != "" {
-		file, err := uc.fileService.GetFileByFileID(body.FileID)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve file"})
-			return
-		}
-		if file != nil {
-			user.Picture = file.FilePath
-		}
-	}
+	user.Picture = body.Picture // Ensure this line is present
 
 	if err := uc.userService.UpdateUserProfile(user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to update user profile"})
