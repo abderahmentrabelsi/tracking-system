@@ -43,7 +43,7 @@ const AccountSettingsPage = async ({ params }: { params: { username: string } })
   const Account = dynamic(() => import('@views/account-settings/account'));
   const Security = dynamic(() => import('@views/account-settings/security'));
   const Notifications = dynamic(() => import('@views/account-settings/notifications'));
-  const RecentDevicesTable = dynamic(() => import('@views/account-settings/security/RecentDevicesTable'));
+  const RecentDevicesTable = dynamic(() => import('@views/account-settings/devices/RecentDevicesTable'));
 
   // Mock tab content list, replace with actual content components if necessary
   const tabContentList = {
