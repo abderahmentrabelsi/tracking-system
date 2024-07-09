@@ -117,7 +117,7 @@ const RecentDevicesTable: React.FC = () => {
                   <Typography>{os}</Typography>
                 </td>
                 <td>
-                  <Typography>{history.loginIp}</Typography>
+                  <Typography>{history.location}</Typography> {/* Update this line */}
                 </td>
                 <td>
                   <Typography>{new Date(history.loginTime).toLocaleString()}</Typography>

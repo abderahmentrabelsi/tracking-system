@@ -4,13 +4,24 @@ import (
 	model "back/internal/model"
 	"back/internal/orm"
 	"fmt"
+	"github.com/ipinfo/go/v2/ipinfo"
 	"gorm.io/gorm"
+	"log"
+	"net"
+	"os"
 )
 
-type UserRepository struct{}
+type UserRepository struct {
+	ipinfoClient *ipinfo.Client
+}
 
 func NewUserRepository() *UserRepository {
-	return &UserRepository{}
+	token := os.Getenv("IPINFO_TOKEN")
+	if token == "" {
+		log.Fatal("IPINFO_TOKEN environment variable is not set")
+	}
+	client := ipinfo.NewClient(nil, nil, token)
+	return &UserRepository{ipinfoClient: client}
 }
 
 func (ur *UserRepository) GetUserByEmail(email string) (*model.User, error) {
@@ -98,5 +109,44 @@ func (ur *UserRepository) GetLoginHistory(userID uint) ([]model.LoginHistory, er
 	if err := orm.DB.Where("user_id = ?", userID).Find(&loginHistory).Error; err != nil {
 		return nil, fmt.Errorf("failed to retrieve login history: %v", err)
 	}
+
+	ipLocationCache := make(map[string]string)
+
+	for i, history := range loginHistory {
+		if location, found := ipLocationCache[history.LoginIP]; found {
+			loginHistory[i].Location = location
+		} else {
+			location, err := ur.getLocationFromIP(history.LoginIP)
+			if err == nil {
+				loginHistory[i].Location = location
+				ipLocationCache[history.LoginIP] = location
+			} else {
+				loginHistory[i].Location = "Unknown"
+			}
+		}
+	}
+
 	return loginHistory, nil
+}
+
+func (ur *UserRepository) getLocationFromIP(ip string) (string, error) {
+	if ip == "::1" || ip == "127.0.0.1" {
+		return "Localhost", nil
+	}
+
+	info, err := ur.ipinfoClient.GetIPInfo(net.ParseIP(ip))
+	if err != nil {
+		fmt.Printf("Error fetching location for IP %s: %v\n", ip, err)
+		return "", err
+	}
+
+	if info.City != "" && info.Region != "" {
+		return fmt.Sprintf("%s, %s", info.City, info.Region), nil
+	} else if info.City != "" {
+		return info.City, nil
+	} else if info.Region != "" {
+		return info.Region, nil
+	}
+
+	return "Unknown", nil
 }

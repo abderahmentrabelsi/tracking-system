@@ -45,7 +45,6 @@ func (us *UserService) CreateUser(user *model.User, files []model.FileUpload) er
 func (us *UserService) GetLoginHistory(userID uint) ([]model.LoginHistory, error) {
 	return us.userRepository.GetLoginHistory(userID)
 }
-
 func (us *UserService) CreateLoginHistory(userID uint, clientIP string, userAgent string) error {
 	history := model.LoginHistory{
 		UserID:      userID,

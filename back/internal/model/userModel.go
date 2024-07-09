@@ -52,6 +52,7 @@ type LoginHistory struct {
 	LoginIP     string    `json:"loginIp"`
 	LoginDevice string    `json:"loginDevice"`
 	LoginTime   time.Time `json:"loginTime"`
+	Location    string    `json:"location"`
 }
 
 type WorkHours struct {

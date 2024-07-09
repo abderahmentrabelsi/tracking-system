@@ -41,6 +41,7 @@ export interface LoginHistory {
   loginIp: string;
   loginDevice: string;
   loginTime: string;
+  location: string;
 }
 
 export const fetchLoginHistory = async (userId: number): Promise<LoginHistory[]> => {
