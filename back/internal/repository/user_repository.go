@@ -93,3 +93,10 @@ func (ur *UserRepository) UpdatePassword(userID uint, newPassword string) error 
 	}
 	return nil
 }
+func (ur *UserRepository) GetLoginHistory(userID uint) ([]model.LoginHistory, error) {
+	var loginHistory []model.LoginHistory
+	if err := orm.DB.Where("user_id = ?", userID).Find(&loginHistory).Error; err != nil {
+		return nil, fmt.Errorf("failed to retrieve login history: %v", err)
+	}
+	return loginHistory, nil
+}

@@ -22,6 +22,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/user/profile/:username", userController.GetUserDetailsByUsername)
 	r.PUT("/user/profile/:username", middleware.AuthMiddleware(s.userService), userController.UpdateUserProfile)
 	r.POST("/user/change-password", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager", "Employee"), userController.ChangePassword) // Add this line
+	r.GET("/user/:id/login-history", middleware.AuthMiddleware(s.userService), userController.GetLoginHistory)
 
 	// Department routes
 	departmentController := controller.NewDepartmentController(s.departmentService)

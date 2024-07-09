@@ -1,109 +1,144 @@
-// React Imports
-import type { ReactElement } from 'react'
+'use client'
+import React, { useEffect, useState } from 'react';
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import Typography from '@mui/material/Typography';
+import Pagination from '@mui/material/Pagination';
+import tableStyles from '@core/styles/table.module.css';
+import { fetchLoginHistory, LoginHistory } from '../../../utils/userUtils';
+import jwt from 'jsonwebtoken';
 
-// MUI Imports
-import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
-import Typography from '@mui/material/Typography'
-
-// Style Imports
-import tableStyles from '@core/styles/table.module.css'
-
-type RecentDeviceDataType = {
-  browserIcon: ReactElement
-  browserName: string
-  device: string
-  location: string
-  date: string
-}
-
-// Vars
-const recentDeviceData: RecentDeviceDataType[] = [
-  {
-    location: 'Switzerland',
-    device: 'HP Spectre 360',
-    date: '10, Sept 20:07',
-    browserName: 'Chrome on Windows',
-    browserIcon: <i className='tabler-brand-windows text-[22px] text-info' />
-  },
-  {
-    location: 'Los Angeles, CA',
-    device: 'Google Pixel 3a',
-    date: '20 Apr 2022, 10:20',
-    browserName: 'Chrome on Android',
-    browserIcon: <i className='tabler-brand-android text-[22px] text-success' />
-  },
-  {
-    location: 'San Francisco, CA',
-    device: 'iPhone 12x',
-    date: '16 Apr 2022, 04:20',
-    browserName: 'Chrome on iPhone',
-    browserIcon: <i className='tabler-device-mobile text-[22px] text-error' />
-  },
-  {
-    location: 'India',
-    device: 'Apple iMac',
-    date: '28 Apr 2022, 18:20',
-    browserName: 'Chrome on MacOS',
-    browserIcon: <i className='tabler-brand-apple text-[22px] text-secondary' />
-  },
-  {
-    location: 'Switzerland',
-    device: 'Macbook Pro',
-    date: '20 Apr 2022, 10:20',
-    browserName: 'Chrome on Windows',
-    browserIcon: <i className='tabler-brand-apple text-[22px] text-warning' />
-  },
-  {
-    location: 'Dubai',
-    device: 'Oneplus 9 Pro',
-    date: '16 Apr 2022, 04:20',
-    browserName: 'Chrome on Android',
-    browserIcon: <i className='tabler-brand-android text-[22px] text-success' />
+const getUserIdFromToken = (token: string): number | null => {
+  try {
+    const decoded = jwt.decode(token) as { UserID: string };
+    return decoded ? parseInt(decoded.UserID, 10) : null;
+  } catch (error) {
+    console.error('Failed to decode token:', error);
+    return null;
   }
-]
+};
 
-const RecentDevicesTable = () => {
+const extractBrowserAndOS = (userAgent: string): { browser: string; os: string } => {
+  let browser = 'Unknown Browser';
+  let os = 'Unknown OS';
+
+  if (userAgent.includes('Chrome')) {
+    browser = 'Chrome';
+  } else if (userAgent.includes('Firefox')) {
+    browser = 'Firefox';
+  } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+    browser = 'Safari';
+  }
+
+  if (userAgent.includes('Windows NT')) {
+    os = 'Windows';
+  } else if (userAgent.includes('Mac OS X')) {
+    os = 'MacOS';
+  } else if (userAgent.includes('Linux')) {
+    os = 'Linux';
+  }
+
+  return { browser, os };
+};
+
+const getIcon = (browser: string, os: string) => {
+  const iconMapping: { [key: string]: JSX.Element } = {
+    'Chrome': <i className='tabler-brand-chrome text-[22px] text-info' />,
+    'Firefox': <i className='tabler-brand-firefox text-[22px] text-warning' />,
+    'Safari': <i className='tabler-brand-apple text-[22px] text-secondary' />,
+    'Windows': <i className='tabler-brand-windows text-[22px] text-info' />,
+    'MacOS': <i className='tabler-brand-apple text-[22px] text-secondary' />,
+    'Linux': <i className='tabler-brand-linux text-[22px] text-danger' />,
+  };
+
+  return (
+    <div className='flex items-center gap-2.5'>
+      {iconMapping[browser] || iconMapping[os] || <i className='tabler-device-mobile text-[22px] text-error' />}
+      <Typography className='font-medium' color='text.primary'>
+        {browser} on {os}
+      </Typography>
+    </div>
+  );
+};
+
+const ITEMS_PER_PAGE = 5;
+
+const RecentDevicesTable: React.FC = () => {
+  const [loginHistory, setLoginHistory] = useState<LoginHistory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      const token = document.cookie.split('; ').find(row => row.startsWith('access_token='))?.split('=')[1];
+      if (token) {
+        const userId = getUserIdFromToken(token);
+        if (userId) {
+          const data = await fetchLoginHistory(userId);
+          setLoginHistory(data);
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchHistory();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
+
+  const paginatedData = loginHistory.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+
   return (
     <Card>
       <CardHeader title='Recent Devices' />
       <div className='overflow-x-auto'>
         <table className={tableStyles.table}>
           <thead>
-            <tr>
-              <th>Browser</th>
-              <th>Device</th>
-              <th>Location</th>
-              <th>Recent Activities</th>
-            </tr>
+          <tr>
+            <th>Browser</th>
+            <th>Device</th>
+            <th>Location</th>
+            <th>Recent Activities</th>
+          </tr>
           </thead>
           <tbody>
-            {recentDeviceData.map((device, index) => (
+          {paginatedData.map((history, index) => {
+            const { browser, os } = extractBrowserAndOS(history.loginDevice);
+            return (
               <tr key={index}>
+                <td>{getIcon(browser, os)}</td>
                 <td>
-                  <div className='flex items-center gap-2.5'>
-                    {device.browserIcon}
-                    <Typography className='font-medium' color='text.primary'>
-                      {device.browserName}
-                    </Typography>
-                  </div>
+                  <Typography>{os}</Typography>
                 </td>
                 <td>
-                  <Typography>{device.device}</Typography>
+                  <Typography>{history.loginIp}</Typography>
                 </td>
                 <td>
-                  <Typography>{device.location}</Typography>
-                </td>
-                <td>
-                  <Typography>{device.date}</Typography>
+                  <Typography>{new Date(history.loginTime).toLocaleString()}</Typography>
                 </td>
               </tr>
-            ))}
+            );
+          })}
           </tbody>
         </table>
+        <div className='flex justify-center mt-4'>
+          <Pagination
+            count={Math.ceil(loginHistory.length / ITEMS_PER_PAGE)}
+            page={page}
+            onChange={handlePageChange}
+            color='primary'
+            variant='tonal'
+          />
+        </div>
       </div>
     </Card>
-  )
-}
+  );
+};
 
-export default RecentDevicesTable
+export default RecentDevicesTable;

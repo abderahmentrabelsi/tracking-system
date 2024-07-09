@@ -618,3 +618,19 @@ func (uc *UserController) ChangePassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
 }
+func (uc *UserController) GetLoginHistory(c *gin.Context) {
+	userIDStr := c.Param("id")
+	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	loginHistory, err := uc.userService.GetLoginHistory(uint(userID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch login history"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": loginHistory})
+}

@@ -36,6 +36,31 @@ export interface Department {
   users: User[];
 }
 
+
+export interface LoginHistory {
+  loginIp: string;
+  loginDevice: string;
+  loginTime: string;
+}
+
+export const fetchLoginHistory = async (userId: number): Promise<LoginHistory[]> => {
+  try {
+    const response = await fetch(`http://localhost:8383/user/${userId}/login-history`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.data;
+    } else {
+      console.error('Failed to fetch login history');
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching login history:', error);
+    return [];
+  }
+};
 export const fetchUserDetails = async (): Promise<UserDetails | null> => {
   try {
     const response = await fetch('http://localhost:8383/user/details', {
@@ -54,8 +79,6 @@ export const fetchUserDetails = async (): Promise<UserDetails | null> => {
     return null;
   }
 };
-
-// Function to fetch users by department
 export const fetchUsersByDepartment = async (departmentId: number): Promise<User[]> => {
   try {
     const response = await fetch(`http://localhost:8383/department/${departmentId}/users`, {
@@ -75,7 +98,6 @@ export const fetchUsersByDepartment = async (departmentId: number): Promise<User
     return [];
   }
 };
-
 export const fetchUserDetailsByUsername = async (username: string): Promise<UserDetails | null> => {
   try {
     const response = await fetch(`http://localhost:8383/user/profile/${username}`, {
@@ -94,7 +116,6 @@ export const fetchUserDetailsByUsername = async (username: string): Promise<User
     return null
   }
 }
-
 export const updateUserProfile = async (data: {
   username: string;
   firstName: string;
@@ -104,7 +125,6 @@ export const updateUserProfile = async (data: {
   address: string;
   picture?: string | null; // Allow null for picture
 }): Promise<void> => {
-  // Remove picture if it's null to avoid sending it in the request
   const { picture, ...restData } = data;
   const requestData = picture === null ? restData : data;
 
@@ -116,13 +136,11 @@ export const updateUserProfile = async (data: {
     credentials: "include",
     body: JSON.stringify(requestData),
   });
-
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || "Failed to update profile");
   }
 };
-
 
 export const updateUserPassword = async (data: { currentPassword: string, newPassword: string }): Promise<void> => {
   const response = await fetch(`http://localhost:8383/user/change-password`, {
