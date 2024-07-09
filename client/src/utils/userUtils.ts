@@ -1,4 +1,3 @@
-//client/src/utils/userUtils.ts
 import axios from 'axios';
 
 export interface UserDetails {
@@ -7,7 +6,7 @@ export interface UserDetails {
   email: string;
   firstName: string;
   lastName: string;
-  picture: string | null; // Allow null
+  picture: string | null;
   phoneNumber: string;
   address: string;
   roleId: number;
@@ -129,7 +128,7 @@ export const updateUserProfile = async (data: {
   email: string;
   phoneNumber: string | number;
   address: string;
-  picture?: string | null; // Allow null for picture
+  picture?: string | null;
 }): Promise<void> => {
   const { picture, ...restData } = data;
   const requestData = picture === null ? restData : data;
@@ -177,6 +176,7 @@ export const login = async (identifier: string, password: string, redirectUri: s
     throw new Error(error.response?.data?.message || 'Failed to login');
   }
 };
+
 // Function to generate TOTP secret and QR code
 export const generateTOTP = async (): Promise<{ secret: string; qr_code: string }> => {
   try {
@@ -198,7 +198,7 @@ export const generateTOTP = async (): Promise<{ secret: string; qr_code: string 
 };
 
 // Function to verify TOTP code
-export const verifyTOTP = async (code: string): Promise<{ message: string }> => {
+export const verifyTOTP = async (code: string): Promise<boolean> => {
   try {
     const response = await fetch('http://localhost:8383/totp/verify', {
       method: 'POST',
@@ -209,14 +209,50 @@ export const verifyTOTP = async (code: string): Promise<{ message: string }> => 
       body: JSON.stringify({ code }),
     });
     if (response.ok) {
-      const data = await response.json();
-      return data;
+      return true; // Verification successful
     } else {
       console.error('Failed to verify TOTP code');
-      throw new Error('Failed to verify TOTP code');
+      return false; // Verification failed
     }
   } catch (error) {
     console.error('Error verifying TOTP code:', error);
+    return false; // Verification failed
+  }
+};
+
+// Function to check TOTP status
+export const checkTOTPStatus = async (): Promise<boolean> => {
+  try {
+    const response = await fetch('http://localhost:8383/totp/status', {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.enabled;
+    } else {
+      console.error('Failed to check TOTP status');
+      throw new Error('Failed to check TOTP status');
+    }
+  } catch (error) {
+    console.error('Error checking TOTP status:', error);
+    throw error;
+  }
+};
+
+// Function to disable TOTP
+export const disableTOTP = async (): Promise<void> => {
+  try {
+    const response = await fetch('http://localhost:8383/totp/disable', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      console.error('Failed to disable TOTP');
+      throw new Error('Failed to disable TOTP');
+    }
+  } catch (error) {
+    console.error('Error disabling TOTP:', error);
     throw error;
   }
 };

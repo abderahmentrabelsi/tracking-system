@@ -175,7 +175,10 @@ func (ur *UserRepository) VerifyTOTPCode(userID uint, code string) (bool, error)
 		return false, err
 	}
 
-	return totp.Validate(code, user.TOTPSecret), nil
+	fmt.Printf("Verifying code: %s with secret: %s\n", code, user.TOTPSecret) // Add this line for debugging
+
+	valid := totp.Validate(code, user.TOTPSecret)
+	return valid, nil
 }
 
 func (ur *UserRepository) DisableTOTP(userID uint) error {

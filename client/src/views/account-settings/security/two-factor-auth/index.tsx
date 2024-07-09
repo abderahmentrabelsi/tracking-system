@@ -24,11 +24,12 @@ import DialogCloseButton from '@components/dialogs/DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Utility Imports
-import { generateTOTP } from '../../../../utils/userUtils'
+import { generateTOTP, verifyTOTP, checkTOTPStatus, disableTOTP } from '../../../../utils/userUtils'
 
 type TwoFactorAuthProps = {
   open: boolean
   setOpen: (open: boolean) => void
+  onStatusChange: () => void;  // New prop to handle status change
 }
 
 const data: CustomInputHorizontalData[] = [
@@ -89,8 +90,9 @@ const SMSDialog = (handleAuthDialogClose: () => void) => {
   )
 }
 
-const AppDialog = (handleAuthDialogClose: () => void) => {
+const AppDialog = (handleAuthDialogClose: () => void, handleVerification: (code: string) => void, verificationError: string | null) => {
   const [totpData, setTotpData] = useState<{ secret: string; qr_code: string } | null>(null);
+  const [code, setCode] = useState<string>('');
 
   useEffect(() => {
     const fetchTOTP = async () => {
@@ -130,7 +132,19 @@ const AppDialog = (handleAuthDialogClose: () => void) => {
             <AlertTitle>{totpData ? totpData.secret : 'Loading...'}</AlertTitle>
             If you are having trouble using the QR code, select manual entry on your app
           </Alert>
-          <CustomTextField fullWidth label='Enter Authentication Code' placeholder='Enter Authentication Code' />
+          <CustomTextField
+            fullWidth
+            label='Enter Authentication Code'
+            placeholder='Enter Authentication Code'
+            value={code}
+            onChange={e => setCode(e.target.value)}
+          />
+          {verificationError && (
+            <Alert severity='error'>
+              <AlertTitle>Error</AlertTitle>
+              {verificationError}
+            </Alert>
+          )}
         </div>
       </DialogContent>
       <DialogActions className='pbs-0 sm:pbe-16 sm:pli-16'>
@@ -142,7 +156,7 @@ const AppDialog = (handleAuthDialogClose: () => void) => {
           variant='contained'
           type='submit'
           endIcon={<i className='tabler-check' />}
-          onClick={handleAuthDialogClose}
+          onClick={() => handleVerification(code)}
         >
           Submit
         </Button>
@@ -151,7 +165,7 @@ const AppDialog = (handleAuthDialogClose: () => void) => {
   );
 };
 
-const TwoFactorAuth = ({ open, setOpen }: TwoFactorAuthProps) => {
+const TwoFactorAuth = ({ open, setOpen, onStatusChange }: TwoFactorAuthProps) => {
   // Vars
   const initialSelectedOption: string = data.filter(item => item.isSelected)[
   data.filter(item => item.isSelected).length - 1
@@ -160,6 +174,7 @@ const TwoFactorAuth = ({ open, setOpen }: TwoFactorAuthProps) => {
   // States
   const [authType, setAuthType] = useState<string>(initialSelectedOption)
   const [showAuthDialog, setShowAuthDialog] = useState<boolean>(false)
+  const [verificationError, setVerificationError] = useState<string | null>(null);
 
   const handleClose = () => {
     setOpen(false)
@@ -171,8 +186,7 @@ const TwoFactorAuth = ({ open, setOpen }: TwoFactorAuthProps) => {
 
   const handleAuthDialogClose = () => {
     setShowAuthDialog(false)
-    setShowAuthDialog(false)
-
+    setVerificationError(null)
     if (authType !== 'app') {
       setTimeout(() => {
         setAuthType('app')
@@ -187,6 +201,22 @@ const TwoFactorAuth = ({ open, setOpen }: TwoFactorAuthProps) => {
       setAuthType((prop.target as HTMLInputElement).value)
     }
   }
+
+  const handleVerification = async (code: string) => {
+    try {
+      const isSuccess = await verifyTOTP(code);
+      if (isSuccess) {
+        onStatusChange();  // Notify parent component about the status change
+        setShowAuthDialog(false);
+      } else {
+        setVerificationError('Invalid verification code. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error verifying TOTP code:', error);
+      setVerificationError('An error occurred during verification. Please try again.');
+    }
+  };
+
 
   return (
     <>
@@ -251,7 +281,7 @@ const TwoFactorAuth = ({ open, setOpen }: TwoFactorAuthProps) => {
           <i className='tabler-x' />
         </DialogCloseButton>
         <form onSubmit={e => e.preventDefault()}>
-          {authType === 'sms' ? SMSDialog(handleAuthDialogClose) : AppDialog(handleAuthDialogClose)}
+          {authType === 'sms' ? SMSDialog(handleAuthDialogClose) : AppDialog(handleAuthDialogClose, handleVerification, verificationError)}
         </form>
       </Dialog>
     </>
