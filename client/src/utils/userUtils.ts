@@ -177,3 +177,46 @@ export const login = async (identifier: string, password: string, redirectUri: s
     throw new Error(error.response?.data?.message || 'Failed to login');
   }
 };
+// Function to generate TOTP secret and QR code
+export const generateTOTP = async (): Promise<{ secret: string; qr_code: string }> => {
+  try {
+    const response = await fetch('http://localhost:8383/totp/generate', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      console.error('Failed to generate TOTP secret');
+      throw new Error('Failed to generate TOTP secret');
+    }
+  } catch (error) {
+    console.error('Error generating TOTP secret:', error);
+    throw error;
+  }
+};
+
+// Function to verify TOTP code
+export const verifyTOTP = async (code: string): Promise<{ message: string }> => {
+  try {
+    const response = await fetch('http://localhost:8383/totp/verify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ code }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      console.error('Failed to verify TOTP code');
+      throw new Error('Failed to verify TOTP code');
+    }
+  } catch (error) {
+    console.error('Error verifying TOTP code:', error);
+    throw error;
+  }
+};

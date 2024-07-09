@@ -92,3 +92,10 @@ func (us *UserService) UpdateUserProfile(user *model.User) error {
 func (us *UserService) UpdatePassword(userID uint, newPassword string) error {
 	return us.userRepository.UpdatePassword(userID, newPassword)
 }
+func (us *UserService) GenerateTOTPSecret(userID uint) (string, error) {
+	return us.userRepository.GenerateTOTPSecret(userID)
+}
+
+func (us *UserService) VerifyTOTPCode(userID uint, code string) (bool, error) {
+	return us.userRepository.VerifyTOTPCode(userID, code)
+}

@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { ChangeEvent } from 'react'
 
 // MUI Imports
@@ -22,6 +22,9 @@ import type { CustomInputHorizontalData } from '@core/components/custom-inputs/t
 import CustomInputHorizontal from '@core/components/custom-inputs/Horizontal'
 import DialogCloseButton from '@components/dialogs/DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
+
+// Utility Imports
+import { generateTOTP } from '../../../../utils/userUtils'
 
 type TwoFactorAuthProps = {
   open: boolean
@@ -87,6 +90,21 @@ const SMSDialog = (handleAuthDialogClose: () => void) => {
 }
 
 const AppDialog = (handleAuthDialogClose: () => void) => {
+  const [totpData, setTotpData] = useState<{ secret: string; qr_code: string } | null>(null);
+
+  useEffect(() => {
+    const fetchTOTP = async () => {
+      try {
+        const data = await generateTOTP();
+        setTotpData(data);
+      } catch (error) {
+        console.error('Error generating TOTP:', error);
+      }
+    };
+
+    fetchTOTP();
+  }, []);
+
   return (
     <>
       <DialogTitle variant='h4' className='text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
@@ -101,12 +119,16 @@ const AppDialog = (handleAuthDialogClose: () => void) => {
           </Typography>
         </div>
         <div className='flex justify-center'>
-          <img alt='qr-code' height={150} width={150} src='/images/misc/barcode.png' />
+          {totpData ? (
+            <img alt='qr-code' height={150} width={150} src={totpData.qr_code} />
+          ) : (
+            <Typography>Loading QR code...</Typography>
+          )}
         </div>
         <div className='flex flex-col gap-4'>
           <Alert severity='warning' icon={false}>
-            <AlertTitle>ASDLKNASDA9AHS678dGhASD78AB</AlertTitle>
-            If you having trouble using the QR code, select manual entry on your app
+            <AlertTitle>{totpData ? totpData.secret : 'Loading...'}</AlertTitle>
+            If you are having trouble using the QR code, select manual entry on your app
           </Alert>
           <CustomTextField fullWidth label='Enter Authentication Code' placeholder='Enter Authentication Code' />
         </div>
@@ -126,14 +148,14 @@ const AppDialog = (handleAuthDialogClose: () => void) => {
         </Button>
       </DialogActions>
     </>
-  )
-}
+  );
+};
 
 const TwoFactorAuth = ({ open, setOpen }: TwoFactorAuthProps) => {
   // Vars
   const initialSelectedOption: string = data.filter(item => item.isSelected)[
-    data.filter(item => item.isSelected).length - 1
-  ].value
+  data.filter(item => item.isSelected).length - 1
+    ].value
 
   // States
   const [authType, setAuthType] = useState<string>(initialSelectedOption)

@@ -5,7 +5,9 @@ import (
 	"back/internal/service"
 	"back/internal/store"
 	"back/internal/utils"
+	"encoding/base64"
 	"fmt"
+	"github.com/skip2/go-qrcode"
 	"net/http"
 	"strconv"
 	"time"
@@ -633,4 +635,71 @@ func (uc *UserController) GetLoginHistory(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": loginHistory})
+}
+func (uc *UserController) GenerateTOTP(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	secret, err := uc.userService.GenerateTOTPSecret(uint(userID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate TOTP secret"})
+		return
+	}
+
+	// Create the TOTP URL
+	otpURL := fmt.Sprintf("otpauth://totp/YourAppName:user-%d?secret=%s&issuer=YourAppName", userID, secret)
+	qrCode, err := qrcode.Encode(otpURL, qrcode.Medium, 256)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate QR code"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"secret":  secret,
+		"qr_code": "data:image/png;base64," + base64.StdEncoding.EncodeToString(qrCode),
+	})
+}
+
+func (uc *UserController) VerifyTOTP(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var body struct {
+		Code string `json:"code"`
+	}
+	if err := c.Bind(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	valid, err := uc.userService.VerifyTOTPCode(uint(userID), body.Code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify TOTP code"})
+		return
+	}
+
+	if !valid {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid TOTP code"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "TOTP verified successfully"})
 }

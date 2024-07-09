@@ -5,6 +5,7 @@ import (
 	"back/internal/orm"
 	"fmt"
 	"github.com/ipinfo/go/v2/ipinfo"
+	"github.com/pquerna/otp/totp"
 	"gorm.io/gorm"
 	"log"
 	"net"
@@ -104,6 +105,7 @@ func (ur *UserRepository) UpdatePassword(userID uint, newPassword string) error 
 	}
 	return nil
 }
+
 func (ur *UserRepository) GetLoginHistory(userID uint) ([]model.LoginHistory, error) {
 	var loginHistory []model.LoginHistory
 	if err := orm.DB.Where("user_id = ?", userID).Find(&loginHistory).Error; err != nil {
@@ -149,4 +151,29 @@ func (ur *UserRepository) getLocationFromIP(ip string) (string, error) {
 	}
 
 	return "Unknown", nil
+}
+
+func (ur *UserRepository) GenerateTOTPSecret(userID uint) (string, error) {
+	key, err := totp.Generate(totp.GenerateOpts{
+		Issuer:      "YourAppName",
+		AccountName: fmt.Sprintf("user-%d", userID),
+	})
+	if err != nil {
+		return "", err
+	}
+
+	if err := orm.DB.Model(&model.User{}).Where("id = ?", userID).Update("TOTPSecret", key.Secret()).Error; err != nil {
+		return "", err
+	}
+
+	return key.Secret(), nil
+}
+
+func (ur *UserRepository) VerifyTOTPCode(userID uint, code string) (bool, error) {
+	var user model.User
+	if err := orm.DB.Where("id = ?", userID).First(&user).Error; err != nil {
+		return false, err
+	}
+
+	return totp.Validate(code, user.TOTPSecret), nil
 }
