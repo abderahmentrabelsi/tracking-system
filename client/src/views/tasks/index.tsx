@@ -1,6 +1,5 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import ManagerDashboard from './Manager';
 import EmployeeDashboard from './Employee';
 
 const TaskDashboard: React.FC = () => {
@@ -19,11 +18,7 @@ const TaskDashboard: React.FC = () => {
 
   return (
     <div>
-      {role === 'Manager' ? (
-        <ManagerDashboard />
-      ) : (
-        <EmployeeDashboard />
-      )}
+      <EmployeeDashboard />
     </div>
   );
 };

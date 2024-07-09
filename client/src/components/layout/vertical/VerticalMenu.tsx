@@ -107,16 +107,17 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
           </SubMenu>
         )}
         {userRole !== 'Employee' && (
-          <MenuItem href='/departments' icon={<i className='tabler-shield-check' />}>
-            Departments
+          <MenuItem href='/departments' icon={<i className='tabler-building' />}>
+            Organizations
           </MenuItem>
+
         )}
         {userRole === 'Manager' && (
           <SubMenu label="Management" icon={<i className='tabler-lock' style={{ fontSize: '24px' }} />}>
             <MenuItem href='/management/projects' icon={<i className='tabler-briefcase' style={{ fontSize: '24px' }} />}>
               Projects
             </MenuItem>
-            <MenuItem href='/tasks' icon={<i className='tabler-clipboard-list' style={{ fontSize: '24px' }} />}>
+            <MenuItem href='/management/tasks' icon={<i className='tabler-clipboard-list' style={{ fontSize: '24px' }} />}>
               Tasks
             </MenuItem>
             <MenuItem href='/management/timesheet/' icon={<i className='tabler-calendar' style={{ fontSize: '24px' }} />}>

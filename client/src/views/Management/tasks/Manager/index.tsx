@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-import { getDepartmentById } from '@/app/api/taskApi';
+import { getDepartmentById } from '@/app/api/departmentApi';
 import { DepartmentType, UserType } from '@/types/departmentTypes';
 import { TaskType } from '@/types/taskTypes';
 import UserCard from './UserCard';

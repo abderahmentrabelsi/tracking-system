@@ -19,7 +19,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
-import UpdateTaskForm from '@views/tasks/Manager/UpdateTaskForm';
+import UpdateTaskForm from './UpdateTaskForm';
 import RequestStatusChangeDialog from './RequestStatusChangeDialog';
 import { styled } from '@mui/material/styles';
 
