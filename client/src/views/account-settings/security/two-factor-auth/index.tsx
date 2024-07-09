@@ -20,7 +20,7 @@ import type { CustomInputHorizontalData } from '@core/components/custom-inputs/t
 
 // Component Imports
 import CustomInputHorizontal from '@core/components/custom-inputs/Horizontal'
-import DialogCloseButton from '../DialogCloseButton'
+import DialogCloseButton from '@components/dialogs/DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
 
 type TwoFactorAuthProps = {

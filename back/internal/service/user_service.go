@@ -23,6 +23,7 @@ func NewUserService(userRepository *repository.UserRepository, roleRepository *r
 		fileService:    fileService,    // Initialize fileService
 	}
 }
+
 func (us *UserService) GetUserByEmail(email string) (*model.User, error) {
 	return us.userRepository.GetUserByEmail(email)
 }
