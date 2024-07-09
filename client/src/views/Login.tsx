@@ -21,6 +21,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import themeConfig from '@configs/themeConfig'
 import { useImageVariant } from '@core/hooks/useImageVariant'
 import { useSettings } from '@core/hooks/useSettings'
+import { login } from '../utils/userUtils'
 
 const LoginIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,
@@ -70,11 +71,10 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
     e.preventDefault()
     try {
       const redirectUri = searchParams.get('redirect') || '/home'
-      const response = await axios.post(`http://localhost:8383/login`, { Identifier: identifier, Password: password, RedirectURI: redirectUri })
-      const { access_token, redirect_uri,userRole } = response.data.data
+      const { access_token, redirect_uri, userRole } = await login(identifier, password, redirectUri)
 
       document.cookie = `access_token=${access_token}; path=/`
-      localStorage.setItem('userRole', userRole);
+      localStorage.setItem('userRole', userRole)
 
       router.push(redirect_uri || '/home')
     } catch (error) {

@@ -1,4 +1,6 @@
 //client/src/utils/userUtils.ts
+import axios from 'axios';
+
 export interface UserDetails {
   id: number;
   username: string;
@@ -36,7 +38,6 @@ export interface Department {
   users: User[];
 }
 
-
 export interface LoginHistory {
   loginIp: string;
   loginDevice: string;
@@ -62,6 +63,7 @@ export const fetchLoginHistory = async (userId: number): Promise<LoginHistory[]>
     return [];
   }
 };
+
 export const fetchUserDetails = async (): Promise<UserDetails | null> => {
   try {
     const response = await fetch('http://localhost:8383/user/details', {
@@ -80,6 +82,7 @@ export const fetchUserDetails = async (): Promise<UserDetails | null> => {
     return null;
   }
 };
+
 export const fetchUsersByDepartment = async (departmentId: number): Promise<User[]> => {
   try {
     const response = await fetch(`http://localhost:8383/department/${departmentId}/users`, {
@@ -99,24 +102,26 @@ export const fetchUsersByDepartment = async (departmentId: number): Promise<User
     return [];
   }
 };
+
 export const fetchUserDetailsByUsername = async (username: string): Promise<UserDetails | null> => {
   try {
     const response = await fetch(`http://localhost:8383/user/profile/${username}`, {
       method: 'GET',
       credentials: 'include',
-    })
+    });
     if (response.ok) {
-      const data = await response.json()
-      return data
+      const data = await response.json();
+      return data;
     } else {
-      console.error('Failed to fetch user details')
-      return null
+      console.error('Failed to fetch user details');
+      return null;
     }
   } catch (error) {
-    console.error('Error fetching user details:', error)
-    return null
+    console.error('Error fetching user details:', error);
+    return null;
   }
-}
+};
+
 export const updateUserProfile = async (data: {
   username: string;
   firstName: string;
@@ -156,5 +161,19 @@ export const updateUserPassword = async (data: { currentPassword: string, newPas
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || 'Failed to update password');
+  }
+};
+
+export const login = async (identifier: string, password: string, redirectUri: string): Promise<{ access_token: string; redirect_uri: string; userRole: string }> => {
+  try {
+    const response = await axios.post(`http://localhost:8383/login`, { Identifier: identifier, Password: password, RedirectURI: redirectUri });
+    if (response.status === 200) {
+      return response.data.data;
+    } else {
+      throw new Error('Login failed');
+    }
+  } catch (error) {
+    // @ts-ignore
+    throw new Error(error.response?.data?.message || 'Failed to login');
   }
 };
