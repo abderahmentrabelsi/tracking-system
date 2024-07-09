@@ -162,6 +162,7 @@ func (ur *UserRepository) GenerateTOTPSecret(userID uint) (string, error) {
 		return "", err
 	}
 
+	// Store the secret in the database
 	if err := orm.DB.Model(&model.User{}).Where("id = ?", userID).Update("TOTPSecret", key.Secret()).Error; err != nil {
 		return "", err
 	}

@@ -1,3 +1,5 @@
+//client/src/views/account-settings/security/TwoFactorAuthenticationCard.tsx
+
 'use client'
 
 import axios from 'axios'
@@ -21,7 +23,6 @@ import CustomTextField from '@core/components/mui/TextField'
 import themeConfig from '@configs/themeConfig'
 import { useImageVariant } from '@core/hooks/useImageVariant'
 import { useSettings } from '@core/hooks/useSettings'
-import { login } from '../../utils/userUtils'
 
 const LoginIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,
@@ -48,7 +49,7 @@ const MaskImg = styled('img')({
 
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const [isPasswordShown, setIsPasswordShown] = useState(false)
-  const [identifier, setIdentifier] = useState('') // renamed from email to identifier
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const router = useRouter()
@@ -71,7 +72,16 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
     e.preventDefault()
     try {
       const redirectUri = searchParams.get('redirect') || '/home'
-      const { access_token, redirect_uri, userRole } = await login(identifier, password, redirectUri)
+      const response = await axios.post('http://localhost:8383/login', { Identifier: identifier, Password: password, RedirectURI: redirectUri })
+      const { requires_totp, user_id, redirect_uri } = response.data.data
+
+      if (requires_totp) {
+        localStorage.setItem('user_id', user_id)
+        router.push('/two-steps-v2?redirect_uri=' + redirect_uri)
+        return
+      }
+
+      const { access_token, userRole } = response.data.data
 
       document.cookie = `access_token=${access_token}; path=/`
       localStorage.setItem('userRole', userRole)
@@ -117,8 +127,8 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
               fullWidth
               label='Email or Username'
               placeholder='Enter your email or username'
-              value={identifier} // use identifier instead of email
-              onChange={e => setIdentifier(e.target.value)} // use setIdentifier instead of setEmail
+              value={identifier}
+              onChange={e => setIdentifier(e.target.value)}
             />
             <CustomTextField
               fullWidth

@@ -1,29 +1,23 @@
+//client/src/views/login/TwoStepsV2.tsx
+
 'use client'
 
-// Next Imports
-import Link from 'next/link'
-
-// MUI Imports
+import axios from 'axios'
+import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-
-// Third-party Imports
+import Alert from '@mui/material/Alert'
 import classnames from 'classnames'
-
-// Type Imports
 import type { SystemMode } from '@core/types'
-
-// Component Imports
+import Link from '@components/Link'
 import Logo from '@components/layout/shared/Logo'
 import CustomTextField from '@core/components/mui/TextField'
-
-// Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
 import { useSettings } from '@core/hooks/useSettings'
 
-// Styled Custom Components
 const TwoStepsIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,
   blockSize: 'auto',
@@ -48,19 +42,35 @@ const MaskImg = styled('img')({
 })
 
 const TwoStepsV2 = ({ mode }: { mode: SystemMode }) => {
-  // Vars
-  const darkImg = '/images/pages/auth-mask-dark.png'
-  const lightImg = '/images/pages/auth-mask-light.png'
-  const darkIllustration = '/images/illustrations/auth/v2-two-steps-dark.png'
-  const lightIllustration = '/images/illustrations/auth/v2-two-steps-light.png'
-
-  // Hooks
+  const [code, setCode] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const { settings } = useSettings()
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
-  const authBackground = useImageVariant(mode, lightImg, darkImg)
+  const authBackground = useImageVariant(mode, '/images/pages/auth-mask-light.png', '/images/pages/auth-mask-dark.png')
+  const characterIllustration = useImageVariant(mode, '/images/illustrations/auth/v2-two-steps-light.png', '/images/illustrations/auth/v2-two-steps-dark.png')
 
-  const characterIllustration = useImageVariant(mode, lightIllustration, darkIllustration)
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const userId = localStorage.getItem('user_id')
+      const redirectUri = searchParams.get('redirect_uri') || '/home'
+
+      const response = await axios.post('http://localhost:8383/login/totp', { user_id: userId, code })
+
+      const { access_token, userRole } = response.data.data
+
+      document.cookie = `access_token=${access_token}; path=/`
+      localStorage.setItem('userRole', userRole)
+
+      router.push(redirectUri)
+    } catch (error) {
+      console.error('Failed to verify TOTP', error)
+      setErrorMessage('Invalid TOTP code')
+    }
+  }
 
   return (
     <div className='flex bs-full justify-center'>
@@ -88,34 +98,19 @@ const TwoStepsV2 = ({ mode }: { mode: SystemMode }) => {
         <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-11 sm:mbs-14 md:mbs-0'>
           <div className='flex flex-col gap-1'>
             <Typography variant='h4'>Two Step Verification 💬</Typography>
-            <Typography>
-              We sent a verification code to your mobile. Enter the code from the mobile in the field below.
-            </Typography>
-            <Typography className='font-medium' color='text.primary'>
-              ******1234
-            </Typography>
+            <Typography>Enter the code from the mobile in the field below.</Typography>
           </div>
-          <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()} className='flex flex-col gap-6'>
+          <form noValidate autoComplete='off' onSubmit={handleVerify} className='flex flex-col gap-6'>
             <div className='flex flex-col gap-2'>
               <Typography>Type your 6 digit security code</Typography>
               <div className='flex items-center justify-between gap-4'>
-                <CustomTextField size='medium' autoFocus className='[&_input]:text-center' />
-                <CustomTextField size='medium' className='[&_input]:text-center' />
-                <CustomTextField size='medium' className='[&_input]:text-center' />
-                <CustomTextField size='medium' className='[&_input]:text-center' />
-                <CustomTextField size='medium' className='[&_input]:text-center' />
-                <CustomTextField size='medium' className='[&_input]:text-center' />
+                <CustomTextField size='medium' autoFocus className='[&_input]:text-center' value={code} onChange={e => setCode(e.target.value)} />
               </div>
             </div>
             <Button fullWidth variant='contained' type='submit'>
-              Skip For Now
+              Verify
             </Button>
-            <div className='flex justify-center items-center flex-wrap gap-2'>
-              <Typography>Didn&#39;t get the code?</Typography>
-              <Typography color='primary' component={Link} href='/' onClick={e => e.preventDefault()}>
-                Resend
-              </Typography>
-            </div>
+            {errorMessage && <Alert severity='error'>{errorMessage}</Alert>}
           </form>
         </div>
       </div>

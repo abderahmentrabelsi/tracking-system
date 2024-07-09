@@ -1,4 +1,3 @@
-//client/src/views/account-settings/security/TwoFactorAuthenticationCard.tsx
 'use client'
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -13,12 +12,14 @@ import Link from '@components/Link'
 
 // Component Imports
 import TwoFactorAuth from './two-factor-auth'
-import { checkTOTPStatus, disableTOTP } from '../../../utils/userUtils'
+import { checkTOTPStatus, disableTOTP, generateTOTP } from '../../../utils/userUtils'
 import { useState, useEffect } from 'react'
 
 const TwoFactorAuthenticationCard = () => {
   const [isTOTPEnabled, setIsTOTPEnabled] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [totpData, setTotpData] = useState<{ secret: string; qr_code: string } | null>(null);
+
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -42,8 +43,14 @@ const TwoFactorAuthenticationCard = () => {
     }
   };
 
-  const handleDialogOpen = () => {
-    setIsDialogOpen(true);
+  const handleEnableTOTP = async () => {
+    try {
+      const data = await generateTOTP(); // Trigger TOTP generation
+      setTotpData(data); // Store the TOTP data for use in the dialog
+      setIsDialogOpen(true);
+    } catch (error) {
+      console.error('Error generating TOTP:', error);
+    }
   };
 
   const handleDialogClose = () => {
@@ -58,7 +65,7 @@ const TwoFactorAuthenticationCard = () => {
   const buttonProps: ButtonProps = {
     variant: 'contained',
     children: isTOTPEnabled ? 'Disable two-factor authentication' : 'Enable two-factor authentication',
-    onClick: isTOTPEnabled ? handleDisableTOTP : handleDialogOpen,
+    onClick: isTOTPEnabled ? handleDisableTOTP : handleEnableTOTP,
   };
 
   return (

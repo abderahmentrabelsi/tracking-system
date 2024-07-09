@@ -24,7 +24,7 @@ import DialogCloseButton from '@components/dialogs/DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Utility Imports
-import { generateTOTP, verifyTOTP, checkTOTPStatus, disableTOTP } from '../../../../utils/userUtils'
+import { generateTOTP, verifyTOTP } from '../../../../utils/userUtils'
 
 type TwoFactorAuthProps = {
   open: boolean
@@ -216,7 +216,6 @@ const TwoFactorAuth = ({ open, setOpen, onStatusChange }: TwoFactorAuthProps) =>
       setVerificationError('An error occurred during verification. Please try again.');
     }
   };
-
 
   return (
     <>
