@@ -25,6 +25,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/user/:id/login-history", middleware.AuthMiddleware(s.userService), userController.GetLoginHistory)
 	r.POST("/totp/generate", middleware.AuthMiddleware(s.userService), userController.GenerateTOTP)
 	r.POST("/totp/verify", middleware.AuthMiddleware(s.userService), userController.VerifyTOTP)
+	r.POST("/totp/disable", middleware.AuthMiddleware(s.userService), userController.DisableTOTP)
+	r.GET("/totp/status", middleware.AuthMiddleware(s.userService), userController.IsTOTPEnabled)
 
 	// Department routes
 	departmentController := controller.NewDepartmentController(s.departmentService)

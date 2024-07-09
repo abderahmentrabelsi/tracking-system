@@ -668,7 +668,6 @@ func (uc *UserController) GenerateTOTP(c *gin.Context) {
 		"qr_code": "data:image/png;base64," + base64.StdEncoding.EncodeToString(qrCode),
 	})
 }
-
 func (uc *UserController) VerifyTOTP(c *gin.Context) {
 	userIDStr := c.GetString("userID")
 	if userIDStr == "" {
@@ -702,4 +701,47 @@ func (uc *UserController) VerifyTOTP(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "TOTP verified successfully"})
+}
+
+func (uc *UserController) DisableTOTP(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	if err := uc.userService.DisableTOTP(uint(userID)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to disable TOTP"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "TOTP disabled successfully"})
+}
+
+func (uc *UserController) IsTOTPEnabled(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	enabled, err := uc.userService.IsTOTPEnabled(uint(userID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check TOTP status"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"enabled": enabled})
 }

@@ -99,3 +99,11 @@ func (us *UserService) GenerateTOTPSecret(userID uint) (string, error) {
 func (us *UserService) VerifyTOTPCode(userID uint, code string) (bool, error) {
 	return us.userRepository.VerifyTOTPCode(userID, code)
 }
+
+func (us *UserService) DisableTOTP(userID uint) error {
+	return us.userRepository.DisableTOTP(userID)
+}
+
+func (us *UserService) IsTOTPEnabled(userID uint) (bool, error) {
+	return us.userRepository.IsTOTPEnabled(userID)
+}

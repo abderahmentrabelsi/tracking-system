@@ -177,3 +177,18 @@ func (ur *UserRepository) VerifyTOTPCode(userID uint, code string) (bool, error)
 
 	return totp.Validate(code, user.TOTPSecret), nil
 }
+
+func (ur *UserRepository) DisableTOTP(userID uint) error {
+	if err := orm.DB.Model(&model.User{}).Where("id = ?", userID).Update("TOTPSecret", "").Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ur *UserRepository) IsTOTPEnabled(userID uint) (bool, error) {
+	var user model.User
+	if err := orm.DB.Select("TOTPSecret").Where("id = ?", userID).First(&user).Error; err != nil {
+		return false, err
+	}
+	return user.TOTPSecret != "", nil
+}
