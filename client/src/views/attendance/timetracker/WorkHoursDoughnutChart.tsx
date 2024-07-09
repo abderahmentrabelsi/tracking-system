@@ -1,28 +1,30 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { getTimesheet } from '@/app/api/timesheetApi'
-import { getDepartmentById } from '@/app/api/taskApi'
-import { Box, CircularProgress, Card, CardHeader, CardContent, Chip } from '@mui/material'
-import { Doughnut } from 'react-chartjs-2'
+import React, {useEffect, useState} from 'react'
+import {getTimesheet} from '@/app/api/timesheetApi'
+import {getDepartmentById} from '@/app/api/taskApi'
+import {Box, Card, CardContent, CardHeader, Chip, CircularProgress} from '@mui/material'
+import {Doughnut} from 'react-chartjs-2'
 import 'chart.js/auto'
-import { useSpring, animated } from '@react-spring/web'
+import {animated, useSpring} from '@react-spring/web'
+import BusinessIcon from '@mui/icons-material/Business';
+import ApartmentIcon from '@mui/icons-material/Apartment';
 
 const workTypes = [
-  { type: 'Workday', color: 'rgba(25,124,185,0.89)' }, // Soft Blue
-  { type: 'Overtime', color: 'rgba(231, 76, 60, 0.7)' }, // Soft Red
-  { type: 'Meeting', color: 'rgba(26, 188, 156, 0.7)' }, // Soft Teal
-  { type: 'Training', color: 'rgba(241, 196, 15, 0.7)' }, // Soft Yellow
-  { type: 'Break', color: 'rgba(142, 68, 173, 0.7)' }, // Rich Purple
-  { type: 'Administrative', color: 'rgba(230, 126, 34, 0.7)' }, // Carrot Orange
-  { type: 'Task', color: 'rgba(31,144,122,0.7)' }, // Green Sea
-  { type: 'Client Work', color: 'rgba(211, 84, 0, 0.7)' }, // Dark Orange
-  { type: 'Travel', color: 'rgba(39, 174, 96, 0.7)' }, // Emerald Green
-  { type: 'On Call', color: 'rgba(59,82,104,0.7)' }, // Wet Asphalt
-  { type: 'Research', color: 'rgba(192, 57, 43, 0.7)' }, // Pomegranate Red
-  { type: 'Support', color: 'rgba(149, 165, 166, 0.7)' }, // Concrete Grey
-  { type: 'Development', color: 'rgba(58,61,62,0.7)' } // Asbestos Grey
-]
+  { type: 'Workday', color: 'rgba(10,147,237,0.9)' }, // Soft Blue
+  { type: 'Overtime', color: 'rgba(246,32,10,0.9)' }, // Soft Red
+  { type: 'Meeting', color: 'rgba(2,42,69,0.9)' }, // Moderate Blue
+  { type: 'Training', color: 'rgba(230,188,18,0.9)' }, // Soft Yellow
+  { type: 'Break', color: 'rgba(142, 68, 173, 0.9)' }, // Rich Purple
+  { type: 'Administrative', color: 'rgba(230, 126, 34, 0.9)' }, // Carrot Orange
+  { type: 'Task', color: 'rgba(7,183,81,0.9)' }, // Emerald Green
+  { type: 'Client Work', color: 'rgba(172,66,55,0.9)' }, // Pomegranate Red
+  { type: 'Travel', color: 'rgba(26, 188, 156, 0.9)' }, // Soft Teal
+  { type: 'On Call', color: 'rgba(83,115,146,0.9)' }, // Wet Asphalt
+  { type: 'Research', color: 'rgba(64,76,88,0.9)' }, // Dark Blue
+  { type: 'Support', color: 'rgba(149, 165, 166, 0.9)' }, // Concrete Grey
+  { type: 'Development', color: 'rgba(32,33,33,0.9)' } // Asbestos Grey
+];
 
 const WorkHoursDoughnutChart = () => {
   const [loading, setLoading] = useState(true)
@@ -116,9 +118,9 @@ const WorkHoursDoughnutChart = () => {
   }
 
   const textAnimation = useSpring({
-    from: { transform: 'rotate(0deg)' },
-    to: { transform: 'rotate(360deg)' },
-    config: { duration: 10000 },
+    from: {transform: 'rotate(0deg)'},
+    to: {transform: 'rotate(360deg)'},
+    config: {duration: 10000},
     reset: true,
     loop: true,
   })
@@ -126,7 +128,7 @@ const WorkHoursDoughnutChart = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress />
+        <CircularProgress/>
       </Box>
     )
   }
@@ -141,12 +143,12 @@ const WorkHoursDoughnutChart = () => {
               color: 'primary.contrastText',
               padding: '8px 16px',
               borderRadius: '8px',
-              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.7), 0 -6px 16px rgba(255, 255, 255, 0.3)',
               textAlign: 'center',
               fontSize: '1.5rem',
               fontWeight: 'bold',
-              border: '1px solid rgba(255, 255, 255, 0.2)', // Adding a subtle border for better visibility
+              border: '9px solid rgba(0, 0, 0, 0.1)',
               transition: 'all 0.3s ease', // Smooth transition for hover effect
+              boxShadow: '0 6px 16px rgba(0, 0, 0.8, 0.9), 0 -6px 16px rgba(255, 255, 255, 0.3)',
               '&:hover': {
                 boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 -6px 16px rgba(255, 255, 255, 0.2)',
               },
@@ -158,8 +160,8 @@ const WorkHoursDoughnutChart = () => {
         sx={{
           flexDirection: ['column', 'row'],
           alignItems: ['flex-start', 'center'],
-          '& .MuiCardHeader-action': { mb: 0 },
-          '& .MuiCardHeader-content': { mb: [2, 0] },
+          '& .MuiCardHeader-action': {mb: 0},
+          '& .MuiCardHeader-content': {mb: [2, 0]},
           justifyContent: 'center', // Center the title horizontally
           mt: 2, // Add some margin on top
         }}
@@ -175,6 +177,7 @@ const WorkHoursDoughnutChart = () => {
               color: '#fff',
               margin: '5px',
               borderRadius: '4px', // Rectangle form
+              boxShadow: '0 4px 8px rgba(0, 0, 0.9, 0.9)',
               padding: '5px',
               fontSize: '10px', // Smaller font size
               textDecoration: ignoredWorkTypes.length === 0 ? 'none' : 'line-through' // Remove line-through for "All"
@@ -188,6 +191,7 @@ const WorkHoursDoughnutChart = () => {
               style={{
                 backgroundColor: workType.color,
                 color: '#fff',
+                boxShadow: '0 4px 8px rgba(0, 0, 0.9, 0.9)',
                 margin: '5px',
                 borderRadius: '4px', // Rectangle form
                 padding: '5px',
@@ -198,22 +202,50 @@ const WorkHoursDoughnutChart = () => {
           ))}
         </Box>
         <Box position="relative" display="flex" justifyContent="center" alignItems="center">
-          <Doughnut data={data} options={options} />
-          <animated.div style={{ ...textAnimation, position: 'absolute', fontSize: '1.2rem', fontWeight: 'bold', color: '#fff' }}>
-            <svg width="10000" height="300" viewBox="0 0 200 200">
-              <path id="circlePath" d="
-                M 100, 100
-                m -75, 0
-                a 75,75 0 1,1 150,0
-                a 75,75 0 1,1 -150,0
-              " fill="transparent" />
-              <text>
+          <Doughnut data={data} options={options}/>
+          <animated.div
+            style={{
+              ...textAnimation,
+              position: 'absolute',
+              fontSize: '1.4rem', // Increased font size
+              fontWeight: 'bold', // Bold text
+              color: '#fff',
+              padding: '5px' // Added padding
+            }}
+          >
+            <svg width="100%" height="100%" viewBox="0 0 200 200">
+              <defs>
+                <filter id="border">
+                  <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="black"/>
+                </filter>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <path
+                id="circlePath"
+                d="
+        M 100, 100
+        m -75, 0
+        a 75,75 0 1,1 150,0
+        a 75,75 0 1,1 -150,0
+      "
+                fill="transparent"
+              />
+              <text filter="url(#glow)" fill="black"
+                    style={{textShadow: '0 0 5px rgba(255,255,255,0.5), 0 0 10px rgba(255,255,255,0.5)'}}>
                 <textPath href="#circlePath">
-                  {`${clientName}  - ${departmentName}`}
+                  {` ★ ${clientName} - ${departmentName} ★`}
                 </textPath>
               </text>
             </svg>
           </animated.div>
+
+
         </Box>
       </CardContent>
     </Card>

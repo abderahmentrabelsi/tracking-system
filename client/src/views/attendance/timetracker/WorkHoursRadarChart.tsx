@@ -8,20 +8,20 @@ import 'chart.js/auto'
 import { useColorScheme } from '@mui/material/styles'
 
 const workTypes = [
-  { type: 'Workday', color: 'rgba(25,124,185,0.89)' }, // Soft Blue
-  { type: 'Overtime', color: 'rgba(231, 76, 60, 0.7)' }, // Soft Red
-  { type: 'Meeting', color: 'rgba(26, 188, 156, 0.7)' }, // Soft Teal
-  { type: 'Training', color: 'rgba(241, 196, 15, 0.7)' }, // Soft Yellow
-  { type: 'Break', color: 'rgba(142, 68, 173, 0.7)' }, // Rich Purple
-  { type: 'Administrative', color: 'rgba(230, 126, 34, 0.7)' }, // Carrot Orange
-  { type: 'Task', color: 'rgba(31,144,122,0.7)' }, // Green Sea
-  { type: 'Client Work', color: 'rgba(211, 84, 0, 0.7)' }, // Dark Orange
-  { type: 'Travel', color: 'rgba(39, 174, 96, 0.7)' }, // Emerald Green
-  { type: 'On Call', color: 'rgba(59,82,104,0.7)' }, // Wet Asphalt
-  { type: 'Research', color: 'rgba(192, 57, 43, 0.7)' }, // Pomegranate Red
-  { type: 'Support', color: 'rgba(149, 165, 166, 0.7)' }, // Concrete Grey
-  { type: 'Development', color: 'rgba(58,61,62,0.7)' } // Asbestos Grey
-]
+  { type: 'Workday', color: 'rgba(10,147,237,0.9)' }, // Soft Blue
+  { type: 'Overtime', color: 'rgba(246,32,10,0.9)' }, // Soft Red
+  { type: 'Meeting', color: 'rgba(2,42,69,0.9)' }, // Moderate Blue
+  { type: 'Training', color: 'rgba(230,188,18,0.9)' }, // Soft Yellow
+  { type: 'Break', color: 'rgba(142, 68, 173, 0.9)' }, // Rich Purple
+  { type: 'Administrative', color: 'rgba(230, 126, 34, 0.9)' }, // Carrot Orange
+  { type: 'Task', color: 'rgba(7,183,81,0.9)' }, // Emerald Green
+  { type: 'Client Work', color: 'rgba(172,66,55,0.9)' }, // Pomegranate Red
+  { type: 'Travel', color: 'rgba(26, 188, 156, 0.9)' }, // Soft Teal
+  { type: 'On Call', color: 'rgba(83,115,146,0.9)' }, // Wet Asphalt
+  { type: 'Research', color: 'rgba(64,76,88,0.9)' }, // Dark Blue
+  { type: 'Support', color: 'rgba(149, 165, 166, 0.9)' }, // Concrete Grey
+  { type: 'Development', color: 'rgba(32,33,33,0.9)' } // Asbestos Grey
+];
 
 
 
@@ -153,9 +153,9 @@ const WorkHoursRadarChart = () => {
               textAlign: 'center',
               fontSize: '1.5rem',
               fontWeight: 'bold',
-              border: '1px solid rgba(255, 255, 255, 0.2)', // Adding a subtle border for better visibility
+              border: '9px solid rgba(0, 0, 0, 0.1)',
               transition: 'all 0.3s ease', // Smooth transition for hover effect
-              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.9)',
+              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.9), 0 -6px 16px rgba(255, 255, 255, 0.3)',
               '&:hover': {
                 boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 -6px 16px rgba(255, 255, 255, 0.2)',
               },
@@ -184,6 +184,7 @@ const WorkHoursRadarChart = () => {
             style={{
               color: '#fff',
               margin: '5px',
+              boxShadow: '0 4px 8px rgba(0, 0, 0.6, 0.9)',
               borderRadius: '4px', // Rectangle form
               padding: '5px',
               fontSize: '10px', // Smaller font size
@@ -199,6 +200,7 @@ const WorkHoursRadarChart = () => {
                 backgroundColor: workType.color,
                 color: '#fff',
                 margin: '5px',
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.9)',
                 borderRadius: '4px', // Rectangle form
                 padding: '5px',
                 fontSize: '10px', // Smaller font size

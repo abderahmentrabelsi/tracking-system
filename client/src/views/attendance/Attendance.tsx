@@ -98,6 +98,7 @@ const TitleContainer = styled(Box)(({ theme }) => ({
     maskComposite: 'exclude',
   },
 }));
+
 const Attendance = () => {
   const theme = useTheme();
   const [timesheet, setTimesheet] = useState([]);
@@ -109,7 +110,7 @@ const Attendance = () => {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [requestEditOpen, setRequestEditOpen] = useState(false);
 
-  const userID = Number(localStorage.getItem('userID'));
+  const userID = typeof window !== 'undefined' ? Number(localStorage.getItem('userID')) : null;
 
   useEffect(() => {
     const fetchTimesheet = async () => {
@@ -125,7 +126,9 @@ const Attendance = () => {
       }
     };
 
-    fetchTimesheet();
+    if (userID) {
+      fetchTimesheet();
+    }
   }, [userID]);
 
   useEffect(() => {
@@ -350,4 +353,3 @@ const Attendance = () => {
 };
 
 export default Attendance;
-

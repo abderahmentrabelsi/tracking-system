@@ -135,9 +135,13 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         <MenuItem className='attendance-tab' href='/attendance' icon={<i className='tabler-clipboard' />} >
           Attendance
         </MenuItem>
-        <MenuItem className='workhours-menu-item' href='/attendance/workhours' icon={<i className='tabler-briefcase' />} >
+        <MenuItem className='workhours-menu-item' href='/attendance/timetracker' icon={<i className='tabler-briefcase' />} >
           Time Tracker
         </MenuItem>
+        <MenuItem className='workhours-menu-item' href='/attendance/leavetracker' icon={<i className='tabler-calendar-event' />} >
+          Leave Tracker
+        </MenuItem>
+
       </Menu>
     </ScrollWrapper>
   )

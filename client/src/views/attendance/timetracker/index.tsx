@@ -1,7 +1,7 @@
 'use client'
-import WorkHoursChart from '@/views/attendance/workhours/workhours'
-import WorkHoursRadarChart from '@/views/attendance/workhours/WorkHoursRadarChart'
-import WorkHoursDoughnutChart from '@/views/attendance/workhours/WorkHoursDoughnutChart'
+import WorkHoursChart from './workhours'
+import WorkHoursRadarChart from './WorkHoursRadarChart'
+import WorkHoursDoughnutChart from './WorkHoursDoughnutChart'
 import { Box, Card, CardContent } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 

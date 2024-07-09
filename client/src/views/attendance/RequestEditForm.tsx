@@ -130,7 +130,7 @@ const RequestEditForm = ({ userID, onClose }) => {
 
   const handleSubmit = async () => {
     try {
-      await requestEdit({ workHoursID: Number(selectedWorkHoursID), editRequestMsg});
+      await requestEdit({ workHoursID: Number(selectedWorkHoursID), editRequestMsg });
       setSnackbarMessage('Edit request submitted successfully');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
@@ -178,7 +178,7 @@ const RequestEditForm = ({ userID, onClose }) => {
                 <>
                   {activeStep === 0 && (
                     <Box>
-                      <FormControl fullWidth sx={{ mb: 10 }}>
+                      <FormControl fullWidth sx={{ mb: 2 }}>
                         <InputLabel>Month</InputLabel>
                         <Select
                           value={selectedMonth}
@@ -192,7 +192,7 @@ const RequestEditForm = ({ userID, onClose }) => {
                           ))}
                         </Select>
                       </FormControl>
-                      <FormControl fullWidth>
+                      <FormControl fullWidth required>
                         <InputLabel>Workday</InputLabel>
                         <Select
                           value={selectedWorkHoursID}
@@ -211,8 +211,8 @@ const RequestEditForm = ({ userID, onClose }) => {
                     </Box>
                   )}
                   {activeStep === 1 && selectedWorkHours && (
-                    <Box component="form" sx={{ '& .MuiTextField-root': { mb: 7 }, mt: 7 }}>
-                      <Typography variant="h6" mb={6}>Workday Details</Typography>
+                    <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 }, mt: 2 }}>
+                      <Typography variant="h6" mb={2}>Workday Details</Typography>
                       <CustomTextField
                         label="Date"
                         fullWidth
@@ -283,12 +283,13 @@ const RequestEditForm = ({ userID, onClose }) => {
                         rows={4}
                         value={editRequestMsg}
                         onChange={(e) => setEditRequestMsg(e.target.value)}
+                        required
                       />
                     </Box>
                   )}
                   {activeStep === 2 && selectedWorkHours && (
-                    <Box sx={{ '& .MuiTextField-root': { mb: 7 }, mt: 7 }}>
-                      <Typography variant="h6" mb={7}>Review Request</Typography>
+                    <Box sx={{ '& .MuiTextField-root': { mb: 2 }, mt: 2 }}>
+                      <Typography variant="h6" mb={2}>Review Request</Typography>
                       <CustomTextField
                         label="Date"
                         fullWidth
@@ -380,16 +381,18 @@ const RequestEditForm = ({ userID, onClose }) => {
           </Button>
           <Box sx={{ flex: '1 1 auto' }} />
           {activeStep === steps.length - 1 ? (
-            <Button onClick={handleSubmit} startIcon={<CheckIcon />}>Submit</Button>
+            <Button onClick={handleSubmit} startIcon={<CheckIcon />} disabled={!selectedWorkHoursID || !editRequestMsg}>
+              Submit
+            </Button>
           ) : (
-            <Button onClick={handleNext} endIcon={<NavigateNextIcon />}>
+            <Button onClick={handleNext} endIcon={<NavigateNextIcon />} disabled={(activeStep === 0 && !selectedWorkHoursID) || (activeStep === 1 && !editRequestMsg)}>
               Next
             </Button>
           )}
         </DialogActions>
       </CustomDialog>
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+      <Snackbar open={snackbarOpen} autoHideDuration={10000} onClose={handleSnackbarClose}>
+      <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>

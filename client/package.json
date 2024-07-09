@@ -33,6 +33,7 @@
     "@tanstack/react-table": "^8.17.3",
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "classnames": "2.5.1",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.2.12",
