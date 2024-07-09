@@ -21,7 +21,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import themeConfig from '@configs/themeConfig'
 import { useImageVariant } from '@core/hooks/useImageVariant'
 import { useSettings } from '@core/hooks/useSettings'
-import { login } from '../utils/userUtils'
+import { login } from '../../utils/userUtils'
 
 const LoginIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,

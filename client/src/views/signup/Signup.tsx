@@ -20,7 +20,7 @@ import ListItem from '@mui/material/ListItem';
 import IconButton from '@mui/material/IconButton';
 import { useDropzone } from 'react-dropzone';
 import { SystemMode } from '@core/types';
-import ProgressLinearWithLabel from '@/components/ProgressLinearWithLabel';
+import ProgressLinearWithLabel from '@components/ProgressLinearWithLabel';
 
 type FormDataType = {
   firstName: string;
@@ -485,7 +485,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
                   </Typography>
                   <Typography>
                     Drop files here or click{' '}
-                    <a href='/' onClick={e => e.preventDefault()} className='text-textPrimary no-underline'>
+                    <a href='/client/public' onClick={e => e.preventDefault()} className='text-textPrimary no-underline'>
                       browse
                     </a>{' '}
                     thorough your machine
