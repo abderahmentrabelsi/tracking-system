@@ -1,1 +1,1 @@
-{ "dependencies": { "react-live-clock": "^6.1.23-beta" } }
+{ "dependencies": { "@tabler/icons": "^3.10.0", "react-live-clock": "^6.1.23-beta" } }

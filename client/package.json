@@ -50,6 +50,7 @@
     "react-dom": "18.2.0",
     "react-dropzone": "^14.2.3",
     "react-google-charts": "^4.0.1",
+    "react-id-swiper": "^4.0.0",
     "react-perfect-scrollbar": "1.5.8",
     "react-toastify": "10.0.4",
     "react-use": "17.5.0",
@@ -57,6 +58,7 @@
     "server-only": "0.0.1",
     "stylis": "4.3.1",
     "stylis-plugin-rtl": "2.1.1",
+    "swiper": "^11.1.4",
     "tailwindcss": "3.4.1",
     "tailwindcss-logical": "3.0.1",
     "tsx": "4.7.1"

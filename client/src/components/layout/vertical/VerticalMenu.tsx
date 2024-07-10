@@ -121,7 +121,10 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
               Tasks
             </MenuItem>
             <MenuItem href='/management/timesheet/' icon={<i className='tabler-calendar' style={{ fontSize: '24px' }} />}>
-              Timesheet
+              Work Logs
+            </MenuItem>
+            <MenuItem href='/management/resources' icon={<i className='tabler-tools' style={{ fontSize: '24px' }} />}>
+              Resources
             </MenuItem>
           </SubMenu>
         )}

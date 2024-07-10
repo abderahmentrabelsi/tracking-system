@@ -12,7 +12,6 @@ const TimesheetManagement = () => {
   const [departmentName, setDepartmentName] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Get department ID from localStorage
   const departmentId = typeof window !== 'undefined' ? Number(localStorage.getItem('departmentId')) : null;
 
   useEffect(() => {

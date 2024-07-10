@@ -16,7 +16,7 @@ const ManagerDashboard: React.FC = () => {
   const [openCreateTaskDialog, setOpenCreateTaskDialog] = useState(false);
 
   useEffect(() => {
-    const departmentId = parseInt(localStorage.getItem('departmentId') || '0', 10);
+    const departmentId = typeof window !== 'undefined' ? Number(localStorage.getItem('departmentId')) : null;
     fetchDepartment(departmentId);
   }, []);
 
