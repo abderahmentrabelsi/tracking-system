@@ -162,8 +162,8 @@ func (ur *UserRepository) GenerateTOTPSecret(userID uint) (string, error) {
 		return "", err
 	}
 
-	// Store the secret in the database
-	if err := orm.DB.Model(&model.User{}).Where("id = ?", userID).Update("TOTPSecret", key.Secret()).Error; err != nil {
+	// Store the secret and set TOTPEnabled to true
+	if err := orm.DB.Model(&model.User{}).Where("id = ?", userID).Updates(map[string]interface{}{"TOTPSecret": key.Secret(), "TOTPEnabled": true}).Error; err != nil {
 		return "", err
 	}
 
@@ -176,14 +176,15 @@ func (ur *UserRepository) VerifyTOTPCode(userID uint, code string) (bool, error)
 		return false, err
 	}
 
-	fmt.Printf("Verifying code: %s with secret: %s\n", code, user.TOTPSecret) // Add this line for debugging
+	fmt.Printf("Verifying code: %s with secret: %s\n", code, user.TOTPSecret)
 
 	valid := totp.Validate(code, user.TOTPSecret)
 	return valid, nil
 }
 
 func (ur *UserRepository) DisableTOTP(userID uint) error {
-	if err := orm.DB.Model(&model.User{}).Where("id = ?", userID).Update("TOTPSecret", "").Error; err != nil {
+	// Set TOTPEnabled to false, but keep the TOTPSecret
+	if err := orm.DB.Model(&model.User{}).Where("id = ?", userID).Update("TOTPEnabled", false).Error; err != nil {
 		return err
 	}
 	return nil
@@ -191,8 +192,8 @@ func (ur *UserRepository) DisableTOTP(userID uint) error {
 
 func (ur *UserRepository) IsTOTPEnabled(userID uint) (bool, error) {
 	var user model.User
-	if err := orm.DB.Select("TOTPSecret").Where("id = ?", userID).First(&user).Error; err != nil {
+	if err := orm.DB.Select("TOTPEnabled").Where("id = ?", userID).First(&user).Error; err != nil {
 		return false, err
 	}
-	return user.TOTPSecret != "", nil
+	return user.TOTPEnabled, nil
 }

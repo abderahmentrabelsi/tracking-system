@@ -20,8 +20,7 @@ type UserController struct {
 	userService       *service.UserService
 	departmentService *service.DepartmentService
 	roleService       *service.RoleService
-	fileService       *service.FileService // Add this line
-
+	fileService       *service.FileService
 }
 
 func NewUserController(userService *service.UserService, departmentService *service.DepartmentService, roleService *service.RoleService, fileService *service.FileService) *UserController {
@@ -157,8 +156,6 @@ func (uc *UserController) SignUp(c *gin.Context) {
 	})
 }
 
-// In controller/user_controller.go
-
 func (uc *UserController) LoginHandler(c *gin.Context) {
 	var body struct {
 		Identifier  string `json:"Identifier"`
@@ -207,20 +204,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		return
 	}
 
-	totpEnabled, err := uc.userService.IsTOTPEnabled(user.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"data":   nil,
-			"status": "error",
-			"message": gin.H{
-				"error": "TOTP status error",
-				"msg":   "Failed to fetch TOTP status",
-			},
-		})
-		return
-	}
-
-	if totpEnabled {
+	if user.TOTPEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"data": gin.H{
 				"requires_totp": true,
@@ -294,8 +278,6 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		},
 	})
 }
-
-// Add the VerifyLoginTOTP handler
 
 func (uc *UserController) VerifyLoginTOTP(c *gin.Context) {
 	var body struct {
@@ -391,6 +373,7 @@ func (uc *UserController) VerifyLoginTOTP(c *gin.Context) {
 		},
 	})
 }
+
 func (uc *UserController) LogoutHandler(c *gin.Context) {
 	token, err := c.Cookie("access_token")
 	if err != nil {
@@ -415,6 +398,7 @@ func (uc *UserController) LogoutHandler(c *gin.Context) {
 		},
 	})
 }
+
 func (uc *UserController) GetAllRoles(c *gin.Context) {
 	roles, err := uc.roleService.GetAllRoles()
 	if err != nil {
@@ -438,6 +422,7 @@ func (uc *UserController) GetAllRoles(c *gin.Context) {
 		},
 	})
 }
+
 func (uc *UserController) GetUserByID(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -474,6 +459,7 @@ func (uc *UserController) GetUserByID(c *gin.Context) {
 		},
 	})
 }
+
 func (uc *UserController) GetAllUsers(c *gin.Context) {
 	users, err := uc.userService.GetAllUsers()
 	if err != nil {
@@ -497,6 +483,7 @@ func (uc *UserController) GetAllUsers(c *gin.Context) {
 		},
 	})
 }
+
 func (uc *UserController) GetUserDetails(c *gin.Context) {
 	userIDStr := c.GetString("userID")
 	if userIDStr == "" {
@@ -563,10 +550,10 @@ func (uc *UserController) GetUserDetails(c *gin.Context) {
 		"jobTitle":       user.JobTitle,
 	})
 }
+
 func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 	username := c.Param("username")
 
-	// Retrieve user details
 	user, err := uc.userService.GetUserByUsername(username)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -581,7 +568,6 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 		return
 	}
 
-	// Retrieve department details
 	department, err := uc.departmentService.GetDepartmentByIDd(user.DepartmentID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -590,7 +576,6 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 		return
 	}
 
-	// Retrieve client information based on department's parent
 	var clientName string
 	var clientDepartments []*model.Department
 
@@ -619,7 +604,6 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 		}
 	}
 
-	// Construct the response
 	response := gin.H{
 		"username":       user.Username,
 		"email":          user.Email,
@@ -639,6 +623,7 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
 func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 	username := c.Param("username")
 	loggedInUsername := c.GetString("username")
@@ -667,7 +652,7 @@ func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 		Email       string `json:"email"`
 		PhoneNumber string `json:"phoneNumber"`
 		Address     string `json:"address"`
-		Picture     string `json:"picture"` // Add this line
+		Picture     string `json:"picture"`
 	}
 
 	if err := c.BindJSON(&body); err != nil {
@@ -680,7 +665,7 @@ func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 	user.Email = body.Email
 	user.PhoneNumber = body.PhoneNumber
 	user.Address = body.Address
-	user.Picture = body.Picture // Ensure this line is present
+	user.Picture = body.Picture
 
 	if err := uc.userService.UpdateUserProfile(user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to update user profile"})
@@ -689,6 +674,7 @@ func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
 }
+
 func (uc *UserController) ChangePassword(c *gin.Context) {
 	var body struct {
 		CurrentPassword string `json:"currentPassword"`
@@ -749,6 +735,7 @@ func (uc *UserController) ChangePassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
 }
+
 func (uc *UserController) GetLoginHistory(c *gin.Context) {
 	userIDStr := c.Param("id")
 	userID, err := strconv.ParseUint(userIDStr, 10, 64)
@@ -765,6 +752,7 @@ func (uc *UserController) GetLoginHistory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"data": loginHistory})
 }
+
 func (uc *UserController) GenerateTOTP(c *gin.Context) {
 	userIDStr := c.GetString("userID")
 	if userIDStr == "" {
