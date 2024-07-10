@@ -14,12 +14,12 @@ import Logo from '@components/layout/shared/Logo';
 import CustomTextField from '@core/components/mui/TextField';
 import { useImageVariant } from '@core/hooks/useImageVariant';
 import { useSettings } from '@core/hooks/useSettings';
-import themeConfig from '@configs/themeConfig'
-import InputAdornment from '@mui/material/InputAdornment'
-import IconButton from '@mui/material/IconButton'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Checkbox from '@mui/material/Checkbox'
-import Divider from '@mui/material/Divider'
+import themeConfig from '@configs/themeConfig';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Divider from '@mui/material/Divider';
 
 const LoginIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,
@@ -28,11 +28,11 @@ const LoginIllustration = styled('img')(({ theme }) => ({
   maxInlineSize: '100%',
   margin: theme.spacing(12),
   [theme.breakpoints.down(1536)]: {
-    maxBlockSize: 550
+    maxBlockSize: 550,
   },
   [theme.breakpoints.down('lg')]: {
-    maxBlockSize: 450
-  }
+    maxBlockSize: 450,
+  },
 }));
 
 const MaskImg = styled('img')({
@@ -41,17 +41,13 @@ const MaskImg = styled('img')({
   inlineSize: '100%',
   position: 'absolute',
   insetBlockEnd: 0,
-  zIndex: -1
+  zIndex: -1,
 });
 
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const [isPasswordShown, setIsPasswordShown] = useState(false);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [code, setCode] = useState('');
-  const [requiresTotp, setRequiresTotp] = useState(false);
-  const [userId, setUserId] = useState(null);
-  const [redirectUri, setRedirectUri] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -73,13 +69,16 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
     e.preventDefault();
     try {
       const redirectUri = searchParams.get('redirect') || '/home';
-      const response = await axios.post('http://localhost:8383/login', { Identifier: identifier, Password: password, Code: code, RedirectURI: redirectUri });
+      const response = await axios.post('http://localhost:8383/login', {
+        Identifier: identifier,
+        Password: password,
+        RedirectURI: redirectUri,
+      });
+
       const { requires_totp, user_id, redirect_uri, access_token, userRole } = response.data.data;
 
       if (requires_totp) {
-        setRequiresTotp(true);
-        setUserId(user_id);
-        setRedirectUri(redirect_uri);
+        router.push(`/two-steps-v2?user_id=${user_id}&redirect_uri=${redirect_uri}&identifier=${identifier}&password=${password}`);
         return;
       }
 
@@ -98,7 +97,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         className={classnames(
           'flex bs-full items-center justify-center flex-1 min-bs-[100dvh] relative p-6 max-md:hidden',
           {
-            'border-ie': settings.skin === 'bordered'
+            'border-ie': settings.skin === 'bordered',
           }
         )}
       >
@@ -144,18 +143,9 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
                       <i className={isPasswordShown ? 'tabler-eye-off' : 'tabler-eye'} />
                     </IconButton>
                   </InputAdornment>
-                )
+                ),
               }}
             />
-            {requiresTotp && (
-              <CustomTextField
-                fullWidth
-                label='TOTP Code'
-                placeholder='Enter your TOTP code'
-                value={code}
-                onChange={e => setCode(e.target.value)}
-              />
-            )}
             <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
               <FormControlLabel control={<Checkbox />} label='Remember me' />
               <Typography className='text-end' color='primary' component={Link}>

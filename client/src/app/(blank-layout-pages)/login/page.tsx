@@ -1,3 +1,4 @@
+//client/src/app/(blank-layout-pages)/login/page.tsx
 // Next Imports
 import type { Metadata } from 'next'
 

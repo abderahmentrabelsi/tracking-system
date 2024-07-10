@@ -1,3 +1,4 @@
+//client/src/app/(blank-layout-pages)/two-steps-v2/page.tsx
 // Component Imports
 import TwoStepsV2 from '@views/login/TwoStepsV2'
 
