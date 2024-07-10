@@ -160,6 +160,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 	var body struct {
 		Identifier  string `json:"Identifier"`
 		Password    string `json:"Password"`
+		Code        string `json:"Code"`
 		RedirectURI string `json:"RedirectURI"`
 	}
 	if err := c.Bind(&body); err != nil {
@@ -186,7 +187,6 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 				"msg":   "Invalid credentials",
 			},
 		})
-		c.Redirect(http.StatusTemporaryRedirect, "/login?uri="+body.RedirectURI)
 		return
 	}
 
@@ -200,24 +200,50 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 				"msg":   "Invalid credentials",
 			},
 		})
-		c.Redirect(http.StatusTemporaryRedirect, "/login?uri="+body.RedirectURI)
 		return
 	}
 
 	if user.TOTPEnabled {
-		c.JSON(http.StatusOK, gin.H{
-			"data": gin.H{
-				"requires_totp": true,
-				"user_id":       user.ID,
-				"redirect_uri":  body.RedirectURI,
-			},
-			"status": "success",
-			"message": gin.H{
-				"error": "",
-				"msg":   "TOTP required",
-			},
-		})
-		return
+		if body.Code == "" {
+			c.JSON(http.StatusOK, gin.H{
+				"data": gin.H{
+					"requires_totp": true,
+					"user_id":       user.ID,
+					"redirect_uri":  body.RedirectURI,
+				},
+				"status": "success",
+				"message": gin.H{
+					"error": "",
+					"msg":   "TOTP required",
+				},
+			})
+			return
+		}
+
+		valid, err := uc.userService.VerifyTOTPCode(user.ID, body.Code)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"data":   nil,
+				"status": "error",
+				"message": gin.H{
+					"error": "TOTP verification error",
+					"msg":   "Failed to verify TOTP code",
+				},
+			})
+			return
+		}
+
+		if !valid {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"data":   nil,
+				"status": "error",
+				"message": gin.H{
+					"error": "Invalid TOTP code",
+					"msg":   "Invalid TOTP code",
+				},
+			})
+			return
+		}
 	}
 
 	roleEntity, err := uc.roleService.GetRoleByID(user.RoleID)
@@ -295,6 +321,20 @@ func (uc *UserController) VerifyLoginTOTP(c *gin.Context) {
 		})
 		return
 	}
+
+	if body.UserID == 0 || body.Code == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": "Missing user ID or code",
+				"msg":   "User ID and code are required",
+			},
+		})
+		return
+	}
+
+	fmt.Printf("Verifying TOTP for user ID: %d with code: %s\n", body.UserID, body.Code)
 
 	valid, err := uc.userService.VerifyTOTPCode(body.UserID, body.Code)
 	if err != nil {
