@@ -12,14 +12,13 @@ import Link from '@components/Link'
 
 // Component Imports
 import TwoFactorAuth from './two-factor-auth'
-import { checkTOTPStatus, disableTOTP, generateTOTP } from '../../../utils/userUtils'
+import { checkTOTPStatus, disableTOTP, enableTOTP, generateTOTP } from '../../../utils/userUtils'
 import { useState, useEffect } from 'react'
 
 const TwoFactorAuthenticationCard = () => {
   const [isTOTPEnabled, setIsTOTPEnabled] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [totpData, setTotpData] = useState<{ secret: string; qr_code: string } | null>(null);
-
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -47,6 +46,8 @@ const TwoFactorAuthenticationCard = () => {
     try {
       const data = await generateTOTP(); // Trigger TOTP generation
       setTotpData(data); // Store the TOTP data for use in the dialog
+      await enableTOTP();
+      setIsTOTPEnabled(true);
       setIsDialogOpen(true);
     } catch (error) {
       console.error('Error generating TOTP:', error);

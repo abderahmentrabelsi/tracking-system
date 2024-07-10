@@ -108,6 +108,10 @@ func (us *UserService) GenerateTOTPSecret(userID uint) (string, error) {
 	return us.userRepository.GenerateTOTPSecret(userID)
 }
 
+func (us *UserService) EnableTOTP(userID uint) error {
+	return us.userRepository.EnableTOTP(userID)
+}
+
 func (us *UserService) VerifyTOTPCode(userID uint, code string) (bool, error) {
 	return us.userRepository.VerifyTOTPCode(userID, code)
 }

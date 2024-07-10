@@ -862,3 +862,23 @@ func (uc *UserController) IsTOTPEnabled(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"enabled": enabled})
 }
+func (uc *UserController) EnableTOTP(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	if err := uc.userService.EnableTOTP(uint(userID)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to enable TOTP"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "TOTP enabled successfully"})
+}

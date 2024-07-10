@@ -178,6 +178,7 @@ export const login = async (identifier: string, password: string, redirectUri: s
 };
 
 // Function to generate TOTP secret and QR code
+// Function to generate TOTP secret and QR code
 export const generateTOTP = async (): Promise<{ secret: string; qr_code: string }> => {
   try {
     const response = await fetch('http://localhost:8383/totp/generate', {
@@ -193,6 +194,23 @@ export const generateTOTP = async (): Promise<{ secret: string; qr_code: string 
     }
   } catch (error) {
     console.error('Error generating TOTP secret:', error);
+    throw error;
+  }
+};
+
+// Function to enable TOTP
+export const enableTOTP = async (): Promise<void> => {
+  try {
+    const response = await fetch('http://localhost:8383/totp/enable', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      console.error('Failed to enable TOTP');
+      throw new Error('Failed to enable TOTP');
+    }
+  } catch (error) {
+    console.error('Error enabling TOTP:', error);
     throw error;
   }
 };

@@ -25,6 +25,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/totp/generate", middleware.AuthMiddleware(s.userService), userController.GenerateTOTP)
 	r.POST("/totp/verify", middleware.AuthMiddleware(s.userService), userController.VerifyTOTP)
 	r.POST("/totp/disable", middleware.AuthMiddleware(s.userService), userController.DisableTOTP)
+	r.POST("/totp/enable", middleware.AuthMiddleware(s.userService), userController.EnableTOTP)
+
 	r.GET("/totp/status", middleware.AuthMiddleware(s.userService), userController.IsTOTPEnabled)
 	r.POST("/login/totp", userController.VerifyLoginTOTP)
 

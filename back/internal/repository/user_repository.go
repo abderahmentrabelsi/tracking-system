@@ -154,6 +154,17 @@ func (ur *UserRepository) getLocationFromIP(ip string) (string, error) {
 }
 
 func (ur *UserRepository) GenerateTOTPSecret(userID uint) (string, error) {
+	var user model.User
+	if err := orm.DB.Where("id = ?", userID).First(&user).Error; err != nil {
+		return "", err
+	}
+
+	// Check if TOTPSecret already exists
+	if user.TOTPSecret != "" {
+		return user.TOTPSecret, nil
+	}
+
+	// Generate new TOTP key
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      "YourAppName",
 		AccountName: fmt.Sprintf("user-%d", userID),
@@ -162,12 +173,19 @@ func (ur *UserRepository) GenerateTOTPSecret(userID uint) (string, error) {
 		return "", err
 	}
 
-	// Store the secret and set TOTPEnabled to true
-	if err := orm.DB.Model(&model.User{}).Where("id = ?", userID).Updates(map[string]interface{}{"TOTPSecret": key.Secret(), "TOTPEnabled": true}).Error; err != nil {
+	// Store the secret in the database
+	if err := orm.DB.Model(&model.User{}).Where("id = ?", userID).Updates(map[string]interface{}{
+		"TOTPSecret":  key.Secret(),
+		"TOTPEnabled": true,
+	}).Error; err != nil {
 		return "", err
 	}
 
 	return key.Secret(), nil
+}
+
+func (ur *UserRepository) EnableTOTP(userID uint) error {
+	return orm.DB.Model(&model.User{}).Where("id = ?", userID).Update("TOTPEnabled", true).Error
 }
 
 func (ur *UserRepository) VerifyTOTPCode(userID uint, code string) (bool, error) {
