@@ -1,7 +1,7 @@
 // Next Imports
 import Providers from '@components/Providers';
 import BlankLayout from '@layouts/BlankLayout';
-import NotAuthorized from '@views/NotAuthorized';
+import NotAuthorized from '@views/misc/NotAuthorized';
 
 // Util Imports
 import { getServerMode, getSystemMode } from '@core/utils/serverHelpers';

@@ -52,6 +52,15 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ tabContentList, mode 
             <Tab
               label={
                 <div className='flex items-center gap-1.5'>
+                  <i className='tabler-device-desktop text-lg' />
+                  Recent Devices
+                </div>
+              }
+              value='recentDevices'
+            />
+            <Tab
+              label={
+                <div className='flex items-center gap-1.5'>
                   <i className='tabler-bell text-lg' />
                   Notifications
                 </div>

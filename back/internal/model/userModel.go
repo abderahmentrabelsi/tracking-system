@@ -23,6 +23,8 @@ type User struct {
 	LoginHistory []LoginHistory `gorm:"foreignKey:UserID" json:"loginHistory"`
 	WorkHours    []WorkHours    `gorm:"foreignKey:UserID" json:"workHours"`
 	TokenDetails TokenDetails   `gorm:"foreignKey:UserID" json:"tokenDetails"`
+	TOTPSecret   string         `json:"totpSecret"`
+	TOTPEnabled  bool           `json:"totpEnabled"` // New field
 	Salary       Salary         `gorm:"foreignKey:UserID" json:"salary"`
 	Contract     Contract       `gorm:"foreignKey:UserID" json:"contract"`
 	Files        []FileUpload   `gorm:"foreignKey:UserID" json:"files"`
@@ -52,6 +54,7 @@ type LoginHistory struct {
 	LoginIP     string    `json:"loginIp"`
 	LoginDevice string    `json:"loginDevice"`
 	LoginTime   time.Time `json:"loginTime"`
+	Location    string    `json:"location"`
 }
 
 type WorkHours struct {

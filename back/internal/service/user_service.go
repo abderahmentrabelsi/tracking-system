@@ -12,20 +12,22 @@ import (
 
 type UserService struct {
 	userRepository *repository.UserRepository
-	roleRepository *repository.RoleRepository // Add this line
-	fileService    *FileService               // Add this line
+	roleRepository *repository.RoleRepository
+	fileService    *FileService
 }
 
 func NewUserService(userRepository *repository.UserRepository, roleRepository *repository.RoleRepository, fileService *FileService) *UserService {
 	return &UserService{
 		userRepository: userRepository,
-		roleRepository: roleRepository, // Initialize roleRepository
-		fileService:    fileService,    // Initialize fileService
+		roleRepository: roleRepository,
+		fileService:    fileService,
 	}
 }
+
 func (us *UserService) GetUserByEmail(email string) (*model.User, error) {
 	return us.userRepository.GetUserByEmail(email)
 }
+
 func (us *UserService) CreateUser(user *model.User, files []model.FileUpload) error {
 	err := us.userRepository.CreateUser(user)
 	if err != nil {
@@ -42,6 +44,11 @@ func (us *UserService) CreateUser(user *model.User, files []model.FileUpload) er
 
 	return nil
 }
+
+func (us *UserService) GetLoginHistory(userID uint) ([]model.LoginHistory, error) {
+	return us.userRepository.GetLoginHistory(userID)
+}
+
 func (us *UserService) CreateLoginHistory(userID uint, clientIP string, userAgent string) error {
 	history := model.LoginHistory{
 		UserID:      userID,
@@ -56,35 +63,63 @@ func (us *UserService) CreateLoginHistory(userID uint, clientIP string, userAgen
 
 	return nil
 }
+
 func (us *UserService) GenerateToken(email, username string, userID uint, role string, duration time.Duration) (string, error) {
 	exp := time.Now().Add(duration)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"UserID":   strconv.Itoa(int(userID)), // Convert userID to string
+		"UserID":   strconv.Itoa(int(userID)),
 		"Email":    email,
-		"Username": username, // Add the username to the token
+		"Username": username,
 		"Role":     role,
 		"exp":      exp.Unix(),
 	})
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
+
 func (us *UserService) GetRoleByID(roleID uint) (*model.Role, error) {
 	return us.roleRepository.GetRoleByID(roleID)
 }
+
 func (us *UserService) GetUserByEmailOrUsername(identifier string) (*model.User, error) {
-	return us.userRepository.GetUserByEmailOrUsername(identifier) // rename GetUserByEmail to GetUserByEmailOrUsername
+	return us.userRepository.GetUserByEmailOrUsername(identifier)
 }
+
 func (us *UserService) GetUserByUsername(username string) (*model.User, error) {
 	return us.userRepository.GetUserByUsername(username)
 }
+
 func (us *UserService) GetUserByID(id uint) (*model.User, error) {
 	return us.userRepository.GetUserByID(id)
 }
+
 func (us *UserService) GetAllUsers() ([]*model.User, error) {
 	return us.userRepository.GetAllUsers()
 }
+
 func (us *UserService) UpdateUserProfile(user *model.User) error {
 	return us.userRepository.UpdateUser(user)
 }
+
 func (us *UserService) UpdatePassword(userID uint, newPassword string) error {
 	return us.userRepository.UpdatePassword(userID, newPassword)
+}
+
+func (us *UserService) GenerateTOTPSecret(userID uint) (string, error) {
+	return us.userRepository.GenerateTOTPSecret(userID)
+}
+
+func (us *UserService) EnableTOTP(userID uint) error {
+	return us.userRepository.EnableTOTP(userID)
+}
+
+func (us *UserService) VerifyTOTPCode(userID uint, code string) (bool, error) {
+	return us.userRepository.VerifyTOTPCode(userID, code)
+}
+
+func (us *UserService) DisableTOTP(userID uint) error {
+	return us.userRepository.DisableTOTP(userID)
+}
+
+func (us *UserService) IsTOTPEnabled(userID uint) (bool, error) {
+	return us.userRepository.IsTOTPEnabled(userID)
 }

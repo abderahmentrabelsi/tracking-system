@@ -1,8 +1,9 @@
+//client/src/app/(blank-layout-pages)/login/page.tsx
 // Next Imports
 import type { Metadata } from 'next'
 
 // Component Imports
-import Login from '@views/Login'
+import Login from '@views/login/Login'
 
 // Server Action Imports
 import { getServerMode } from '@core/utils/serverHelpers'

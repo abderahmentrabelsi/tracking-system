@@ -5,7 +5,9 @@ import (
 	"back/internal/service"
 	"back/internal/store"
 	"back/internal/utils"
+	"encoding/base64"
 	"fmt"
+	"github.com/skip2/go-qrcode"
 	"net/http"
 	"strconv"
 	"time"
@@ -18,8 +20,7 @@ type UserController struct {
 	userService       *service.UserService
 	departmentService *service.DepartmentService
 	roleService       *service.RoleService
-	fileService       *service.FileService // Add this line
-
+	fileService       *service.FileService
 }
 
 func NewUserController(userService *service.UserService, departmentService *service.DepartmentService, roleService *service.RoleService, fileService *service.FileService) *UserController {
@@ -158,6 +159,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 	var body struct {
 		Identifier  string `json:"Identifier"`
 		Password    string `json:"Password"`
+		Code        string `json:"Code"`
 		RedirectURI string `json:"RedirectURI"`
 	}
 	if err := c.Bind(&body); err != nil {
@@ -184,7 +186,6 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 				"msg":   "Invalid credentials",
 			},
 		})
-		c.Redirect(http.StatusTemporaryRedirect, "/login?uri="+body.RedirectURI)
 		return
 	}
 
@@ -198,8 +199,50 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 				"msg":   "Invalid credentials",
 			},
 		})
-		c.Redirect(http.StatusTemporaryRedirect, "/login?uri="+body.RedirectURI)
 		return
+	}
+
+	if user.TOTPEnabled {
+		if body.Code == "" {
+			c.JSON(http.StatusOK, gin.H{
+				"data": gin.H{
+					"requires_totp": true,
+					"user_id":       user.ID,
+					"redirect_uri":  body.RedirectURI,
+				},
+				"status": "success",
+				"message": gin.H{
+					"error": "",
+					"msg":   "TOTP required",
+				},
+			})
+			return
+		}
+
+		valid, err := uc.userService.VerifyTOTPCode(user.ID, body.Code)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"data":   nil,
+				"status": "error",
+				"message": gin.H{
+					"error": "TOTP verification error",
+					"msg":   "Failed to verify TOTP code",
+				},
+			})
+			return
+		}
+
+		if !valid {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"data":   nil,
+				"status": "error",
+				"message": gin.H{
+					"error": "Invalid TOTP code",
+					"msg":   "Invalid TOTP code",
+				},
+			})
+			return
+		}
 	}
 
 	roleEntity, err := uc.roleService.GetRoleByID(user.RoleID)
@@ -435,7 +478,6 @@ func (uc *UserController) GetUserDetails(c *gin.Context) {
 func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 	username := c.Param("username")
 
-	// Retrieve user details
 	user, err := uc.userService.GetUserByUsername(username)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -450,7 +492,6 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 		return
 	}
 
-	// Retrieve department details
 	department, err := uc.departmentService.GetDepartmentByIDd(user.DepartmentID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -459,7 +500,6 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 		return
 	}
 
-	// Retrieve client information based on department's parent
 	var clientName string
 	var clientDepartments []*model.Department
 
@@ -488,7 +528,6 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 		}
 	}
 
-	// Construct the response
 	response := gin.H{
 		"username":       user.Username,
 		"email":          user.Email,
@@ -507,6 +546,22 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+func (uc *UserController) GetLoginHistory(c *gin.Context) {
+	userIDStr := c.Param("id")
+	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	loginHistory, err := uc.userService.GetLoginHistory(uint(userID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch login history"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": loginHistory})
 }
 func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 	username := c.Param("username")
@@ -536,7 +591,7 @@ func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 		Email       string `json:"email"`
 		PhoneNumber string `json:"phoneNumber"`
 		Address     string `json:"address"`
-		Picture     string `json:"picture"` // Add this line
+		Picture     string `json:"picture"`
 	}
 
 	if err := c.BindJSON(&body); err != nil {
@@ -549,7 +604,7 @@ func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 	user.Email = body.Email
 	user.PhoneNumber = body.PhoneNumber
 	user.Address = body.Address
-	user.Picture = body.Picture // Ensure this line is present
+	user.Picture = body.Picture
 
 	if err := uc.userService.UpdateUserProfile(user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to update user profile"})
@@ -617,4 +672,238 @@ func (uc *UserController) ChangePassword(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
+}
+func (uc *UserController) VerifyLoginTOTP(c *gin.Context) {
+	var body struct {
+		UserID uint   `json:"user_id"`
+		Code   string `json:"code"`
+	}
+	if err := c.Bind(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "Invalid request body",
+			},
+		})
+		return
+	}
+
+	if body.UserID == 0 || body.Code == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": "Missing user ID or code",
+				"msg":   "User ID and code are required",
+			},
+		})
+		return
+	}
+
+	fmt.Printf("Verifying TOTP for user ID: %d with code: %s\n", body.UserID, body.Code)
+
+	valid, err := uc.userService.VerifyTOTPCode(body.UserID, body.Code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": "TOTP verification error",
+				"msg":   "Failed to verify TOTP code",
+			},
+		})
+		return
+	}
+
+	if !valid {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": "Invalid TOTP code",
+				"msg":   "Invalid TOTP code",
+			},
+		})
+		return
+	}
+
+	user, err := uc.userService.GetUserByID(body.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": "User retrieval error",
+				"msg":   "Failed to fetch user",
+			},
+		})
+		return
+	}
+
+	roleEntity, err := uc.roleService.GetRoleByID(user.RoleID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": "Role retrieval error",
+				"msg":   "Failed to fetch user role",
+			},
+		})
+		return
+	}
+
+	accessToken, err := uc.userService.GenerateToken(user.Email, user.Username, user.ID, roleEntity.Name, 7*24*time.Hour)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": "Token generation error",
+				"msg":   "Failed to generate access token",
+			},
+		})
+		return
+	}
+
+	c.SetCookie("access_token", accessToken, int(7*24*time.Hour.Seconds()), "/", "", false, true)
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": gin.H{
+			"access_token": accessToken,
+			"userRole":     roleEntity.Name,
+		},
+		"status": "success",
+		"message": gin.H{
+			"msg": "TOTP verified and login successful",
+		},
+	})
+}
+func (uc *UserController) GenerateTOTP(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	secret, err := uc.userService.GenerateTOTPSecret(uint(userID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate TOTP secret"})
+		return
+	}
+
+	otpURL := fmt.Sprintf("otpauth://totp/YourAppName:user-%d?secret=%s&issuer=YourAppName", userID, secret)
+	qrCode, err := qrcode.Encode(otpURL, qrcode.Medium, 256)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate QR code"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"secret":  secret,
+		"qr_code": "data:image/png;base64," + base64.StdEncoding.EncodeToString(qrCode),
+	})
+}
+func (uc *UserController) VerifyTOTP(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var body struct {
+		Code string `json:"code"`
+	}
+	if err := c.Bind(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	valid, err := uc.userService.VerifyTOTPCode(uint(userID), body.Code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify TOTP code"})
+		return
+	}
+
+	if !valid {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid TOTP code"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "TOTP verified successfully"})
+}
+func (uc *UserController) DisableTOTP(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	if err := uc.userService.DisableTOTP(uint(userID)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to disable TOTP"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "TOTP disabled successfully"})
+}
+func (uc *UserController) IsTOTPEnabled(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	enabled, err := uc.userService.IsTOTPEnabled(uint(userID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check TOTP status"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"enabled": enabled})
+}
+func (uc *UserController) EnableTOTP(c *gin.Context) {
+	userIDStr := c.GetString("userID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	if err := uc.userService.EnableTOTP(uint(userID)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to enable TOTP"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "TOTP enabled successfully"})
 }
