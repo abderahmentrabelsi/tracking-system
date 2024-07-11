@@ -11,6 +11,9 @@ export interface WorkHours {
   approved: boolean;
   requestedEdit: boolean;
   editRequestMsg: string;
+  requestCheckin?: number;
+  requestCheckout?: number;
+  RequestDuration?:number;
   managerComment: string;
 }
 
@@ -37,4 +40,19 @@ export interface CheckOutData {
 export interface RequestEditData {
   workHoursID: number;
   editRequestMsg: string;
+  requestCheckin?: number;
+  requestCheckout?: number;
+  RequestDuration?:number;
 }
+
+export interface RequestApproveData {
+  workHoursID: number;
+  approved: boolean;
+  managerComment: string;
+  requestCheckin?: number;
+  requestCheckout?: number;
+  requestDuration?: number;
+}
+
+
+

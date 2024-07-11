@@ -1,5 +1,12 @@
 import axios from 'axios';
-import {CheckInData, CheckOutData, RequestEditData, TaskType, WorkHours} from '@/types/timesheetTypes';
+import {
+  CheckInData,
+  CheckOutData,
+  RequestApproveData,
+  RequestEditData,
+  TaskType,
+  WorkHours
+} from '@/types/timesheetTypes';
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:8383',
@@ -38,5 +45,10 @@ export const getTaskById = async (id: number): Promise<TaskType[]> => {
 
 export const requestEdit = async (data: RequestEditData): Promise<WorkHours> => {
   const response = await apiClient.post('/timesheet/edit-request', data);
+  return response.data.data;
+};
+
+export const approveEdit = async (data: RequestApproveData): Promise<WorkHours> => {
+  const response = await apiClient.post('/timesheet/approve-edit', data);
   return response.data.data;
 };

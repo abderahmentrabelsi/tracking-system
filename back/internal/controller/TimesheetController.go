@@ -136,8 +136,11 @@ func (tc *TimesheetController) GetTimesheet(c *gin.Context) {
 
 func (tc *TimesheetController) RequestEdit(c *gin.Context) {
 	var body struct {
-		WorkHoursID    uint   `json:"workHoursID"`
-		EditRequestMsg string `json:"editRequestMsg"`
+		WorkHoursID     uint     `json:"workHoursID"`
+		EditRequestMsg  string   `json:"editRequestMsg"`
+		RequestCheckin  *int64   `json:"requestCheckin,omitempty"`
+		RequestCheckout *int64   `json:"requestCheckout,omitempty"`
+		RequestDuration *float32 `json:"requestDuration,omitempty"`
 	}
 
 	if err := c.Bind(&body); err != nil {
@@ -152,7 +155,7 @@ func (tc *TimesheetController) RequestEdit(c *gin.Context) {
 		return
 	}
 
-	workHours, err := tc.workHoursService.RequestEdit(body.WorkHoursID, body.EditRequestMsg)
+	workHours, err := tc.workHoursService.RequestEdit(body.WorkHoursID, body.EditRequestMsg, body.RequestCheckin, body.RequestCheckout, body.RequestDuration)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"data":   nil,
@@ -176,9 +179,12 @@ func (tc *TimesheetController) RequestEdit(c *gin.Context) {
 
 func (tc *TimesheetController) ApproveEdit(c *gin.Context) {
 	var body struct {
-		WorkHoursID    uint   `json:"workHoursID"`
-		Approved       bool   `json:"approved"`
-		ManagerComment string `json:"managerComment"`
+		WorkHoursID     uint     `json:"workHoursID"`
+		Approved        bool     `json:"approved"`
+		ManagerComment  string   `json:"managerComment"`
+		RequestCheckin  *int64   `json:"requestCheckin,omitempty"`
+		RequestCheckout *int64   `json:"requestCheckout,omitempty"`
+		RequestDuration *float32 `json:"requestDuration,omitempty"`
 	}
 
 	if err := c.Bind(&body); err != nil {
@@ -193,7 +199,7 @@ func (tc *TimesheetController) ApproveEdit(c *gin.Context) {
 		return
 	}
 
-	workHours, err := tc.workHoursService.ApproveEdit(body.WorkHoursID, body.Approved, body.ManagerComment)
+	workHours, err := tc.workHoursService.ApproveEdit(body.WorkHoursID, body.Approved, body.ManagerComment, body.RequestCheckin, body.RequestCheckout, body.RequestDuration)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"data":   nil,

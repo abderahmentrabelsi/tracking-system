@@ -1,12 +1,48 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, CircularProgress, Typography, IconButton, FormControl, InputLabel, MenuItem, Select, Slider } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Box,
+  CircularProgress,
+  Typography,
+  IconButton,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Slider,
+} from '@mui/material';
 import { getTimesheet } from '@/app/api/timesheetApi';
-import { BusinessCenter, WatchLater, MeetingRoom, School, LocalCafe, Assignment, Build, DirectionsCar, Call, Science, AccessTime, DeveloperMode, ArrowBackIos, ArrowForwardIos, LocationOn, NotificationsActive } from '@mui/icons-material';
+import {
+  BusinessCenter,
+  WatchLater,
+  MeetingRoom,
+  School,
+  LocalCafe,
+  Assignment,
+  Build,
+  DirectionsCar,
+  Call,
+  Science,
+  AccessTime,
+  DeveloperMode,
+  ArrowBackIos,
+  ArrowForwardIos,
+  CalendarToday,
+  LocationOn,
+  NotificationsActive,
+} from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import EditRequestForm from './EditRequestForm';
+import CalendarView from './CalendarView';
+import { useTheme } from '@mui/material/styles';
 
 interface TimesheetHistoryProps {
   userId: number;
@@ -28,6 +64,9 @@ interface WorkHours {
   approved: boolean;
   requestedEdit: boolean;
   editRequestMsg: string;
+  requestCheckin?: number;
+  requestCheckout?: number;
+  RequestDuration: number;
   managerComment: string;
 }
 
@@ -51,6 +90,7 @@ const workTypeArray = Object.keys(workTypeIcons);
 
 const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ userId, open, onClose, userFullName }) => {
   const [loading, setLoading] = useState(true);
+  const theme = useTheme();
   const [timesheetData, setTimesheetData] = useState<WorkHours[]>([]);
   const [selectedTab, setSelectedTab] = useState<string>('Workday');
   const [visibleWorkTypes, setVisibleWorkTypes] = useState<string[]>(workTypeArray.slice(0, 5));
@@ -60,6 +100,9 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ userId, open, onClo
     date: `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`,
     location: 'All',
   });
+  const [editRequestOpen, setEditRequestOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [selectedWorkHours, setSelectedWorkHours] = useState<WorkHours | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -122,6 +165,23 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ userId, open, onClo
     }));
   };
 
+  const handleEditRequestClick = (workHours: WorkHours) => {
+    setSelectedWorkHours(workHours);
+    setEditRequestOpen(true);
+  };
+
+  const handleEditRequestClose = () => {
+    setEditRequestOpen(false);
+  };
+
+  const handleCalendarClick = () => {
+    setCalendarOpen(true);
+  };
+
+  const handleCalendarClose = () => {
+    setCalendarOpen(false);
+  };
+
   const renderContent = () => {
     const filteredData = timesheetData
       .filter((entry) => entry.workType === selectedTab)
@@ -150,7 +210,7 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ userId, open, onClo
               padding: 5,
               margin: 2,
               width: 350,
-              border: '1px solid #3f51b5', // primary color
+              border: '1px solid #primary',
               borderRadius: 2,
               boxShadow: '0 2px 4px rgba(0,0,0.2,1.0)',
               transition: 'transform 0.2s',
@@ -161,20 +221,22 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ userId, open, onClo
             }}
           >
             <Box display="flex" alignItems="center" mb={1}>
-              {workTypeIcons[entry.workType]}
+              {React.cloneElement(workTypeIcons[entry.workType], { style: { color: theme.palette.primary.main } })}
               <Typography variant="body1" color="textPrimary">
-                {`${new Date(entry.checkin * 1000).toLocaleString()} (${new Date(entry.checkin * 1000).toLocaleDateString('en-US', { weekday: 'long' })})`}
+                {` ${new Date(entry.checkin * 1000).toLocaleString()} (${new Date(entry.checkin * 1000).toLocaleDateString('en-US', { weekday: 'long' })})`}
               </Typography>
               {entry.requestedEdit && (
-                <NotificationsActive style={{ marginLeft: 8, color: 'primary' }} />
+                <IconButton onClick={() => handleEditRequestClick(entry)}>
+                  <NotificationsActive style={{ color: '#0f1010' }} />
+                </IconButton>
               )}
             </Box>
             <Box display="flex" alignItems="center" mb={1}>
-              <AccessTime style={{ marginRight: 8, color: '#3f51b5' }} /> {/* primary color */}
+              <AccessTime style={{ marginRight: 8, color: theme.palette.primary.main }} />
               <Typography variant="body2" color="textSecondary">Duration: {entry.duration.toFixed(2)} hours</Typography>
             </Box>
             <Box display="flex" alignItems="center" mb={1}>
-              <LocationOn style={{ marginRight: 8, color: '#3f51b5' }} /> {/* primary color */}
+              <LocationOn style={{ marginRight: 8, color: theme.palette.primary.main }} />
               <Typography variant="body2" color="textSecondary">Location: {entry.location}</Typography>
             </Box>
             {entry.workType === 'Workday' && (
@@ -192,112 +254,173 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ userId, open, onClo
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
-      <DialogTitle>Timesheet History for Employee: {userFullName}</DialogTitle>
-      <DialogContent dividers>
-        {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-            <CircularProgress color="primary"/>
+    <>
+      <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+        <DialogTitle>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            position="relative"
+            borderRadius="8px"
+            p={2}
+            boxShadow="0 4px 8px rgba(0, 0, 0.2, 0.9)"
+            style={{ border: `2px solid #000` }}
+          >
+            <Typography
+              variant="h4"
+              style={{
+                fontFamily: "'Roboto', sans-serif",
+                fontWeight: 700,
+                color: theme.palette.primary.main,
+                textShadow: '1px 1px 2px black',
+                textAlign: 'center',
+                animation: 'fadeIn 1s',
+              }}
+            >
+              WORK HOURS SUMMARY: {userFullName.toUpperCase()}
+            </Typography>
+            <IconButton
+              onClick={handleCalendarClick}
+              style={{
+                position: 'absolute',
+                right: 0,
+                transition: 'transform 0.3s ease',
+                color: theme.palette.primary.main,
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              <CalendarToday />
+            </IconButton>
           </Box>
-        ) : (
-          <Box>
-            <Box display="flex" alignItems="center" mb={4}>
-              <IconButton onClick={handleScrollLeft} disabled={workTypeArray.indexOf(visibleWorkTypes[0]) === 0}>
-                <ArrowBackIos  color="primary"/>
-              </IconButton>
-              <Box style={{ display: 'flex', flexGrow: 1, justifyContent: 'center' }}>
-                {visibleWorkTypes.map((workType) => (
-                  <Button
-                    key={workType}
-                    onClick={() => handleTabChange(workType)}
-                    style={{
-                      minWidth: '150px',
-                      textAlign: 'center',
-                      margin: '0 10px',
-                      color: selectedTab === workType ? 'Primary' : 'Primary',
-                      backgroundColor: selectedTab === workType ? '#000' : 'inherit',
-                      transition: 'all 0.3s',
-                    }}
-                  >
-                    {workTypeIcons[workType]}
-                    <Typography variant="caption" display="block">{workType}</Typography>
-                  </Button>
-                ))}
-              </Box>
-              <IconButton onClick={handleScrollRight} disabled={workTypeArray.indexOf(visibleWorkTypes[visibleWorkTypes.length - 1]) === workTypeArray.length - 1}>
-                <ArrowForwardIos  color="primary" />
-              </IconButton>
+
+          <style jsx global>{`
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+  `}</style>
+        </DialogTitle>
+        <DialogContent dividers>
+          {loading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+              <CircularProgress color="primary"/>
             </Box>
-            <Box display="flex" justifyContent="center" alignItems="center" mb={2} borderBottom="1px solid #ccc" pb={2}>
-              <FormControl variant="outlined" sx={{ m: 1, minWidth: 120 }}>
-                <InputLabel>Month</InputLabel>
-                <Select
-                  value={filters.date}
-                  onChange={handleFilterChange}
-                  label="Month"
-                  name="date"
-                >
-                  {Array.from({ length: 12 }, (_, index) => (
-                    <MenuItem key={index} value={`${new Date().getFullYear()}-${(index + 1).toString().padStart(2, '0')}`}>
-                      {new Date(0, index).toLocaleString('default', { month: 'long' })}
-                    </MenuItem>
+          ) : (
+            <Box>
+              <Box display="flex" alignItems="center" mb={4}>
+                <IconButton onClick={handleScrollLeft} disabled={workTypeArray.indexOf(visibleWorkTypes[0]) === 0}>
+                  <ArrowBackIos  color="primary"/>
+                </IconButton>
+                <Box style={{ display: 'flex', flexGrow: 1, justifyContent: 'center' }}>
+                  {visibleWorkTypes.map((workType) => (
+                    <Button
+                      key={workType}
+                      onClick={() => handleTabChange(workType)}
+                      style={{
+                        minWidth: '150px',
+                        textAlign: 'center',
+                        margin: '0 10px',
+                        color: selectedTab === workType ? 'Primary' : 'Primary',
+                        backgroundColor: selectedTab === workType ? '#000' : 'inherit',
+                        transition: 'all 0.3s',
+                      }}
+                    >
+                      {workTypeIcons[workType]}
+                      <Typography variant="caption" display="block">{workType}</Typography>
+                    </Button>
                   ))}
-                </Select>
-              </FormControl>
-              {selectedTab === 'Workday' && (
+                </Box>
+                <IconButton onClick={handleScrollRight} disabled={workTypeArray.indexOf(visibleWorkTypes[visibleWorkTypes.length - 1]) === workTypeArray.length - 1}>
+                  <ArrowForwardIos  color="primary" />
+                </IconButton>
+              </Box>
+              <Box display="flex" justifyContent="center" alignItems="center" mb={2} borderBottom="1px solid #ccc" pb={2}>
                 <FormControl variant="outlined" sx={{ m: 1, minWidth: 120 }}>
-                  <InputLabel>Status</InputLabel>
+                  <InputLabel>Month</InputLabel>
                   <Select
-                    value={filters.status}
+                    value={filters.date}
                     onChange={handleFilterChange}
-                    label="Status"
-                    name="status"
+                    label="Month"
+                    name="date"
                   >
-                    <MenuItem value="All">All</MenuItem>
-                    <MenuItem value="Present">Present</MenuItem>
-                    <MenuItem value="Half Day">Half Day</MenuItem>
-                    <MenuItem value="Absent">Absent</MenuItem>
+                    {Array.from({ length: 12 }, (_, index) => (
+                      <MenuItem key={index} value={`${new Date().getFullYear()}-${(index + 1).toString().padStart(2, '0')}`}>
+                        {new Date(0, index).toLocaleString('default', { month: 'long' })}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
-              )}
-              <FormControl variant="outlined" sx={{ m: 1, minWidth: 120 }}>
-                <InputLabel>Location</InputLabel>
-                <Select
-                  value={filters.location}
-                  onChange={handleFilterChange}
-                  label="Location"
-                  name="location"
-                >
-                  <MenuItem value="All">All</MenuItem>
-                  <MenuItem value="Office">Office</MenuItem>
-                  <MenuItem value="QORE ENTREPRISES, TUNIS, TUNISIA">QORE ENTREPRISES, TUNIS, TUNISIA</MenuItem>
-                  <MenuItem value="Remote">Remote</MenuItem>
-                </Select>
-              </FormControl>
-              <Box ml={3} display="flex" alignItems="center">
-                <Typography variant="body2" color="textSecondary" mr={5}>Duration Range (hours)</Typography>
-                <Slider
-                  value={filters.durationRange}
-                  onChange={handleDurationRangeChange}
-                  valueLabelDisplay="auto"
-                  min={0}
-                  max={24}
-                  style={{ width: 150 }}
-                />
+                {selectedTab === 'Workday' && (
+                  <FormControl variant="outlined" sx={{ m: 1, minWidth: 120 }}>
+                    <InputLabel>Status</InputLabel>
+                    <Select
+                      value={filters.status}
+                      onChange={handleFilterChange}
+                      label="Status"
+                      name="status"
+                    >
+                      <MenuItem value="All">All</MenuItem>
+                      <MenuItem value="Present">Present</MenuItem>
+                      <MenuItem value="Half Day">Half Day</MenuItem>
+                      <MenuItem value="Absent">Absent</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+                <FormControl variant="outlined" sx={{ m: 1, minWidth: 120 }}>
+                  <InputLabel>Location</InputLabel>
+                  <Select
+                    value={filters.location}
+                    onChange={handleFilterChange}
+                    label="Location"
+                    name="location"
+                  >
+                    <MenuItem value="All">All</MenuItem>
+                    <MenuItem value="Office">Office</MenuItem>
+                    <MenuItem value="QORE ENTREPRISES, TUNIS, TUNISIA">QORE ENTREPRISES, TUNIS, TUNISIA</MenuItem>
+                    <MenuItem value="Remote">Remote</MenuItem>
+                  </Select>
+                </FormControl>
+                <Box ml={3} display="flex" alignItems="center">
+                  <Typography variant="body2" color="textSecondary" mr={5}>Duration Range (hours)</Typography>
+                  <Slider
+                    value={filters.durationRange}
+                    onChange={handleDurationRangeChange}
+                    valueLabelDisplay="auto"
+                    min={0}
+                    max={24}
+                    style={{ width: 150 }}
+                  />
+                </Box>
+              </Box>
+              <Box mt={2}>
+                {renderContent()}
               </Box>
             </Box>
-            <Box mt={2}>
-              {renderContent()}
-            </Box>
-          </Box>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="primary">
-          Close
-        </Button>
-      </DialogActions>
-    </Dialog>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <EditRequestForm
+        open={editRequestOpen}
+        onClose={handleEditRequestClose}
+        workHours={selectedWorkHours} // Pass the selected workHours
+      />
+      <CalendarView open={calendarOpen} onClose={handleCalendarClose} userId={userId} />
+    </>
   );
 };
 

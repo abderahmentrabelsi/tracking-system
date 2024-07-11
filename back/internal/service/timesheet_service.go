@@ -52,7 +52,7 @@ func (s *WorkHoursService) GetTimesheet(userID uint) ([]*models.WorkHours, error
 	return s.workHoursRepo.GetWorkHoursByUserID(userID)
 }
 
-func (s *WorkHoursService) RequestEdit(workHoursID uint, editRequestMsg string) (*models.WorkHours, error) {
+func (s *WorkHoursService) RequestEdit(workHoursID uint, editRequestMsg string, requestCheckin *int64, requestCheckout *int64, requestDuration *float32) (*models.WorkHours, error) {
 	workHours, err := s.workHoursRepo.GetWorkHoursByID(workHoursID)
 	if err != nil {
 		return nil, err
@@ -62,13 +62,16 @@ func (s *WorkHoursService) RequestEdit(workHoursID uint, editRequestMsg string) 
 	}
 	workHours.RequestedEdit = true
 	workHours.EditRequestMsg = editRequestMsg
+	workHours.RequestCheckin = requestCheckin
+	workHours.RequestCheckout = requestCheckout
+	workHours.RequestDuration = requestDuration
 	if err := s.workHoursRepo.UpdateWorkHours(workHours); err != nil {
 		return nil, err
 	}
 	return workHours, nil
 }
 
-func (s *WorkHoursService) ApproveEdit(workHoursID uint, approved bool, managerComment string) (*models.WorkHours, error) {
+func (s *WorkHoursService) ApproveEdit(workHoursID uint, approved bool, managerComment string, requestCheckin *int64, requestCheckout *int64, requestDuration *float32) (*models.WorkHours, error) {
 	workHours, err := s.workHoursRepo.GetWorkHoursByID(workHoursID)
 	if err != nil {
 		return nil, err
@@ -79,6 +82,15 @@ func (s *WorkHoursService) ApproveEdit(workHoursID uint, approved bool, managerC
 	workHours.Approved = approved
 	workHours.RequestedEdit = false
 	workHours.ManagerComment = managerComment
+	if requestCheckin != nil {
+		workHours.Checkin = *requestCheckin
+	}
+	if requestCheckout != nil {
+		workHours.Checkout = requestCheckout
+	}
+	if requestDuration != nil {
+		workHours.Duration = *requestDuration
+	}
 	if err := s.workHoursRepo.UpdateWorkHours(workHours); err != nil {
 		return nil, err
 	}

@@ -31,8 +31,10 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import CheckIcon from '@mui/icons-material/Check';
 import { styled } from '@mui/material/styles';
+import { LocalizationProvider, MobileTimePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
-const steps = ['Select Workday', 'Enter Request Message', 'Review Request'];
+const steps = ['Select Workday', 'Enter Request Details', 'Review Request'];
 
 const months = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -66,7 +68,7 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
 const CustomDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
     border: '3px solid black',
-    padding: theme.spacing(2),
+    padding: theme.spacing(10),
   },
 }));
 
@@ -83,12 +85,14 @@ const RequestEditForm = ({ userID, onClose }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+  const [adjustedCheckin, setAdjustedCheckin] = useState<Date | null>(null);
+  const [adjustedCheckout, setAdjustedCheckout] = useState<Date | null>(null);
 
   useEffect(() => {
     const fetchTimesheet = async () => {
       try {
         const data = await getTimesheet(userID);
-        const workdayTimesheet = data.filter(entry => entry.workType === 'Workday');
+        const workdayTimesheet = data.filter(entry => entry.workType === 'Workday' && !entry.requestedEdit);
         setWorkHours(workdayTimesheet);
         setLoading(false);
       } catch (error) {
@@ -130,7 +134,16 @@ const RequestEditForm = ({ userID, onClose }) => {
 
   const handleSubmit = async () => {
     try {
-      await requestEdit({ workHoursID: Number(selectedWorkHoursID), editRequestMsg });
+      const checkinTimestamp = adjustedCheckin ? Math.floor(adjustedCheckin.getTime() / 1000) : null;
+      const checkoutTimestamp = adjustedCheckout ? Math.floor(adjustedCheckout.getTime() / 1000) : null;
+      const duration = checkinTimestamp && checkoutTimestamp ? (checkoutTimestamp - checkinTimestamp) / 3600 : 0;
+      await requestEdit({
+        workHoursID: Number(selectedWorkHoursID),
+        editRequestMsg,
+        requestCheckin: checkinTimestamp,
+        requestCheckout: checkoutTimestamp,
+        requestDuration: duration,
+      });
       setSnackbarMessage('Edit request submitted successfully');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
@@ -150,7 +163,7 @@ const RequestEditForm = ({ userID, onClose }) => {
   const selectedWorkHours = workHours.find(entry => entry.ID === selectedWorkHoursID);
 
   return (
-    <>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
       <CustomDialog open onClose={onClose} maxWidth="md" fullWidth>
         <CustomDialogTitle>
           Request Edit
@@ -167,7 +180,7 @@ const RequestEditForm = ({ userID, onClose }) => {
             ))}
           </Stepper>
           {activeStep === steps.length ? (
-            <Typography sx={{ mt: 2, mb: 1 }}>
+            <Typography sx={{ mt: 2, mb: 3 }}>
               All steps completed - you're finished
             </Typography>
           ) : (
@@ -196,7 +209,16 @@ const RequestEditForm = ({ userID, onClose }) => {
                         <InputLabel>Workday</InputLabel>
                         <Select
                           value={selectedWorkHoursID}
-                          onChange={(e) => setSelectedWorkHoursID(e.target.value)}
+                          onChange={(e) => {
+                            setSelectedWorkHoursID(e.target.value);
+                            const selectedWorkHours = workHours.find(entry => entry.ID === e.target.value);
+                            if (selectedWorkHours) {
+                              const checkinDate = new Date(selectedWorkHours.checkin * 1000);
+                              setAdjustedCheckin(new Date(checkinDate.setSeconds(0, 0)));
+                              const checkoutDate = new Date(selectedWorkHours.checkout * 1000);
+                              setAdjustedCheckout(new Date(checkoutDate.setSeconds(0, 0)));
+                            }
+                          }}
                           label="Workday"
                         >
                           {workHours
@@ -211,7 +233,7 @@ const RequestEditForm = ({ userID, onClose }) => {
                     </Box>
                   )}
                   {activeStep === 1 && selectedWorkHours && (
-                    <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 }, mt: 2 }}>
+                    <Box component="form" sx={{ '& .MuiTextField-root': { mb: 3 }, mt: 4 }}>
                       <Typography variant="h6" mb={2}>Workday Details</Typography>
                       <CustomTextField
                         label="Date"
@@ -239,23 +261,64 @@ const RequestEditForm = ({ userID, onClose }) => {
                           ),
                         }}
                       />
-                      <CustomTextField
-                        label="Check-in / Check-out"
-                        fullWidth
-                        value={`Check-in: ${new Date(selectedWorkHours.checkin * 1000).toLocaleTimeString()} - Check-out: ${new Date(selectedWorkHours.checkout * 1000).toLocaleTimeString()}`}
-                        InputProps={{
-                          readOnly: true,
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <AccessTimeIcon />
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <MobileTimePicker
+                          label={adjustedCheckin ? "Adjusted Check-in Time" : "Current Check-in Time"}
+                          value={adjustedCheckin || new Date(selectedWorkHours.checkin * 1000)}
+                          onChange={(date) => setAdjustedCheckin(date)}
+                          renderInput={(props) => (
+                            <CustomTextField
+                              {...props}
+                              fullWidth
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  '& fieldset': {
+                                    borderColor: 'black',
+                                  },
+                                  '&:hover fieldset': {
+                                    borderColor: 'black',
+                                  },
+                                  '&.Mui-focused fieldset': {
+                                    borderColor: 'black',
+                                  },
+                                },
+                              }}
+                            />
+                          )}
+                        />
+                        <Typography />
+                        <MobileTimePicker
+                          label={adjustedCheckout ? "Adjusted Check-out Time" : "Current Check-out Time"}
+                          value={adjustedCheckout || new Date(selectedWorkHours.checkout * 1000)}
+                          onChange={(date) => setAdjustedCheckout(date)}
+                          renderInput={(props) => (
+                            <CustomTextField
+                              {...props}
+                              fullWidth
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  '& fieldset': {
+                                    borderColor: 'black',
+                                  },
+                                  '&:hover fieldset': {
+                                    borderColor: 'black',
+                                  },
+                                  '&.Mui-focused fieldset': {
+                                    borderColor: 'black',
+                                  },
+                                },
+                              }}
+                            />
+                          )}
+                        />
+                      </Box>
+
+
+
                       <CustomTextField
                         label="Duration"
                         fullWidth
-                        value={`${selectedWorkHours.duration.toFixed(2)} hrs`}
+                        value={`${((adjustedCheckout?.getTime() || 0) - (adjustedCheckin?.getTime() || 0)) / 3600000} hrs`}
                         InputProps={{
                           readOnly: true,
                         }}
@@ -288,7 +351,7 @@ const RequestEditForm = ({ userID, onClose }) => {
                     </Box>
                   )}
                   {activeStep === 2 && selectedWorkHours && (
-                    <Box sx={{ '& .MuiTextField-root': { mb: 2 }, mt: 2 }}>
+                    <Box sx={{ '& .MuiTextField-root': { mb: 4 }, mt: 4 }}>
                       <Typography variant="h6" mb={2}>Review Request</Typography>
                       <CustomTextField
                         label="Date"
@@ -317,9 +380,9 @@ const RequestEditForm = ({ userID, onClose }) => {
                         }}
                       />
                       <CustomTextField
-                        label="Check-in / Check-out"
+                        label="Adjusted Check-in Time"
                         fullWidth
-                        value={`Check-in: ${new Date(selectedWorkHours.checkin * 1000).toLocaleTimeString()} - Check-out: ${new Date(selectedWorkHours.checkout * 1000).toLocaleTimeString()}`}
+                        value={adjustedCheckin ? adjustedCheckin.toLocaleTimeString() : ''}
                         InputProps={{
                           readOnly: true,
                           startAdornment: (
@@ -330,9 +393,22 @@ const RequestEditForm = ({ userID, onClose }) => {
                         }}
                       />
                       <CustomTextField
-                        label="Duration"
+                        label="Adjusted Check-out Time"
                         fullWidth
-                        value={`${selectedWorkHours.duration.toFixed(2)} hrs`}
+                        value={adjustedCheckout ? adjustedCheckout.toLocaleTimeString() : ''}
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <AccessTimeIcon />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <CustomTextField
+                        label="Adjusted Duration"
+                        fullWidth
+                        value={`${((adjustedCheckout?.getTime() || 0) - (adjustedCheckin?.getTime() || 0)) / 3600000} hrs`}
                         InputProps={{
                           readOnly: true,
                         }}
@@ -392,11 +468,11 @@ const RequestEditForm = ({ userID, onClose }) => {
         </DialogActions>
       </CustomDialog>
       <Snackbar open={snackbarOpen} autoHideDuration={10000} onClose={handleSnackbarClose}>
-      <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </>
+    </LocalizationProvider>
   );
 };
 

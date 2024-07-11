@@ -80,7 +80,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// Timesheet Routes
 	timesheetController := controller.NewTimesheetController(s.WorkHoursService)
-
 	r.POST("/checkin", middleware.AuthMiddleware(), timesheetController.CheckIn)
 	r.PUT("/checkout/:id", middleware.AuthMiddleware(), timesheetController.CheckOut)
 	r.GET("/timesheet/:userID", middleware.AuthMiddleware(), timesheetController.GetTimesheet)
