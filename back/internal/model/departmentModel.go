@@ -14,4 +14,5 @@ type Department struct {
 	ParentDepartment   *Department  `gorm:"foreignKey:ParentDepartmentID" json:"-"`
 	Users              []User       `gorm:"foreignKey:DepartmentID" json:"users"`
 	Permissions        []Permission `gorm:"many2many:department_permissions;" json:"permissions"`
+	Calendar           *Calendar    `gorm:"foreignKey:DepartmentID" json:"calendar"`
 }

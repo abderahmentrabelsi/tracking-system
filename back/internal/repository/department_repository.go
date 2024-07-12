@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"back/internal/model"
+	models "back/internal/model"
 	"back/internal/orm"
 	"fmt"
+
 	"gorm.io/gorm"
 )
 
@@ -71,9 +72,10 @@ func (r *DepartmentRepositoryImpl) GetAllDepartmentsByClient(clientName string) 
 	}
 	return departments, nil
 }
+
 func (r *DepartmentRepositoryImpl) GetDepartmentByID(id uint) (*models.Department, error) {
 	var department models.Department
-	if err := orm.DB.Preload("ParentDepartment").Preload("Users").Where("id = ?", id).First(&department).Error; err != nil {
+	if err := orm.DB.Preload("ParentDepartment").Preload("Calendar").Preload("Users").Where("id = ?", id).First(&department).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("department with ID %d not found", id)
 		}
@@ -81,6 +83,7 @@ func (r *DepartmentRepositoryImpl) GetDepartmentByID(id uint) (*models.Departmen
 	}
 	return &department, nil
 }
+
 func (r *DepartmentRepositoryImpl) GetClientByID(id uint) (*models.Department, error) {
 	var client models.Department
 	if err := orm.DB.Where("id = ? AND parent_department_id IS NULL", id).First(&client).Error; err != nil {

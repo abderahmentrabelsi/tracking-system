@@ -21,6 +21,7 @@ type Server struct {
 	fileService       *service.FileService
 	taskService       *service.TaskService
 	WorkHoursService  *service.WorkHoursService
+	calendarService   *service.CalendarService
 }
 
 func NewServer() *Server {
@@ -30,6 +31,7 @@ func NewServer() *Server {
 	userRepository := repository.NewUserRepository()
 	roleRepository := repository.NewRoleRepository()
 	departmentRepository := repository.NewDepartmentRepository()
+	calendarRepository := repository.NewCalendarRepository()
 	payrollRepository := repository.NewPayrollRepository()
 	taskRepository := repository.NewTaskRepository()
 	commentRepository := repository.NewCommentRepository()
@@ -42,6 +44,7 @@ func NewServer() *Server {
 	payrollService := service.NewPayrollService(*payrollRepository)
 	taskService := service.NewTaskService(taskRepository, commentRepository)
 	WorkHoursService := service.NewWorkHoursService(WorkHoursRepository)
+	CalendarService := service.NewCalendarService(*calendarRepository)
 
 	return &Server{
 		port:              port,
@@ -53,6 +56,7 @@ func NewServer() *Server {
 		fileService:       fileService,
 		taskService:       taskService,
 		WorkHoursService:  WorkHoursService,
+		calendarService:   CalendarService,
 	}
 }
 

@@ -1,5 +1,6 @@
 
 
+<<<<<<< HEAD
 export interface DepartmentType {
   ID: number;
   name: string;
@@ -8,6 +9,9 @@ export interface DepartmentType {
   clientName: string;
   users: UserType[];
 }
+=======
+
+>>>>>>> fature/calendar
 
 export interface ClientType {
   ID: number;
@@ -15,6 +19,7 @@ export interface ClientType {
 }
 
 
+<<<<<<< HEAD
 export interface UserType {
   ID: number;
   username: string;
@@ -38,4 +43,18 @@ export interface UserType {
   CreatedAt: string;
   UpdatedAt: string;
   DeletedAt: string | null;
+=======
+export interface DepartmentType {
+  ID: number;
+  CreatedAt: string;
+  name: string;
+  supervisorId: number;
+  clientName: string;
+  parentDepartmentId: number;
+  users: {
+    ID: number;
+    firstName: string;
+    lastName: string;
+  }[];
+>>>>>>> fature/calendar
 }

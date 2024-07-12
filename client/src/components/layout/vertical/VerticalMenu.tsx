@@ -146,6 +146,9 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
           Leave Tracker
         </MenuItem>
 
+        <MenuItem href='/calendar' icon={<i className='tabler-calendar' />}>
+          Calendar
+        </MenuItem>
       </Menu>
     </ScrollWrapper>
   )

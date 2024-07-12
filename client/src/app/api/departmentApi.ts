@@ -7,25 +7,49 @@ const apiClient = axios.create({
 });
 
 export const fetchClients = async (): Promise<ClientType[]> => {
-  const response = await apiClient.get('/client');
+  const response = await apiClient.get('/client/');
   if (response.status === 200) {
     return response.data.data;
   } else {
     throw new Error('Failed to fetch clients');
   }
 };
-
-export const fetchDepartments = async (clientName: string): Promise<DepartmentType[]> => {
-  const response = await apiClient.get(`/departments/${clientName}`);
+export const getDepartmentById = async (id: number): Promise<DepartmentType> => {
+  const response = await apiClient.get(`/department/${id}`);
   if (response.status === 200) {
-    return response.data.data.map((department: any) => ({
-      ...department,
-      CreatedAt: new Date(department.CreatedAt).toISOString(),
-    }));
+    return {
+      ...response.data.data,
+      CreatedAt: new Date(response.data.data.CreatedAt).toISOString(),
+    };
   } else {
-    throw new Error(`Failed to fetch departments for client ${clientName}`);
+    throw new Error(`Failed to fetch department with id ${id}`);
   }
 };
+
+
+export const fetchDepartments = async (clientName: string): Promise<DepartmentType[]> => {
+  if (!clientName) {
+    console.warn('Client name is empty, skipping fetchDepartments call.');
+    return [];
+  }
+
+  try {
+    const response = await apiClient.get(`/departments/${clientName}`);
+    if (response.status === 200) {
+      return response.data.data.map((department: any) => ({
+        ...department,
+        CreatedAt: new Date(department.CreatedAt).toISOString(),
+      }));
+    } else {
+      throw new Error(`Failed to fetch departments for client ${clientName}`);
+    }
+  } catch (error) {
+    console.error(`Error fetching departments for client ${clientName}:`, error);
+    throw error;
+  }
+};
+
+
 
 export const createDepartment = async (department: { name: string; clientName: string; supervisorId: number }): Promise<DepartmentType> => {
   const response = await apiClient.post('/department/create', department);

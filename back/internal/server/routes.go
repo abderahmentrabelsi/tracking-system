@@ -86,6 +86,22 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/timesheet/edit-request", middleware.AuthMiddleware(), timesheetController.RequestEdit)
 	r.POST("/timesheet/approve-edit", middleware.AuthMiddleware(), timesheetController.ApproveEdit)
 	r.POST("/timesheet/date-range", middleware.AuthMiddleware(), timesheetController.GetTimesheetByDateRange)
+	// Calendar routes
+	calendarController := controller.NewCalendarController(s.calendarService)
+	r.POST("/calendars", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.CreateCalendar)
+	r.GET("/calendars/:calendar_id", middleware.AuthMiddleware(), calendarController.GetCalendarByID)
+	r.PUT("/calendars/:calendar_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.UpdateCalendar)
+	r.DELETE("/calendars/:calendar_id", middleware.AuthMiddleware(), calendarController.DeleteCalendar)
+	r.GET("/calendars/department/:department_id", middleware.AuthMiddleware(), calendarController.GetCalendarByDepartmentID)
+
+	// Calendar Events routes
+	r.POST("/calendars/:calendar_id/events", middleware.AuthMiddleware(), calendarController.CreateEvent)
+	r.GET("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), calendarController.GetEventByID)
+	r.PUT("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), calendarController.UpdateEvent)
+	r.DELETE("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.DeleteEvent)
+	r.GET("/calendars/:calendar_id/events", middleware.AuthMiddleware(), calendarController.GetEventsByCalendarID)
+	r.GET("/dep/:department_id/events", middleware.AuthMiddleware(), calendarController.GetEventsByDepartmentID)
+	r.GET("/events/:event_id", middleware.AuthMiddleware(), calendarController.GetEventByID)
 
 	return r
 }
