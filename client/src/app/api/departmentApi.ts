@@ -98,15 +98,5 @@ export const deleteClient = async (id: number): Promise<void> => {
 };
 
 
-export const getDepartmentById = async (id: number): Promise<DepartmentType> => {
-  const response = await apiClient.get(`/department/${id}`);
-  if (response.status === 200) {
-    return {
-      ...response.data.data,
-      CreatedAt: new Date(response.data.data.CreatedAt).toISOString(),
-    };
-  } else {
-    throw new Error(`Failed to fetch department with id ${id}`);
-  }
-};
+
 

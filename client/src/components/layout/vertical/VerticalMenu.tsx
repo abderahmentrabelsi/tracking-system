@@ -1,30 +1,15 @@
 'use client'
 
-// MUI Imports
 import { useTheme } from '@mui/material/styles'
-
-// Third-party Imports
 import PerfectScrollbar from 'react-perfect-scrollbar'
-
-// Type Imports
-import type { VerticalMenuContextProps } from '@menu/components/vertical-menu/Menu'
-
-// Component Imports
 import { Menu, MenuItem, SubMenu } from '@menu/vertical-menu'
-
-// Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
 import useVerticalNav from '@menu/hooks/useVerticalNav'
-
-// Styled Component Imports
 import StyledVerticalNavExpandIcon from '@menu/styles/vertical/StyledVerticalNavExpandIcon'
-
-// Style Imports
 import menuItemStyles from '@core/styles/vertical/menuItemStyles'
 import menuSectionStyles from '@core/styles/vertical/menuSectionStyles'
-
-// React Imports
 import { useEffect, useState } from 'react'
+import type { VerticalMenuContextProps } from '@menu/components/vertical-menu/Menu'
 
 type RenderExpandIconProps = {
   open?: boolean
@@ -63,8 +48,6 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
   const ScrollWrapper = isBreakpointReached ? 'div' : PerfectScrollbar
 
   return (
-    // eslint-disable-next-line lines-around-comment
-    /* Custom scrollbar instead of browser scroll, remove if you want browser scroll only */
     <ScrollWrapper
       {...(isBreakpointReached
         ? {
@@ -76,7 +59,6 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
           onScrollY: container => scrollMenu(container, true)
         })}
     >
-      {/* Incase you also want to scroll NavHeader to scroll with Vertical Menu, remove NavHeader from above and paste it below this comment */}
       {/* Vertical Menu */}
       <Menu
         popoutMenuOffset={{ mainAxis: 23 }}
@@ -85,33 +67,38 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
+        {/* Common Menu Items */}
         <MenuItem href='/home' icon={<i className='tabler-smart-home' />}>
           Home
         </MenuItem>
         <MenuItem href='/about' icon={<i className='tabler-info-circle' />}>
           About
         </MenuItem>
+
+
+        {/* Role-Specific Menu Items */}
         {userRole !== 'Employee' && (
-          <MenuItem href='/signup' icon={<i className='tabler-users-plus' />}>
-            Signup
-          </MenuItem>
-        )}
-        {userRole !== 'Employee' && (
-          <SubMenu label="Roles & Permissions" icon={<i className='tabler-lock' />}>
-            <MenuItem href='/roles' icon={<i className='tabler-user' />}>
-              Role
+          <>
+            <MenuItem href='/signup' icon={<i className='tabler-users-plus' />}>
+              Signup
             </MenuItem>
-            <MenuItem href='/permissions' icon={<i className='tabler-shield-check' />}>
-              Permissions
-            </MenuItem>
-          </SubMenu>
+            <SubMenu label="Roles & Permissions" icon={<i className='tabler-lock' />}>
+              <MenuItem href='/roles' icon={<i className='tabler-user' />}>
+                Role
+              </MenuItem>
+              <MenuItem href='/permissions' icon={<i className='tabler-shield-check' />}>
+                Permissions
+              </MenuItem>
+            </SubMenu>
+          </>
         )}
-        {userRole !== 'Employee' && (
+
+        {userRole === 'Admin' && (
           <MenuItem href='/departments' icon={<i className='tabler-building' />}>
             Organizations
           </MenuItem>
-
         )}
+
         {userRole === 'Manager' && (
           <SubMenu label="Management" icon={<i className='tabler-lock' style={{ fontSize: '24px' }} />}>
             <MenuItem href='/management/projects' icon={<i className='tabler-briefcase' style={{ fontSize: '24px' }} />}>
@@ -128,11 +115,17 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
             </MenuItem>
           </SubMenu>
         )}
+
         {userRole === 'Employee' && (
           <MenuItem href='/tasks' icon={<i className='tabler-clipboard-list' />}>
             Tasks
           </MenuItem>
         )}
+
+        {/* Common Menu Items */}
+        <MenuItem href='/calendar' icon={<i className='tabler-calendar' />}>
+          Calendar
+        </MenuItem>
         <MenuItem href='/timesheet' icon={<i className='tabler-clock' />} className='menu-item-timesheet'>
           Timesheet
         </MenuItem>
@@ -144,10 +137,6 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         </MenuItem>
         <MenuItem className='workhours-menu-item' href='/attendance/leavetracker' icon={<i className='tabler-calendar-event' />} >
           Leave Tracker
-        </MenuItem>
-
-        <MenuItem href='/calendar' icon={<i className='tabler-calendar' />}>
-          Calendar
         </MenuItem>
       </Menu>
     </ScrollWrapper>
