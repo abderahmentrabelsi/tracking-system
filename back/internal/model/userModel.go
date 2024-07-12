@@ -15,7 +15,6 @@ type User struct {
 	Role         Role   `gorm:"foreignKey:RoleID"`
 	FirstName    string `json:"firstName"`
 	LastName     string `json:"lastName"`
-	JobName      string `json:"JobName"`
 	Picture      string `json:"picture"`
 	PhoneNumber  string `json:"phoneNumber"`
 	Address      string `json:"address"`

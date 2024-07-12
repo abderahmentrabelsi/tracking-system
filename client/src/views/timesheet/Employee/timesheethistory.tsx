@@ -38,7 +38,7 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ workHours, tasks })
         setUser({
           firstName: userData.firstName,
           lastName: userData.lastName,
-          JobName: userData.JobName.trim()
+          JobName: userData.jobTitle,
         });
       } catch (error) {
         console.error('Failed to fetch user data:', error);
