@@ -6,20 +6,21 @@ import (
 	"back/internal/repository"
 	"github.com/dgrijalva/jwt-go"
 	"os"
+	"strconv"
 	"time"
 )
 
 type UserService struct {
 	userRepository *repository.UserRepository
-	roleRepository *repository.RoleRepository // Add this line
-	fileService    *FileService               // Add this line
+	roleRepository *repository.RoleRepository
+	fileService    *FileService
 }
 
 func NewUserService(userRepository *repository.UserRepository, roleRepository *repository.RoleRepository, fileService *FileService) *UserService {
 	return &UserService{
 		userRepository: userRepository,
-		roleRepository: roleRepository, // Initialize roleRepository
-		fileService:    fileService,    // Initialize fileService
+		roleRepository: roleRepository,
+		fileService:    fileService,
 	}
 }
 
@@ -44,6 +45,10 @@ func (us *UserService) CreateUser(user *model.User, files []model.FileUpload) er
 	return nil
 }
 
+func (us *UserService) GetLoginHistory(userID uint) ([]model.LoginHistory, error) {
+	return us.userRepository.GetLoginHistory(userID)
+}
+
 func (us *UserService) CreateLoginHistory(userID uint, clientIP string, userAgent string) error {
 	history := model.LoginHistory{
 		UserID:      userID,
@@ -59,12 +64,16 @@ func (us *UserService) CreateLoginHistory(userID uint, clientIP string, userAgen
 	return nil
 }
 
-func (us *UserService) GenerateToken(email string, role string, duration time.Duration) (string, error) {
+func (us *UserService) GenerateToken(email, username string, departmentID uint, userID uint, role string, duration time.Duration) (string, error) {
 	exp := time.Now().Add(duration)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"UserID": email,
-		"Role":   role,
-		"exp":    exp.Unix(),
+		"UserID":       strconv.Itoa(int(userID)),
+		"Email":        email,
+		"Username":     username,
+		"Role":         role,
+		"DepartmentID": departmentID,
+		"ID":           userID,
+		"exp":          exp.Unix(),
 	})
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
@@ -74,7 +83,7 @@ func (us *UserService) GetRoleByID(roleID uint) (*model.Role, error) {
 }
 
 func (us *UserService) GetUserByEmailOrUsername(identifier string) (*model.User, error) {
-	return us.userRepository.GetUserByEmailOrUsername(identifier) // rename GetUserByEmail to GetUserByEmailOrUsername
+	return us.userRepository.GetUserByEmailOrUsername(identifier)
 }
 
 func (us *UserService) GetUserByUsername(username string) (*model.User, error) {
@@ -87,4 +96,32 @@ func (us *UserService) GetUserByID(id uint) (*model.User, error) {
 
 func (us *UserService) GetAllUsers() ([]*model.User, error) {
 	return us.userRepository.GetAllUsers()
+}
+
+func (us *UserService) UpdateUserProfile(user *model.User) error {
+	return us.userRepository.UpdateUser(user)
+}
+
+func (us *UserService) UpdatePassword(userID uint, newPassword string) error {
+	return us.userRepository.UpdatePassword(userID, newPassword)
+}
+
+func (us *UserService) GenerateTOTPSecret(userID uint) (string, error) {
+	return us.userRepository.GenerateTOTPSecret(userID)
+}
+
+func (us *UserService) EnableTOTP(userID uint) error {
+	return us.userRepository.EnableTOTP(userID)
+}
+
+func (us *UserService) VerifyTOTPCode(userID uint, code string) (bool, error) {
+	return us.userRepository.VerifyTOTPCode(userID, code)
+}
+
+func (us *UserService) DisableTOTP(userID uint) error {
+	return us.userRepository.DisableTOTP(userID)
+}
+
+func (us *UserService) IsTOTPEnabled(userID uint) (bool, error) {
+	return us.userRepository.IsTOTPEnabled(userID)
 }

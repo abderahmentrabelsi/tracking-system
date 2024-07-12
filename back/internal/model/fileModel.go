@@ -9,6 +9,7 @@ type FileUpload struct {
 	gorm.Model
 	UserID     uint      `json:"userId"`
 	FileName   string    `json:"fileName"`
+	UploadID   string    `json:"uploadId"`
 	FilePath   string    `json:"filePath"`
 	Size       int64     `json:"size"`
 	UploadedAt time.Time `json:"uploadedAt"`

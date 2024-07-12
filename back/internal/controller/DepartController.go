@@ -407,3 +407,39 @@ func (dc *DepartmentController) GetAllDepartmentsByClient(c *gin.Context) {
 		},
 	})
 }
+func (dc *DepartmentController) GetUsersByDepartment(c *gin.Context) {
+	departmentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "Invalid department ID",
+			},
+		})
+		return
+	}
+
+	users, err := dc.departmentService.GetUsersByDepartmentID(uint(departmentID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "Failed to retrieve users",
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":   users,
+		"status": "success",
+		"message": gin.H{
+			"error": "",
+			"msg":   "Users retrieved successfully",
+		},
+	})
+}

@@ -1,112 +1,116 @@
 package server
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-
 	"back/internal/controller"
 	"back/internal/middleware"
+	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
 
-	// User routes
-	userController := controller.NewUserController(s.userService, s.departmentService, s.roleService)
-	r.POST("/signup", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), userController.SignUp)
+	userController := controller.NewUserController(s.userService, s.departmentService, s.roleService, s.fileService)
+	r.POST("/signup", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), userController.SignUp)
 	r.POST("/login", userController.LoginHandler)
 	r.POST("/logout", userController.LogoutHandler)
-	r.GET("/roles", middleware.AuthMiddleware(), userController.GetAllRoles)
-	r.GET("/user/:id", middleware.AuthMiddleware(), userController.GetUserByID)
-	r.GET("/users", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), userController.GetAllUsers)
+	r.GET("/roles", middleware.AuthMiddleware(s.userService), userController.GetAllRoles)
+	r.GET("/user/:id", middleware.AuthMiddleware(s.userService), userController.GetUserByID)
+	r.GET("/users", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), userController.GetAllUsers)
+	r.GET("/user/details", middleware.AuthMiddleware(s.userService), userController.GetUserDetails)
+	r.GET("/user/profile/:username", userController.GetUserDetailsByUsername)
+	r.PUT("/user/profile/:username", middleware.AuthMiddleware(s.userService), userController.UpdateUserProfile)
+	r.POST("/user/change-password", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager", "Employee"), userController.ChangePassword)
+	r.GET("/user/:id/login-history", middleware.AuthMiddleware(s.userService), userController.GetLoginHistory)
+	r.POST("/totp/generate", middleware.AuthMiddleware(s.userService), userController.GenerateTOTP)
+	r.POST("/totp/verify", middleware.AuthMiddleware(s.userService), userController.VerifyTOTP)
+	r.POST("/totp/disable", middleware.AuthMiddleware(s.userService), userController.DisableTOTP)
+	r.POST("/totp/enable", middleware.AuthMiddleware(s.userService), userController.EnableTOTP)
 
-	// Department routes
+	r.GET("/totp/status", middleware.AuthMiddleware(s.userService), userController.IsTOTPEnabled)
+	r.POST("/login/totp", userController.VerifyLoginTOTP)
+
 	departmentController := controller.NewDepartmentController(s.departmentService)
-	r.POST("/department/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.CreateDepartment)
-	r.GET("/department/:id", middleware.AuthMiddleware(), departmentController.GetDepartmentByID)
-	r.PUT("/department/update/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateDepartment)
-	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.DeleteDepartment)
-	r.GET("/departments/:client", middleware.AuthMiddleware(), departmentController.GetAllDepartmentsByClient)
+	r.POST("/department/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.CreateDepartment)
+	r.GET("/department/:id", middleware.AuthMiddleware(s.userService), departmentController.GetDepartmentByID)
+	r.PUT("/department/update/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateDepartment)
+	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.DeleteDepartment)
+	r.GET("/departments/:client", middleware.AuthMiddleware(s.userService), departmentController.GetAllDepartmentsByClient)
+	r.GET("/department/:id/users", middleware.AuthMiddleware(s.userService), departmentController.GetUsersByDepartment)
 
-	// Client routes
-	r.POST("/client/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.CreateClient)
-	r.GET("/client/", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetAllClients)
-	r.GET("/client/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetClientByID)
-	r.PUT("/client/update/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateClient)
-	r.DELETE("/client/delete/:id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), departmentController.DeleteClient)
+	r.POST("/client/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.CreateClient)
+	r.GET("/client/", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetAllClients)
+	r.GET("/client/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetClientByID)
+	r.PUT("/client/update/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.UpdateClient)
+	r.DELETE("/client/delete/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.DeleteClient)
 
-	// Role routes
 	roleController := controller.NewRoleController(s.roleService)
-	r.POST("/role", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), roleController.CreateRole)
-	r.POST("/permission", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), roleController.CreatePermission)
-	r.POST("/role_permission", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), roleController.CreateRolePermission)
+	r.POST("/role", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), roleController.CreateRole)
+	r.POST("/permission", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), roleController.CreatePermission)
+	r.POST("/role_permission", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), roleController.CreateRolePermission)
 
-	// Payroll routes
 	payrollController := controller.NewPayrollController(s.payrollService)
-	r.POST("/salary/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), payrollController.CreateSalaryRecord)
-	r.PUT("/salary/user/:userId", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), payrollController.UpdateSalaryRecordByUserID)
-	r.GET("/salary/user/:id", middleware.AuthMiddleware(), payrollController.GetSalaryRecordsByUserID)
-	r.DELETE("/salary/user/:userId", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), payrollController.DeleteSalaryRecordByUserID)
-	r.POST("/contract/create", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), payrollController.CreateContractRecord)
-	r.PUT("/contract/user/:userId", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), payrollController.UpdateContractByUserID)
-	r.GET("/contract/user/:userId", middleware.AuthMiddleware(), payrollController.GetContractByUserID)
-	r.DELETE("/contract/user/:userId", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin"), payrollController.DeleteContractByUserID)
+	r.POST("/salary/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), payrollController.CreateSalaryRecord)
+	r.PUT("/salary/user/:userId", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), payrollController.UpdateSalaryRecordByUserID)
+	r.GET("/salary/user/:id", middleware.AuthMiddleware(s.userService), payrollController.GetSalaryRecordsByUserID)
+	r.DELETE("/salary/user/:userId", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), payrollController.DeleteSalaryRecordByUserID)
+	r.POST("/contract/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), payrollController.CreateContractRecord)
+	r.PUT("/contract/user/:userId", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), payrollController.UpdateContractByUserID)
+	r.GET("/contract/user/:userId", middleware.AuthMiddleware(s.userService), payrollController.GetContractByUserID)
+	r.DELETE("/contract/user/:userId", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), payrollController.DeleteContractByUserID)
 
-	// Hook routes
 	hookController := controller.NewHookController(s.fileService)
-	r.POST("/hooks/upload", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), hookController.UploadHook)
-	r.GET("/files", middleware.AuthMiddleware(), hookController.GetFiles)
+	r.POST("/hooks/upload", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), hookController.UploadHook)
+	r.GET("/files", middleware.AuthMiddleware(s.userService), hookController.GetFiles)
 	r.Any("/files/*any", gin.WrapH(http.StripPrefix("/files/", corsWrapper(s.fileService.TusdHandler))))
 
 	// Task routes
 	taskController := controller.NewTaskController(s.taskService)
-	r.POST("/task/create", middleware.AuthMiddleware(), taskController.CreateTask)
-	r.GET("/task/:id", middleware.AuthMiddleware(), taskController.GetTaskByID)
-	r.PUT("/task/:id", middleware.AuthMiddleware(), taskController.UpdateTask)
-	r.DELETE("/task/:id", middleware.AuthMiddleware(), taskController.DeleteTask)
-	r.GET("/tasks/user/:user_id", middleware.AuthMiddleware(), taskController.GetTasksByUserID)
+	r.POST("/task/create", middleware.AuthMiddleware(s.userService), taskController.CreateTask)
+	r.GET("/task/:id", middleware.AuthMiddleware(s.userService), taskController.GetTaskByID)
+	r.PUT("/task/:id", middleware.AuthMiddleware(s.userService), taskController.UpdateTask)
+	r.DELETE("/task/:id", middleware.AuthMiddleware(s.userService), taskController.DeleteTask)
+	r.GET("/tasks/user/:user_id", middleware.AuthMiddleware(s.userService), taskController.GetTasksByUserID)
 
 	// Task status change routes
-	r.PUT("/task/:id/request-status-change", middleware.AuthMiddleware(), taskController.RequestTaskStatusChange)
-	r.PUT("/task/:id/approve-status-change", middleware.AuthMiddleware(), middleware.AuthorizeRole("Manager"), taskController.ApproveTaskStatusChange)
+	r.PUT("/task/:id/request-status-change", middleware.AuthMiddleware(s.userService), taskController.RequestTaskStatusChange)
+	r.PUT("/task/:id/approve-status-change", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Manager"), taskController.ApproveTaskStatusChange)
 
 	// Comment routes
 	commentController := controller.NewTaskController(s.taskService)
-	r.POST("/comments", middleware.AuthMiddleware(), commentController.CreateComment)
-	r.GET("/comments/task/:task_id", middleware.AuthMiddleware(), commentController.GetCommentsByTaskID)
-	r.PUT("/comments/:id", middleware.AuthMiddleware(), commentController.UpdateComment)
-	r.DELETE("/comments/:id", middleware.AuthMiddleware(), commentController.DeleteComment)
+	r.POST("/comments", middleware.AuthMiddleware(s.userService), commentController.CreateComment)
+	r.GET("/comments/task/:task_id", middleware.AuthMiddleware(s.userService), commentController.GetCommentsByTaskID)
+	r.PUT("/comments/:id", middleware.AuthMiddleware(s.userService), commentController.UpdateComment)
+	r.DELETE("/comments/:id", middleware.AuthMiddleware(s.userService), commentController.DeleteComment)
 
 	// Timesheet Routes
 	timesheetController := controller.NewTimesheetController(s.WorkHoursService)
-	r.POST("/checkin", middleware.AuthMiddleware(), timesheetController.CheckIn)
-	r.PUT("/checkout/:id", middleware.AuthMiddleware(), timesheetController.CheckOut)
-	r.GET("/timesheet/:userID", middleware.AuthMiddleware(), timesheetController.GetTimesheet)
-	r.POST("/timesheet/edit-request", middleware.AuthMiddleware(), timesheetController.RequestEdit)
-	r.POST("/timesheet/approve-edit", middleware.AuthMiddleware(), timesheetController.ApproveEdit)
-	r.POST("/timesheet/date-range", middleware.AuthMiddleware(), timesheetController.GetTimesheetByDateRange)
+	r.POST("/checkin", middleware.AuthMiddleware(s.userService), timesheetController.CheckIn)
+	r.PUT("/checkout/:id", middleware.AuthMiddleware(s.userService), timesheetController.CheckOut)
+	r.GET("/timesheet/:userID", middleware.AuthMiddleware(s.userService), timesheetController.GetTimesheet)
+	r.POST("/timesheet/edit-request", middleware.AuthMiddleware(s.userService), timesheetController.RequestEdit)
+	r.POST("/timesheet/approve-edit", middleware.AuthMiddleware(s.userService), timesheetController.ApproveEdit)
+	r.POST("/timesheet/date-range", middleware.AuthMiddleware(s.userService), timesheetController.GetTimesheetByDateRange)
 	// Calendar routes
 	calendarController := controller.NewCalendarController(s.calendarService)
-	r.POST("/calendars", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.CreateCalendar)
-	r.GET("/calendars/:calendar_id", middleware.AuthMiddleware(), calendarController.GetCalendarByID)
-	r.PUT("/calendars/:calendar_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.UpdateCalendar)
-	r.DELETE("/calendars/:calendar_id", middleware.AuthMiddleware(), calendarController.DeleteCalendar)
-	r.GET("/calendars/department/:department_id", middleware.AuthMiddleware(), calendarController.GetCalendarByDepartmentID)
+	r.POST("/calendars", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), calendarController.CreateCalendar)
+	r.GET("/calendars/:calendar_id", middleware.AuthMiddleware(s.userService), calendarController.GetCalendarByID)
+	r.PUT("/calendars/:calendar_id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), calendarController.UpdateCalendar)
+	r.DELETE("/calendars/:calendar_id", middleware.AuthMiddleware(s.userService), calendarController.DeleteCalendar)
+	r.GET("/calendars/department/:department_id", middleware.AuthMiddleware(s.userService), calendarController.GetCalendarByDepartmentID)
 
 	// Calendar Events routes
-	r.POST("/calendars/:calendar_id/events", middleware.AuthMiddleware(), calendarController.CreateEvent)
-	r.GET("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), calendarController.GetEventByID)
-	r.PUT("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), calendarController.UpdateEvent)
-	r.DELETE("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(), middleware.AuthorizeRole("Admin", "Manager"), calendarController.DeleteEvent)
-	r.GET("/calendars/:calendar_id/events", middleware.AuthMiddleware(), calendarController.GetEventsByCalendarID)
-	r.GET("/dep/:department_id/events", middleware.AuthMiddleware(), calendarController.GetEventsByDepartmentID)
-	r.GET("/events/:event_id", middleware.AuthMiddleware(), calendarController.GetEventByID)
+	r.POST("/calendars/:calendar_id/events", middleware.AuthMiddleware(s.userService), calendarController.CreateEvent)
+	r.GET("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(s.userService), calendarController.GetEventByID)
+	r.PUT("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(s.userService), calendarController.UpdateEvent)
+	r.DELETE("/calendars/:calendar_id/events/:event_id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), calendarController.DeleteEvent)
+	r.GET("/calendars/:calendar_id/events", middleware.AuthMiddleware(s.userService), calendarController.GetEventsByCalendarID)
+	r.GET("/dep/:department_id/events", middleware.AuthMiddleware(s.userService), calendarController.GetEventsByDepartmentID)
+	r.GET("/events/:event_id", middleware.AuthMiddleware(s.userService), calendarController.GetEventByID)
 
 	return r
 }
 
-// corsWrapper wraps a handler with CORS headers and preflight OPTIONS request handling
 func corsWrapper(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodOptions {

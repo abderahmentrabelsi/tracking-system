@@ -15,7 +15,6 @@ func NewRoleController(roleService *service.RoleService) *RoleController {
 		roleService: roleService,
 	}
 }
-
 func (rc *RoleController) CreateRole(c *gin.Context) {
 	var body struct {
 		Name string `json:"name"`
@@ -31,7 +30,6 @@ func (rc *RoleController) CreateRole(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, role)
 }
-
 func (rc *RoleController) CreatePermission(c *gin.Context) {
 	var body struct {
 		Name        string `json:"name"`
@@ -48,7 +46,6 @@ func (rc *RoleController) CreatePermission(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, permission)
 }
-
 func (rc *RoleController) CreateRolePermission(c *gin.Context) {
 	var body struct {
 		RoleID       uint `json:"roleId"`

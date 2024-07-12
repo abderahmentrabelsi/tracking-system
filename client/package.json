@@ -4,15 +4,14 @@
   "license": "Commercial",
   "private": true,
   "scripts": {
-    "dev": "bun run prestart && bun run next dev --turbo",
+    "dev": "bun run next dev --turbo",
     "build": "bun run next build",
     "start": "bun run next start",
     "lint": "bun run next lint",
     "lint:fix": "bun run next lint --fix",
     "format": "bun run prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "build:icons": "bun run tsx src/assets/iconify-icons/bundle-icons-css.ts",
-    "postinstall": "bun run build:icons",
-    "prestart": "npx fkill :3000 --force || true"
+    "postinstall": "bun run build:icons"
   },
   "dependencies": {
     "@asseinfo/react-kanban": "^2.2.0",
@@ -22,6 +21,7 @@
     "@emotion/styled": "^11.11.5",
     "@floating-ui/react": "0.26.9",
     "@iconify/json": "2.2.190",
+    "@iconify/react": "^5.0.1",
     "@mui/icons-material": "^5.15.20",
     "@mui/lab": "^5.0.0-alpha.171",
     "@mui/material": "^5.16.0",
@@ -46,12 +46,15 @@
     "react-big-calendar": "^1.13.0",
     "react-chartjs-2": "^5.2.0",
     "react-circular-progressbar": "^2.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "react-avatar": "^5.0.3",
     "react-colorful": "5.6.1",
     "react-datepicker": "^6.9.0",
     "react-dom": "18.2.0",
     "react-dropzone": "^14.2.3",
     "react-google-charts": "^4.0.1",
     "react-id-swiper": "^4.0.0",
+    "react-hook-form": "^7.52.1",
     "react-perfect-scrollbar": "1.5.8",
     "react-toastify": "10.0.4",
     "react-use": "17.5.0",
@@ -62,12 +65,14 @@
     "swiper": "^11.1.4",
     "tailwindcss": "3.4.1",
     "tailwindcss-logical": "3.0.1",
-    "tsx": "4.7.1"
+    "tsx": "4.7.1",
+    "tus-js-client": "^4.1.0"
   },
   "devDependencies": {
     "@iconify/tools": "4.0.2",
     "@iconify/types": "2.0.0",
     "@iconify/utils": "2.1.22",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.11.25",
     "@types/react": "^18.2.64",
     "@types/react-datepicker": "^6.2.0",

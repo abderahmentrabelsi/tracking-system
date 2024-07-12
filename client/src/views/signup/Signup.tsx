@@ -20,6 +20,7 @@ import ListItem from '@mui/material/ListItem';
 import IconButton from '@mui/material/IconButton';
 import { useDropzone } from 'react-dropzone';
 import { SystemMode } from '@core/types';
+import ProgressLinearWithLabel from '@components/ProgressLinearWithLabel';
 
 type FormDataType = {
   firstName: string;
@@ -29,7 +30,8 @@ type FormDataType = {
   departmentID: string | number;
   roleName: string | null;
   username: string;
-  clientName: string; // Added clientName property
+  clientName: string;
+  jobTitle: string;
 };
 
 type RoleType = {
@@ -80,7 +82,8 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
     username: '',
     departmentID: '',
     roleName: '',
-    clientName: '' // Added clientName initialization
+    clientName: '',
+    jobTitle: ''
   });
 
   const [touchedFields, setTouchedFields] = useState<{ [key: string]: boolean }>({
@@ -162,7 +165,8 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       departmentID: '',
       roleName: '',
       username: '',
-      clientName: '' // Added clientName initialization
+      clientName: '',
+      jobTitle: ''
     });
     setTouchedFields({ email: false, username: false });
   };
@@ -213,7 +217,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
   };
 
   const fetchUploadedFiles = async () => {
-    const response = await axios.get('http://localhost:8383/files');
+    const response = await axios.get('http://localhost:8383/files', { withCredentials: true });
     if (response.status !== 200) throw new Error('Failed to fetch files');
     return response.data;
   };
@@ -266,7 +270,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
             size: file.size,
           };
 
-          await axios.post('http://localhost:8383/hooks/upload', fileUploadData);
+          await axios.post('http://localhost:8383/hooks/upload', fileUploadData, { withCredentials: true });
         }
       };
 
@@ -309,11 +313,12 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       validatePhoneNumber(formData.phoneNumber) &&
       formData.departmentID !== '' &&
       formData.roleName !== '' &&
-      formData.clientName !== '' // Added clientName validation
+      formData.clientName !== '' &&
+      formData.jobTitle.trim() !== ''
     );
   };
 
-  if (rolesLoading || clientsLoading) return <div>Loading...</div>;
+  if (rolesLoading || clientsLoading) return <ProgressLinearWithLabel />;
   if (rolesError || clientsError) return <div>Error loading data</div>;
 
   return (
@@ -393,6 +398,16 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
                 helperText={touchedFields.email && !validateEmail(formData.email) && 'Email must be a valid email'}
               />
             </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='Job Title'
+                placeholder='Enter your job title'
+                value={formData.jobTitle}
+                onChange={e => setFormData({ ...formData, jobTitle: e.target.value })}
+              />
+            </Grid>
             <Grid item xs={12}>
               <Divider />
             </Grid>
@@ -470,7 +485,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
                   </Typography>
                   <Typography>
                     Drop files here or click{' '}
-                    <a href='/' onClick={e => e.preventDefault()} className='text-textPrimary no-underline'>
+                    <a href='/client/public' onClick={e => e.preventDefault()} className='text-textPrimary no-underline'>
                       browse
                     </a>{' '}
                     thorough your machine
