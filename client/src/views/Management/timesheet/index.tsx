@@ -57,7 +57,7 @@ const TimesheetManagement = () => {
       <Typography variant="h4" align="center" gutterBottom>
         Timesheet Management Dashboard
       </Typography>
-      <Grid container spacing={2}>
+      <Grid container spacing={4} justifyContent="center">
         {users.map(user => (
           <Grid item xs={12} sm={6} md={4} key={user.ID}>
             <UserCard user={user} departmentName={departmentName} />

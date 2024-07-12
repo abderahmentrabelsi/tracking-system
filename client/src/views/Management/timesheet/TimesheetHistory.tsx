@@ -227,7 +227,7 @@ const TimesheetHistory: React.FC<TimesheetHistoryProps> = ({ userId, open, onClo
               </Typography>
               {entry.requestedEdit && (
                 <IconButton onClick={() => handleEditRequestClick(entry)}>
-                  <NotificationsActive style={{ color: '#0f1010' }} />
+                  <NotificationsActive style={{ color: '#100f10',position: 'absolute', left:40 }} />
                 </IconButton>
               )}
             </Box>
