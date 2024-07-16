@@ -1,11 +1,15 @@
 'use client'
 
- const LeaveTrackerPage = ()=>{
+ import LeaveTrackerPage from "@views/attendance/leavetracker/LeaveTracker";
+
+
+
+const App = ()=>{
 
   return(
     <>
-      <h1>Coming Soon</h1>
+      <LeaveTrackerPage />
     </>
   )
  }
- export default LeaveTrackerPage;
+ export default App;

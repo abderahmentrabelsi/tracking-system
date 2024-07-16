@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from "js-cookie";
 
 export interface UserDetails {
   id: number;
@@ -273,4 +274,15 @@ export const disableTOTP = async (): Promise<void> => {
     console.error('Error disabling TOTP:', error);
     throw error;
   }
+};
+
+
+
+export const getUserIdFromToken = (): number | null => {
+  const token = Cookies.get('access_token');
+  if (token) {
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    return decodedToken.UserID;
+  }
+  return null;
 };

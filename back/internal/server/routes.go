@@ -108,6 +108,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/dep/:department_id/events", middleware.AuthMiddleware(s.userService), calendarController.GetEventsByDepartmentID)
 	r.GET("/events/:event_id", middleware.AuthMiddleware(s.userService), calendarController.GetEventByID)
 
+	// Leave Request Routes
+	leaveController := controller.NewLeaveController(s.leaveService)
+	r.POST("/leave-request", middleware.AuthMiddleware(s.userService), leaveController.CreateLeaveRequest)
+	r.PUT("/leave-request/:id/approve", middleware.AuthMiddleware(s.userService), leaveController.ApproveLeaveRequest)
+	r.GET("/leave-requests/:userId", middleware.AuthMiddleware(s.userService), leaveController.GetLeaveRequests)
+	r.DELETE("/leave-request/:id", middleware.AuthMiddleware(s.userService), leaveController.DeleteLeaveRequest)
+
 	return r
 }
 

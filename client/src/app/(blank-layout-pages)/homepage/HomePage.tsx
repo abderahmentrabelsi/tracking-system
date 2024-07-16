@@ -11,7 +11,7 @@ const useStyles = makeStyles({
     flexDirection: 'column',
   },
   appBar: {
-    backgroundColor: '#110a0a',
+    backgroundColor: '#030303',
     borderBottom: '2px solid #000',
   },
   toolbar: {
@@ -25,6 +25,7 @@ const useStyles = makeStyles({
   },
   logoImage: {
     marginRight: '10px',
+    display: 'flex',
   },
   loginButton: {
     border: '3px solid #000',
@@ -97,7 +98,7 @@ const HomePage: React.FC = () => {
       <AppBar position="static" className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
           <div className={classes.logo}>
-            <Image src="/last.png" alt="Company Logo" width={200} height={60} className={classes.logoImage} />
+            <Image src="/last.png" alt="Company Logo" width={150} height={60} className={classes.logoImage} />
           </div>
           <Button className={classes.loginButton} href="/login">
             Login

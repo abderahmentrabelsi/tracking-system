@@ -53,8 +53,8 @@ func initializeORM() {
 	}
 	orm.DB = db
 	err = db.AutoMigrate(&model.User{}, &model.Department{}, &model.LoginHistory{},
-		&model.WorkHours{}, &model.TokenDetails{}, &model.Role{}, &model.Permission{},
-		&model.RolePermission{}, &model.Contract{}, &model.Salary{}, &model.FileUpload{}, &model.Calendar{}, &model.CalendarEvent{},&model.Task{}, &model.Comment{})
+		&model.WorkHours{}, &model.TokenDetails{}, &model.Role{}, &model.Permission{}, &model.LeaveRequest{},
+		&model.RolePermission{}, &model.Contract{}, &model.Salary{}, &model.FileUpload{}, &model.Calendar{}, &model.CalendarEvent{}, &model.Task{}, &model.Comment{})
 	if err != nil {
 		log.Fatalf("Failed to migrate database models: %v", err)
 	}

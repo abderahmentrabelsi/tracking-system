@@ -22,6 +22,7 @@ type Server struct {
 	taskService       *service.TaskService
 	WorkHoursService  *service.WorkHoursService
 	calendarService   *service.CalendarService
+	leaveService      *service.LeaveService
 }
 
 func NewServer() *Server {
@@ -36,6 +37,7 @@ func NewServer() *Server {
 	taskRepository := repository.NewTaskRepository()
 	commentRepository := repository.NewCommentRepository()
 	WorkHoursRepository := repository.NewWorkHoursRepository()
+	leaveRepository := repository.NewLeaveRepository()
 
 	roleService := service.NewRoleService(roleRepository)
 	fileService := service.NewFileService(repository.NewFileRepository())
@@ -45,6 +47,7 @@ func NewServer() *Server {
 	taskService := service.NewTaskService(taskRepository, commentRepository)
 	WorkHoursService := service.NewWorkHoursService(WorkHoursRepository)
 	CalendarService := service.NewCalendarService(*calendarRepository)
+	leaveService := service.NewLeaveService(leaveRepository)
 
 	return &Server{
 		port:              port,
@@ -57,6 +60,7 @@ func NewServer() *Server {
 		taskService:       taskService,
 		WorkHoursService:  WorkHoursService,
 		calendarService:   CalendarService,
+		leaveService:      leaveService,
 	}
 }
 
