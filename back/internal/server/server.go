@@ -20,7 +20,8 @@ type Server struct {
 	payrollService    *service.PayrollService
 	fileService       *service.FileService
 	taskService       *service.TaskService
-	WorkHoursService  *service.WorkHoursService
+	projectService    *service.ProjectService
+	workHoursService  *service.WorkHoursService
 	calendarService   *service.CalendarService
 	leaveService      *service.LeaveService
 }
@@ -35,6 +36,7 @@ func NewServer() *Server {
 	calendarRepository := repository.NewCalendarRepository()
 	payrollRepository := repository.NewPayrollRepository()
 	taskRepository := repository.NewTaskRepository()
+	projectRepository := repository.NewProjectRepository()
 	commentRepository := repository.NewCommentRepository()
 	WorkHoursRepository := repository.NewWorkHoursRepository()
 	leaveRepository := repository.NewLeaveRepository()
@@ -45,6 +47,7 @@ func NewServer() *Server {
 	departmentService := service.NewDepartmentService(departmentRepository)
 	payrollService := service.NewPayrollService(*payrollRepository)
 	taskService := service.NewTaskService(taskRepository, commentRepository)
+	projectService := service.NewProjectService(projectRepository)
 	WorkHoursService := service.NewWorkHoursService(WorkHoursRepository)
 	CalendarService := service.NewCalendarService(*calendarRepository)
 	leaveService := service.NewLeaveService(leaveRepository)
@@ -58,7 +61,8 @@ func NewServer() *Server {
 		payrollService:    payrollService,
 		fileService:       fileService,
 		taskService:       taskService,
-		WorkHoursService:  WorkHoursService,
+		projectService:    projectService,
+		workHoursService:  WorkHoursService,
 		calendarService:   CalendarService,
 		leaveService:      leaveService,
 	}

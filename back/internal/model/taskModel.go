@@ -7,7 +7,6 @@ import (
 
 type Task struct {
 	gorm.Model
-	ID              uint       `gorm:"primaryKey"`
 	Title           string     `json:"title"`
 	Description     string     `json:"description"`
 	Status          string     `json:"status"`
@@ -20,11 +19,12 @@ type Task struct {
 	DepartmentID    uint       `json:"departmentId"`
 	Department      Department `gorm:"foreignKey:DepartmentID"`
 	Comments        []Comment  `gorm:"foreignKey:TaskID;constraint:OnDelete:CASCADE;" json:"comments"`
+	ProjectID       uint       `json:"projectId"`
+	Project         Project    `gorm:"foreignKey:ProjectID" json:"project"`
 }
 
 type Comment struct {
 	gorm.Model
-	ID        uint      `gorm:"primaryKey"`
 	TaskID    uint      `json:"taskId"`
 	Task      Task      `gorm:"foreignKey:TaskID"`
 	UserID    uint      `json:"userId"`
@@ -35,13 +35,12 @@ type Comment struct {
 
 type Project struct {
 	gorm.Model
-	ID           uint       `gorm:"primaryKey"`
-	Name         string     `json:"name"`
-	Description  string     `json:"description"`
-	DepartmentID uint       `json:"departmentId"`
-	Department   Department `gorm:"foreignKey:DepartmentID"`
-	Managers     []User     `gorm:"many2many:project_managers;" json:"managers"`
-	Users        []User     `gorm:"many2many:project_users;" json:"users"`
-	Tasks        []Task     `gorm:"foreignKey:ProjectID" json:"tasks"`
-	Task         Task       `gorm:"foreignKey:TaskID"`
+	Name        string `json:"name"`
+	StartDate   int64  `json:"startDate"` // Timestamp in seconds
+	Deadline    int64  `json:"deadline"`  // Timestamp in seconds
+	Budget      uint   `json:"budget"`
+	Description string `json:"description"`
+	Managers    []User `gorm:"many2many:project_managers;" json:"managers"`
+	Users       []User `gorm:"many2many:project_users;" json:"users"`
+	Tasks       []Task `gorm:"foreignKey:ProjectID" json:"tasks"`
 }

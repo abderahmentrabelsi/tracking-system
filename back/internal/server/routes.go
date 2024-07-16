@@ -83,8 +83,22 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.PUT("/comments/:id", middleware.AuthMiddleware(s.userService), commentController.UpdateComment)
 	r.DELETE("/comments/:id", middleware.AuthMiddleware(s.userService), commentController.DeleteComment)
 
+	// Project routes
+	projectController := controller.NewProjectController(s.projectService)
+	r.POST("/projects", middleware.AuthMiddleware(s.userService), projectController.CreateProject)
+	r.GET("/project/:id", middleware.AuthMiddleware(s.userService), projectController.GetProjectByID)
+	r.PUT("/projects/:project_id", middleware.AuthMiddleware(s.userService), projectController.UpdateProject)
+	r.DELETE("/projects/:project_id", middleware.AuthMiddleware(s.userService), projectController.DeleteProject)
+	r.GET("/users/:userId/projects", middleware.AuthMiddleware(s.userService), projectController.GetProjectsByUserID)
+	r.POST("/projects/:project_id/users/:user_id", middleware.AuthMiddleware(s.userService), projectController.AddUserToProject)
+	r.DELETE("/projects/:project_id/users/:user_id", middleware.AuthMiddleware(s.userService), projectController.RemoveUserFromProject)
+	r.GET("/projects/:project_id/managers", middleware.AuthMiddleware(s.userService), projectController.GetManagersByProjectID)
+	r.GET("/projects/:project_id/users", middleware.AuthMiddleware(s.userService), projectController.GetUsersByProjectID)
+	r.POST("/projects/:project_id/managers/:manager_id", middleware.AuthMiddleware(s.userService), projectController.AddManagerToProject)
+	r.DELETE("/projects/:project_id/managers/:manager_id", middleware.AuthMiddleware(s.userService), projectController.RemoveManagerFromProject)
+
 	// Timesheet Routes
-	timesheetController := controller.NewTimesheetController(s.WorkHoursService)
+	timesheetController := controller.NewTimesheetController(s.workHoursService)
 	r.POST("/checkin", middleware.AuthMiddleware(s.userService), timesheetController.CheckIn)
 	r.PUT("/checkout/:id", middleware.AuthMiddleware(s.userService), timesheetController.CheckOut)
 	r.GET("/timesheet/:userID", middleware.AuthMiddleware(s.userService), timesheetController.GetTimesheet)
