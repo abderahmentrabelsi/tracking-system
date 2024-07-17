@@ -74,9 +74,10 @@ const ManagerDashboard: React.FC = () => {
             user={user}
             onTaskCreated={handleTaskCreated}
             departmentId={user.DepartmentID}
-            managerId={parseInt(localStorage.getItem('userID') || '0', 10)}
+            managerId={typeof window !== 'undefined' ? parseInt(localStorage.getItem('userID') || '0', 10) : null}
             onUserClick={handleUserClick}
             departmentName={department?.name || 'N/A'}
+
           />
         ))}
       </Grid>

@@ -33,12 +33,10 @@ const VerticalMenu = ({scrollMenu}: Props) => {
   const {settings} = useSettings()
   const {isBreakpointReached} = useVerticalNav()
 
-  // State to store user role
   const [userRole, setUserRole] = useState<string | null>(null)
 
-  // Retrieve user role from local storage on the client side
   useEffect(() => {
-    const role = localStorage.getItem('userRole')
+    const role = localStorage.getItem('userRole');
     setUserRole(role)
   }, [])
 
@@ -137,6 +135,9 @@ const VerticalMenu = ({scrollMenu}: Props) => {
         <MenuItem className='workhours-menu-item' href='/attendance/leavetracker'
                   icon={<i className='tabler-calendar-event'/>}>
           Leave Tracker
+        </MenuItem>
+        <MenuItem href='/equipments' icon={<i className='tabler-hammer' />}>
+          Equipments
         </MenuItem>
       </Menu>
     </ScrollWrapper>

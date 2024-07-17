@@ -312,7 +312,7 @@ func (pc *ProjectController) RemoveUserFromProject(c *gin.Context) {
 }
 
 func (pc *ProjectController) GetManagersByProjectID(c *gin.Context) {
-	projectID, err := strconv.ParseUint(c.Param("projectId"), 10, 64)
+	projectID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"data":   nil,
@@ -349,7 +349,7 @@ func (pc *ProjectController) GetManagersByProjectID(c *gin.Context) {
 }
 
 func (pc *ProjectController) GetUsersByProjectID(c *gin.Context) {
-	projectID, err := strconv.ParseUint(c.Param("projectId"), 10, 64)
+	projectID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"data":   nil,

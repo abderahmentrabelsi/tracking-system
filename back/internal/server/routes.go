@@ -92,8 +92,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/users/:userId/projects", middleware.AuthMiddleware(s.userService), projectController.GetProjectsByUserID)
 	r.POST("/projects/:project_id/users/:user_id", middleware.AuthMiddleware(s.userService), projectController.AddUserToProject)
 	r.DELETE("/projects/:project_id/users/:user_id", middleware.AuthMiddleware(s.userService), projectController.RemoveUserFromProject)
-	r.GET("/projects/:project_id/managers", middleware.AuthMiddleware(s.userService), projectController.GetManagersByProjectID)
-	r.GET("/projects/:project_id/users", middleware.AuthMiddleware(s.userService), projectController.GetUsersByProjectID)
+	r.GET("/project/:id/managers", middleware.AuthMiddleware(s.userService), projectController.GetManagersByProjectID)
+	r.GET("/project/:id/users", middleware.AuthMiddleware(s.userService), projectController.GetUsersByProjectID)
 	r.POST("/projects/:project_id/managers/:manager_id", middleware.AuthMiddleware(s.userService), projectController.AddManagerToProject)
 	r.DELETE("/projects/:project_id/managers/:manager_id", middleware.AuthMiddleware(s.userService), projectController.RemoveManagerFromProject)
 
