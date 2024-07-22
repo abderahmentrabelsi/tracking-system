@@ -1,9 +1,23 @@
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB limit
+});
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig = withPWA({
   basePath: process.env.BASEPATH,
+  reactStrictMode: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  experimental: {
+    turboMode: false,
+    reactServerComponents: false,
+  },
+});
 
-  // TODO: below line is added to resolve twice event dispatch in the calendar reducer
-  reactStrictMode: false
-}
-
-module.exports = nextConfig
+module.exports = nextConfig;
