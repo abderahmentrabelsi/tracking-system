@@ -8,12 +8,6 @@ const withPWA = require('next-pwa')({
 const nextConfig = withPWA({
   basePath: process.env.BASEPATH,
   reactStrictMode: false,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   experimental: {
     turboMode: false,
     reactServerComponents: false,
