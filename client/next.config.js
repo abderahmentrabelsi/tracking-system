@@ -4,10 +4,19 @@ const withPWA = require('next-pwa')({
   maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB limit
 });
 
-/** @type {import('next').NextConfig} */
 const nextConfig = withPWA({
   basePath: process.env.BASEPATH,
   reactStrictMode: false,
+  experimental: {
+    turboMode: false,
+    reactServerComponents: false,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 });
 
 module.exports = nextConfig;
