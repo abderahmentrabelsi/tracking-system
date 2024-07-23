@@ -131,7 +131,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		return
 	}
 
-	authenticatedUserID := c.GetString("userID")
+	authenticatedUserName := c.GetString("username")
 
 	user := &model.User{
 		FirstName:         body.FirstName,
@@ -149,8 +149,8 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		MaritalStatus:     body.MaritalStatus,
 		Address:           body.Address,
 		OnBoardingStatus:  body.OnBoardingStatus,
-		AddedBy:           authenticatedUserID,
-		ModifiedBy:        authenticatedUserID,
+		AddedBy:           authenticatedUserName,
+		ModifiedBy:        authenticatedUserName,
 		EducationDetails:  body.EducationDetails,
 		EmergencyContacts: body.EmergencyContacts,
 	}
@@ -730,7 +730,6 @@ func (uc *UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	// Fetch the role entity based on the provided role name
 	roleEntity, err := uc.roleService.GetRoleByName(body.RoleName)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -744,7 +743,7 @@ func (uc *UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	authenticatedUserID := c.GetString("userID")
+	authenticatedUserName := c.GetString("username")
 
 	user.FirstName = body.FirstName
 	user.LastName = body.LastName
@@ -760,7 +759,7 @@ func (uc *UserController) UpdateUser(c *gin.Context) {
 	user.MaritalStatus = body.MaritalStatus
 	user.Address = body.Address
 	user.OnBoardingStatus = body.OnBoardingStatus
-	user.ModifiedBy = authenticatedUserID
+	user.ModifiedBy = authenticatedUserName
 
 	user.EducationDetails = body.EducationDetails
 	user.EmergencyContacts = body.EmergencyContacts
