@@ -8,10 +8,6 @@ const withPWA = require('next-pwa')({
 const nextConfig = withPWA({
   basePath: process.env.BASEPATH,
   reactStrictMode: false,
-  experimental: {
-    turboMode: false,
-    reactServerComponents: false,
-  },
 });
 
 module.exports = nextConfig;

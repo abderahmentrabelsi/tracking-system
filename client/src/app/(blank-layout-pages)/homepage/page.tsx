@@ -1,6 +1,6 @@
 
 import React from 'react';
-import HomePage from './HomePage';
+import HomePage from '@views/HomePage';
 import { getServerMode } from '@core/utils/serverHelpers'
 
 
