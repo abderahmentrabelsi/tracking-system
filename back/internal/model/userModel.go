@@ -7,28 +7,51 @@ import (
 
 type User struct {
 	gorm.Model
-	ID           uint   `gorm:"primaryKey"`
-	Username     string `json:"username" gorm:"unique"`
-	Password     string `json:"password"`
-	Email        string `json:"email" gorm:"unique"`
-	RoleID       uint   `json:"roleId"`
-	Role         Role   `gorm:"foreignKey:RoleID"`
-	FirstName    string `json:"firstName"`
-	LastName     string `json:"lastName"`
-	Picture      string `json:"picture"`
-	PhoneNumber  string `json:"phoneNumber"`
-	Address      string `json:"address"`
-	JobTitle     string `json:"jobTitle"` // Add jobTitle field
-	DepartmentID uint
-	Department   Department     `gorm:"foreignKey:DepartmentID"`
-	LoginHistory []LoginHistory `gorm:"foreignKey:UserID" json:"loginHistory"`
-	WorkHours    []WorkHours    `gorm:"foreignKey:UserID" json:"workHours"`
-	TokenDetails TokenDetails   `gorm:"foreignKey:UserID" json:"tokenDetails"`
-	TOTPSecret   string         `json:"totpSecret"`
-	TOTPEnabled  bool           `json:"totpEnabled"` // New field
-	Salary       Salary         `gorm:"foreignKey:UserID" json:"salary"`
-	Contract     Contract       `gorm:"foreignKey:UserID" json:"contract"`
-	Files        []FileUpload   `gorm:"foreignKey:UserID" json:"files"`
+	ID                uint               `gorm:"primaryKey"`
+	Username          string             `json:"username" gorm:"unique"`
+	Password          string             `json:"password"`
+	Email             string             `json:"email" gorm:"unique"`
+	RoleID            uint               `json:"roleId"`
+	Role              Role               `gorm:"foreignKey:RoleID"`
+	FirstName         string             `json:"firstName"`
+	LastName          string             `json:"lastName"`
+	Picture           string             `json:"picture"`
+	PhoneNumber       string             `json:"phoneNumber"`
+	Address           string             `json:"address"`
+	JobTitle          string             `json:"jobTitle"`
+	DepartmentID      uint               // DONE
+	Department        Department         `gorm:"foreignKey:DepartmentID"`
+	LoginHistory      []LoginHistory     `gorm:"foreignKey:UserID" json:"loginHistory"`
+	WorkHours         []WorkHours        `gorm:"foreignKey:UserID" json:"workHours"`
+	TOTPSecret        string             `json:"totpSecret"`
+	TOTPEnabled       bool               `json:"totpEnabled"`
+	Salary            Salary             `gorm:"foreignKey:UserID" json:"salary"`
+	Contract          Contract           `gorm:"foreignKey:UserID" json:"contract"`
+	Files             []FileUpload       `gorm:"foreignKey:UserID" json:"files"`
+	SourceOfHire      string             `json:"sourceOfHire"`
+	ReportingManager  string             `json:"reportingManager"`
+	Gender            string             `json:"gender"`
+	MaritalStatus     string             `json:"maritalStatus"` // e.g., Single, Married
+	AddedBy           string             `json:"addedBy"`
+	ModifiedBy        string             `json:"modifiedBy"`
+	OnBoardingStatus  string             `json:"onBoardingStatus"` // e.g., Not Triggered, Triggered
+	EducationDetails  []EducationDetail  `gorm:"foreignKey:UserID" json:"educationDetails"`
+	EmergencyContacts []EmergencyContact `gorm:"foreignKey:UserID" json:"emergencyContacts"`
+}
+
+type EducationDetail struct {
+	gorm.Model
+	UserID         uint   `json:"userId"`
+	InstituteName  string `json:"instituteName"`
+	Diploma        string `json:"diploma"`
+	Specialization string `json:"specialization"`
+}
+
+type EmergencyContact struct {
+	gorm.Model
+	UserID uint   `json:"userId"`
+	Name   string `json:"name"`
+	Number string `json:"number"`
 }
 
 type Role struct {
@@ -76,15 +99,6 @@ type WorkHours struct {
 	RequestCheckin  *int64   `json:"requestCheckin,omitempty"`
 	RequestCheckout *int64   `json:"requestCheckout,omitempty"`
 	RequestDuration *float32 `json:"requestDuration,omitempty"`
-}
-
-type TokenDetails struct {
-	gorm.Model
-	UserID       uint      `json:"userId"`
-	AccessToken  string    `json:"accessToken"`
-	RefreshToken string    `json:"refreshToken"`
-	TokenExpiry  time.Time `json:"tokenExpiry"`
-	TOTPSecret   string    `json:"totpSecret"`
 }
 
 type Salary struct {

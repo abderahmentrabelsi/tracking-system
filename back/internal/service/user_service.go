@@ -24,6 +24,10 @@ func NewUserService(userRepository *repository.UserRepository, roleRepository *r
 	}
 }
 
+func (us *UserService) UpdateUser(user *model.User) error {
+	return us.userRepository.UpdateUser(user)
+}
+
 func (us *UserService) GetUserByEmail(email string) (*model.User, error) {
 	return us.userRepository.GetUserByEmail(email)
 }

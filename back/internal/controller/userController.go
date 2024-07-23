@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/skip2/go-qrcode"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"time"
@@ -31,18 +32,25 @@ func NewUserController(userService *service.UserService, departmentService *serv
 		fileService:       fileService,
 	}
 }
-
 func (uc *UserController) SignUp(c *gin.Context) {
 	var body struct {
-		FirstName    string             `json:"FirstName"`
-		LastName     string             `json:"LastName"`
-		PhoneNumber  string             `json:"PhoneNumber"`
-		Email        string             `json:"Email"`
-		Username     string             `json:"Username"`
-		DepartmentID uint               `json:"DepartmentID"`
-		RoleName     string             `json:"RoleName"`
-		Files        []model.FileUpload `json:"Files"`
-		JobTitle     string             `json:"JobTitle"`
+		FirstName         string                   `json:"FirstName"`
+		LastName          string                   `json:"LastName"`
+		PhoneNumber       string                   `json:"PhoneNumber"`
+		Email             string                   `json:"Email"`
+		Username          string                   `json:"Username"`
+		DepartmentID      uint                     `json:"DepartmentID"`
+		RoleName          string                   `json:"RoleName"`
+		Files             []model.FileUpload       `json:"Files"`
+		JobTitle          string                   `json:"JobTitle"`
+		SourceOfHire      string                   `json:"SourceOfHire"`
+		ReportingManager  string                   `json:"ReportingManager"`
+		Gender            string                   `json:"Gender"`
+		MaritalStatus     string                   `json:"MaritalStatus"`
+		Address           string                   `json:"Address"`
+		EducationDetails  []model.EducationDetail  `json:"EducationDetails"`
+		EmergencyContacts []model.EmergencyContact `json:"EmergencyContacts"`
+		OnBoardingStatus  string                   `json:"OnBoardingStatus"`
 	}
 
 	if err := c.Bind(&body); err != nil {
@@ -123,16 +131,28 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		return
 	}
 
+	authenticatedUserID := c.GetString("userID")
+
 	user := &model.User{
-		FirstName:    body.FirstName,
-		LastName:     body.LastName,
-		PhoneNumber:  body.PhoneNumber,
-		Email:        body.Email,
-		Username:     body.Username,
-		DepartmentID: department.ID,
-		RoleID:       roleEntity.ID,
-		Password:     string(hash),
-		JobTitle:     body.JobTitle,
+		FirstName:         body.FirstName,
+		LastName:          body.LastName,
+		PhoneNumber:       body.PhoneNumber,
+		Email:             body.Email,
+		Username:          body.Username,
+		DepartmentID:      department.ID,
+		RoleID:            roleEntity.ID,
+		Password:          string(hash),
+		JobTitle:          body.JobTitle,
+		SourceOfHire:      body.SourceOfHire,
+		ReportingManager:  body.ReportingManager,
+		Gender:            body.Gender,
+		MaritalStatus:     body.MaritalStatus,
+		Address:           body.Address,
+		OnBoardingStatus:  body.OnBoardingStatus,
+		AddedBy:           authenticatedUserID,
+		ModifiedBy:        authenticatedUserID,
+		EducationDetails:  body.EducationDetails,
+		EmergencyContacts: body.EmergencyContacts,
 	}
 
 	if err := uc.userService.CreateUser(user, body.Files); err != nil {
@@ -258,7 +278,7 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := uc.userService.GenerateToken(user.Email, user.Username, user.DepartmentID,user.ID, roleEntity.Name, 7*24*time.Hour)
+	accessToken, err := uc.userService.GenerateToken(user.Email, user.Username, user.DepartmentID, user.ID, roleEntity.Name, 7*24*time.Hour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"data":   nil,
@@ -615,6 +635,156 @@ func (uc *UserController) UpdateUserProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
 }
+func (uc *UserController) UpdateUser(c *gin.Context) {
+	var body struct {
+		UserID            uint                     `json:"UserID"`
+		FirstName         string                   `json:"FirstName"`
+		LastName          string                   `json:"LastName"`
+		PhoneNumber       string                   `json:"PhoneNumber"`
+		Email             string                   `json:"Email"`
+		Username          string                   `json:"Username"`
+		DepartmentID      uint                     `json:"DepartmentID"`
+		RoleName          string                   `json:"RoleName"`
+		Files             []model.FileUpload       `json:"Files"`
+		JobTitle          string                   `json:"JobTitle"`
+		SourceOfHire      string                   `json:"SourceOfHire"`
+		ReportingManager  string                   `json:"ReportingManager"`
+		Gender            string                   `json:"Gender"`
+		MaritalStatus     string                   `json:"MaritalStatus"`
+		Address           string                   `json:"Address"`
+		OnBoardingStatus  string                   `json:"OnBoardingStatus"`
+		EducationDetails  []model.EducationDetail  `json:"EducationDetails"`
+		EmergencyContacts []model.EmergencyContact `json:"EmergencyContacts"`
+	}
+
+	if err := c.Bind(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Invalid request body",
+				"error": err.Error(),
+			},
+		})
+		return
+	}
+
+	user, err := uc.userService.GetUserByID(body.UserID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "User does not exist",
+				"error": err.Error(),
+			},
+		})
+		return
+	}
+
+	existingUserByUsername, err := uc.userService.GetUserByUsername(body.Username)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Error checking username",
+				"error": err.Error(),
+			},
+		})
+		return
+	}
+	if existingUserByUsername != nil && existingUserByUsername.ID != user.ID {
+		c.JSON(http.StatusConflict, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Username already exists",
+				"error": "Username already exists",
+			},
+		})
+		return
+	}
+
+	existingUserByEmail, err := uc.userService.GetUserByEmail(body.Email)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Error checking email",
+				"error": err.Error(),
+			},
+		})
+		return
+	}
+	if existingUserByEmail != nil && existingUserByEmail.ID != user.ID {
+		c.JSON(http.StatusConflict, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Email already exists",
+				"error": "Email already exists",
+			},
+		})
+		return
+	}
+
+	// Fetch the role entity based on the provided role name
+	roleEntity, err := uc.roleService.GetRoleByName(body.RoleName)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Role does not exist",
+				"error": err.Error(),
+			},
+		})
+		return
+	}
+
+	authenticatedUserID := c.GetString("userID")
+
+	user.FirstName = body.FirstName
+	user.LastName = body.LastName
+	user.PhoneNumber = body.PhoneNumber
+	user.Email = body.Email
+	user.Username = body.Username
+	user.DepartmentID = body.DepartmentID
+	user.RoleID = roleEntity.ID // Update the role ID
+	user.JobTitle = body.JobTitle
+	user.SourceOfHire = body.SourceOfHire
+	user.ReportingManager = body.ReportingManager
+	user.Gender = body.Gender
+	user.MaritalStatus = body.MaritalStatus
+	user.Address = body.Address
+	user.OnBoardingStatus = body.OnBoardingStatus
+	user.ModifiedBy = authenticatedUserID
+
+	user.EducationDetails = body.EducationDetails
+	user.EmergencyContacts = body.EmergencyContacts
+
+	if err := uc.userService.UpdateUser(user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"msg":   "Error updating user",
+				"error": err.Error(),
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":   gin.H{"user_id": user.ID, "username": user.Username},
+		"status": "success",
+		"message": gin.H{
+			"msg": "User updated successfully",
+		},
+	})
+}
 func (uc *UserController) ChangePassword(c *gin.Context) {
 	var body struct {
 		CurrentPassword string `json:"currentPassword"`
@@ -757,7 +927,7 @@ func (uc *UserController) VerifyLoginTOTP(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := uc.userService.GenerateToken(user.Email, user.Username, user.ID, user.DepartmentID,roleEntity.Name, 7*24*time.Hour)
+	accessToken, err := uc.userService.GenerateToken(user.Email, user.Username, user.ID, user.DepartmentID, roleEntity.Name, 7*24*time.Hour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"data":   nil,
