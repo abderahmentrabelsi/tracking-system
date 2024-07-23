@@ -53,8 +53,7 @@ func initializeORM() {
 	}
 	orm.DB = db
 	err = db.AutoMigrate(&model.User{}, &model.Department{}, &model.LoginHistory{},
-		&model.WorkHours{}, &model.Role{}, &model.Permission{},
-		&model.RolePermission{}, &model.Contract{}, &model.Salary{}, &model.FileUpload{},
+		&model.WorkHours{}, &model.Role{}, &model.Contract{}, &model.Salary{}, &model.FileUpload{},
 		&model.Calendar{}, &model.CalendarEvent{}, &model.Task{}, &model.Comment{},
 		&model.Project{}, &model.EducationDetail{}, &model.EmergencyContact{})
 	if err != nil {

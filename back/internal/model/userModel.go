@@ -56,20 +56,7 @@ type EmergencyContact struct {
 
 type Role struct {
 	gorm.Model
-	Name        string       `json:"name"`
-	Permissions []Permission `gorm:"many2many:role_permissions"`
-}
-
-type Permission struct {
-	gorm.Model
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
-type RolePermission struct {
-	gorm.Model
-	RoleID       uint `json:"roleId"`
-	PermissionID uint `json:"permissionId"`
+	Name string `json:"name"`
 }
 
 type LoginHistory struct {
