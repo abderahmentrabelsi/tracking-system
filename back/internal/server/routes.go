@@ -26,9 +26,11 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/totp/verify", middleware.AuthMiddleware(s.userService), userController.VerifyTOTP)
 	r.POST("/totp/disable", middleware.AuthMiddleware(s.userService), userController.DisableTOTP)
 	r.POST("/totp/enable", middleware.AuthMiddleware(s.userService), userController.EnableTOTP)
-
 	r.GET("/totp/status", middleware.AuthMiddleware(s.userService), userController.IsTOTPEnabled)
 	r.POST("/login/totp", userController.VerifyLoginTOTP)
+
+	// Add the new UpdateUser route
+	r.PUT("/user/update", middleware.AuthMiddleware(s.userService), userController.UpdateUser)
 
 	departmentController := controller.NewDepartmentController(s.departmentService)
 	r.POST("/department/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.CreateDepartment)

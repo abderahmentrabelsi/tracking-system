@@ -32,6 +32,26 @@ type FormDataType = {
   username: string;
   clientName: string;
   jobTitle: string;
+  sourceOfHire: string;
+  reportingManager: string;
+  gender: string;
+  maritalStatus: string;
+  address: string;
+  educationDetails: EducationDetail[];
+  emergencyContacts: EmergencyContact[];
+};
+
+type EducationDetail = {
+  userId: number;
+  instituteName: string;
+  diploma: string;
+  specialization: string;
+};
+
+type EmergencyContact = {
+  userId: number;
+  name: string;
+  number: string;
 };
 
 type RoleType = {
@@ -83,7 +103,14 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
     departmentID: '',
     roleName: '',
     clientName: '',
-    jobTitle: ''
+    jobTitle: '',
+    sourceOfHire: '',
+    reportingManager: '',
+    gender: '',
+    maritalStatus: '',
+    address: '',
+    educationDetails: [{ userId: 1, instituteName: '', diploma: '', specialization: '' }],
+    emergencyContacts: [{ userId: 1, name: '', number: '' }]
   });
 
   const [touchedFields, setTouchedFields] = useState<{ [key: string]: boolean }>({
@@ -166,9 +193,16 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       roleName: '',
       username: '',
       clientName: '',
-      jobTitle: ''
+      jobTitle: '',
+      sourceOfHire: '',
+      reportingManager: '',
+      gender: '',
+      maritalStatus: '',
+      address: '',
+      educationDetails: [{ userId: 1, instituteName: '', diploma: '', specialization: '' }],
+      emergencyContacts: [{ userId: 1, name: '', number: '' }]
     });
-    setTouchedFields({ email: false, username: false });
+    setTouchedFields({ email: false, username: false, phoneNumber: false });
   };
 
   const handleSignup = async (event: React.FormEvent) => {
@@ -408,6 +442,56 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
                 onChange={e => setFormData({ ...formData, jobTitle: e.target.value })}
               />
             </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='Source of Hire'
+                placeholder='Enter the source of hire'
+                value={formData.sourceOfHire}
+                onChange={e => setFormData({ ...formData, sourceOfHire: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='Reporting Manager'
+                placeholder='Enter the reporting manager'
+                value={formData.reportingManager}
+                onChange={e => setFormData({ ...formData, reportingManager: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='Gender'
+                placeholder='Enter the gender'
+                value={formData.gender}
+                onChange={e => setFormData({ ...formData, gender: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='Marital Status'
+                placeholder='Enter the marital status'
+                value={formData.maritalStatus}
+                onChange={e => setFormData({ ...formData, maritalStatus: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                required
+                fullWidth
+                label='Address'
+                placeholder='Enter the address'
+                value={formData.address}
+                onChange={e => setFormData({ ...formData, address: e.target.value })}
+              />
+            </Grid>
             <Grid item xs={12}>
               <Divider />
             </Grid>
@@ -470,7 +554,101 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
             </Grid>
             <Grid item xs={12}>
               <Typography variant='body2' className='font-medium'>
-                3. Upload Files
+                3. Education Details
+              </Typography>
+            </Grid>
+            {formData.educationDetails.map((education, index) => (
+              <React.Fragment key={index}>
+                <Grid item xs={12} sm={6}>
+                  <CustomTextField
+                    required
+                    fullWidth
+                    label='Institute Name'
+                    placeholder='Enter the institute name'
+                    value={education.instituteName}
+                    onChange={e => {
+                      const updatedEducationDetails = [...formData.educationDetails];
+                      updatedEducationDetails[index].instituteName = e.target.value;
+                      setFormData({ ...formData, educationDetails: updatedEducationDetails });
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <CustomTextField
+                    required
+                    fullWidth
+                    label='Diploma'
+                    placeholder='Enter the diploma'
+                    value={education.diploma}
+                    onChange={e => {
+                      const updatedEducationDetails = [...formData.educationDetails];
+                      updatedEducationDetails[index].diploma = e.target.value;
+                      setFormData({ ...formData, educationDetails: updatedEducationDetails });
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <CustomTextField
+                    required
+                    fullWidth
+                    label='Specialization'
+                    placeholder='Enter the specialization'
+                    value={education.specialization}
+                    onChange={e => {
+                      const updatedEducationDetails = [...formData.educationDetails];
+                      updatedEducationDetails[index].specialization = e.target.value;
+                      setFormData({ ...formData, educationDetails: updatedEducationDetails });
+                    }}
+                  />
+                </Grid>
+              </React.Fragment>
+            ))}
+            <Grid item xs={12}>
+              <Divider />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant='body2' className='font-medium'>
+                4. Emergency Contacts
+              </Typography>
+            </Grid>
+            {formData.emergencyContacts.map((contact, index) => (
+              <React.Fragment key={index}>
+                <Grid item xs={12} sm={6}>
+                  <CustomTextField
+                    required
+                    fullWidth
+                    label='Name'
+                    placeholder='Enter the name'
+                    value={contact.name}
+                    onChange={e => {
+                      const updatedEmergencyContacts = [...formData.emergencyContacts];
+                      updatedEmergencyContacts[index].name = e.target.value;
+                      setFormData({ ...formData, emergencyContacts: updatedEmergencyContacts });
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <CustomTextField
+                    required
+                    fullWidth
+                    label='Number'
+                    placeholder='Enter the number'
+                    value={contact.number}
+                    onChange={e => {
+                      const updatedEmergencyContacts = [...formData.emergencyContacts];
+                      updatedEmergencyContacts[index].number = e.target.value;
+                      setFormData({ ...formData, emergencyContacts: updatedEmergencyContacts });
+                    }}
+                  />
+                </Grid>
+              </React.Fragment>
+            ))}
+            <Grid item xs={12}>
+              <Divider />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant='body2' className='font-medium'>
+                5. Upload Files
               </Typography>
             </Grid>
             <Grid item xs={12}>
