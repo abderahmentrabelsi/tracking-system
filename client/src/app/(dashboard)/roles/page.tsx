@@ -20,6 +20,7 @@ const RolesApp = async () => {
   const staticUserData: UsersType[] = [
     {
       id: 1,
+      FirstName: 'John',
       fullName: 'John Doe',
       username: 'johndoe',
       email: 'john.doe@example.com',
@@ -31,9 +32,11 @@ const RolesApp = async () => {
       billing: 'Monthly',
       status: 'active',
       avatar: null,
+      DepartmentID: 0
     },
     {
       id: 2,
+      FirstName: 'Jane',
       fullName: 'Jane Smith',
       username: 'janesmith',
       email: 'jane.smith@example.com',
@@ -45,6 +48,8 @@ const RolesApp = async () => {
       billing: 'Yearly',
       status: 'pending',
       avatar: null,
+      DepartmentID: 0
+
     },
     // Add more users as needed
   ];
