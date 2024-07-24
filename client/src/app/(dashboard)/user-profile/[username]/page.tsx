@@ -11,6 +11,9 @@ import type { Data } from '@/types/profileTypes'
 // Component Imports
 import UserProfile from '@views/user-profile'
 
+// Utility Imports
+import { checkAuth } from '@/utils/checkAuth';
+
 const ProfileTab = dynamic(() => import('@views/user-profile/profile'))
 const TeamsTab = dynamic<{ data: any }>(() => import('@views/user-profile/teams'))
 const ProjectsTab = dynamic(() => import('@views/user-profile/projects'))
@@ -36,10 +39,11 @@ const getData = async () => {
 }
 
 const ProfilePage = async () => {
+  // Check authentication
+  checkAuth();
+
   // Vars
   const data = await getData()
- // console.log(data) // Log the fetched data
-
 
   return <UserProfile data={data} tabContentList={tabContentList(data)} />
 }

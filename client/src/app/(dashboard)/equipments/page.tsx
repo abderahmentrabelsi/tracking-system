@@ -1,15 +1,11 @@
-'use client'
-
-import React from 'react';
+// src/app/equipments/page.tsx
+import { checkAuth } from '@/utils/checkAuth';
 import EquipmentsPage from '@/views/equipments';
 
+const App = async () => {
+  checkAuth();
 
-
-const App: React.FC = () => (
-
-  <EquipmentsPage />
-);
+  return <EquipmentsPage />;
+};
 
 export default App;
-
-

@@ -1,15 +1,11 @@
-'use client'
-
-import React from 'react';
+// src/app/management/timesheet/page.tsx
+import { checkAuth } from '@/utils/checkAuth';
 import TimesheetManagement from '@/views/Management/timesheet';
 
+const App = async () => {
+  checkAuth();
 
-
-const App: React.FC = () => (
-
-  <TimesheetManagement />
-);
+  return <TimesheetManagement />;
+};
 
 export default App;
-
-

@@ -1,15 +1,11 @@
-'use client'
-
-import React from 'react';
+// app/views/attendance/page.tsx
+import { checkAuth } from '@/utils/checkAuth';
 import WorkHoursPage from '@/views/attendance/timetracker';
 
+const App = async () => {
+  checkAuth();
 
-
-const App: React.FC = () => (
-
-  <WorkHoursPage />
-);
+  return <WorkHoursPage />;
+};
 
 export default App;
-
-

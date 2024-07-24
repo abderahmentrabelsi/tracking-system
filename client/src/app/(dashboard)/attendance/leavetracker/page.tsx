@@ -1,15 +1,11 @@
-'use client'
-
-import React from 'react';
+// app/views/attendance/page.tsx
+import { checkAuth } from '@/utils/checkAuth';
 import LeaveTrackerPage from '@/views/attendance/leavetracker';
 
+const App = async () => {
+  checkAuth();
 
-
-const App: React.FC = () => (
-
-  <LeaveTrackerPage />
-);
+  return <LeaveTrackerPage />;
+};
 
 export default App;
-
-

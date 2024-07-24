@@ -1,3 +1,5 @@
+// src/app/permissions/page.tsx
+import { checkAuth } from '@/utils/checkAuth';
 import Permissions from '@views/permissions';
 import type { PermissionRowType } from '@/types/permissionTypes';
 
@@ -12,6 +14,8 @@ const getData = async () => {
 };
 
 const PermissionsApp = async () => {
+  checkAuth();
+
   // Static permissions data for testing purposes
   const staticPermissionsData: PermissionRowType[] = [
     {

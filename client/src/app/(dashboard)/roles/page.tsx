@@ -1,3 +1,5 @@
+// src/app/roles/page.tsx
+import { checkAuth } from '@/utils/checkAuth';
 import Roles from '@views/roles';
 import type { UsersType } from '@/types/userTypes';
 
@@ -12,6 +14,8 @@ const getData = async () => {
 };
 
 const RolesApp = async () => {
+  checkAuth();
+
   // Static user data for testing
   const staticUserData: UsersType[] = [
     {

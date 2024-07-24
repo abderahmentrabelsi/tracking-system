@@ -1,7 +1,10 @@
-
-import React from 'react';
+// app/views/departments/page.tsx
+import { checkAuth } from '../../../utils/checkAuth';
 import Departments from '@views/departments';
-const DepartmentsPage = () => {
+
+const DepartmentsPage = async () => {
+  checkAuth();
+
   return <Departments />;
 };
 

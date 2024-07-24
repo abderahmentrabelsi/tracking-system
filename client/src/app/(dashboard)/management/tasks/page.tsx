@@ -1,15 +1,11 @@
-'use client'
-
-import React from 'react';
+// src/app/management/tasks/page.tsx
+import { checkAuth } from '@/utils/checkAuth';
 import ManagerDashboard from '@/views/Management/tasks/Manager';
 
+const App = async () => {
+  checkAuth();
 
-
-const App: React.FC = () => (
-
-  <ManagerDashboard />
-);
+  return <ManagerDashboard />;
+};
 
 export default App;
-
-
