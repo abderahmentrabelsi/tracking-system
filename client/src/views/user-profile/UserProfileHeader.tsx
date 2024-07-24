@@ -10,8 +10,30 @@ import Chip from '@mui/material/Chip'
 import { useEffect, useState } from 'react'
 import type { ProfileHeaderType } from '@/types/profileTypes'
 import { fetchUserDetailsByUsername, UserDetails } from '@/utils/userUtils'
-import { stringToColor, isColorDark } from '@/utils/colorUtils'
 import { useParams } from 'next/navigation'
+
+// Color mapping function
+const colorMap: { [key: string]: string } = {
+  A: '#FF5733', B: '#33FF57', C: '#3357FF', D: '#FF33A5', E: '#33FFA5',
+  F: '#A533FF', G: '#FFA533', H: '#33A5FF', I: '#FF3357', J: '#57FF33',
+  K: '#5733FF', L: '#FF5733', M: '#33FF57', N: '#3357FF', O: '#FF33A5',
+  P: '#33FFA5', Q: '#A533FF', R: '#FFA533', S: '#33A5FF', T: '#FF3357',
+  U: '#57FF33', V: '#5733FF', W: '#FF5733', X: '#33FF57', Y: '#3357FF',
+  Z: '#FF33A5'
+};
+
+const stringToColor = (str: string): string => {
+  const firstChar = str.charAt(0).toUpperCase();
+  return colorMap[firstChar] || '#000'; // Default color if not found in map
+};
+
+const isColorDark = (color: string): boolean => {
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness < 128;
+};
 
 const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
   const { username } = useParams<{ username: string }>() // Ensure username is treated as string
@@ -61,7 +83,7 @@ const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
               {userDetails?.jobTitle && (
                 <Chip
                   label={userDetails.jobTitle}
-                  style={{ backgroundColor: departmentColor, color: textColor }}
+                  style={{ backgroundColor: stringToColor(userDetails.jobTitle), color: textColor }}
                 />
               )}
               <div className='flex items-center gap-2'>
