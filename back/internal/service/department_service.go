@@ -15,6 +15,9 @@ func NewDepartmentService(departmentRepo repository.DepartmentRepository) *Depar
 	}
 }
 
+func (s *DepartmentService) GetSupervisorNameByDepartmentID(departmentID uint) (string, error) {
+	return s.departmentRepo.GetSupervisorNameByDepartmentID(departmentID)
+}
 func (s *DepartmentService) CreateClient(name string) (*models.Department, error) {
 	return s.departmentRepo.CreateClient(name)
 }

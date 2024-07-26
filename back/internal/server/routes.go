@@ -39,6 +39,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.DeleteDepartment)
 	r.GET("/departments/:client", middleware.AuthMiddleware(s.userService), departmentController.GetAllDepartmentsByClient)
 	r.GET("/department/:id/users", middleware.AuthMiddleware(s.userService), departmentController.GetUsersByDepartment)
+	r.GET("/department/:id/supervisor", middleware.AuthMiddleware(s.userService), departmentController.GetSupervisorNameByDepartmentID)
 
 	r.POST("/client/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.CreateClient)
 	r.GET("/client/", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetAllClients)
@@ -48,8 +49,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	roleController := controller.NewRoleController(s.roleService)
 	r.POST("/role", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), roleController.CreateRole)
-	r.POST("/permission", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), roleController.CreatePermission)
-	r.POST("/role_permission", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), roleController.CreateRolePermission)
 
 	payrollController := controller.NewPayrollController(s.payrollService)
 	r.POST("/salary/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), payrollController.CreateSalaryRecord)

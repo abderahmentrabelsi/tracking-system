@@ -18,7 +18,42 @@ func NewDepartmentController(departmentService *service.DepartmentService) *Depa
 		departmentService: departmentService,
 	}
 }
+func (dc *DepartmentController) GetSupervisorNameByDepartmentID(c *gin.Context) {
+	departmentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "Invalid department ID",
+			},
+		})
+		return
+	}
 
+	supervisorName, err := dc.departmentService.GetSupervisorNameByDepartmentID(uint(departmentID))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"data":   nil,
+			"status": "error",
+			"message": gin.H{
+				"error": err.Error(),
+				"msg":   "Supervisor not found",
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":   supervisorName,
+		"status": "success",
+		"message": gin.H{
+			"error": "",
+			"msg":   "Supervisor retrieved successfully",
+		},
+	})
+}
 func (dc *DepartmentController) CreateDepartment(c *gin.Context) {
 	var departmentCreateRequest struct {
 		Name         string `json:"name"`
