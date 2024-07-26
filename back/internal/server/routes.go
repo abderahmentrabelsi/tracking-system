@@ -39,7 +39,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.DELETE("/department/delete/:id", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.DeleteDepartment)
 	r.GET("/departments/:client", middleware.AuthMiddleware(s.userService), departmentController.GetAllDepartmentsByClient)
 	r.GET("/department/:id/users", middleware.AuthMiddleware(s.userService), departmentController.GetUsersByDepartment)
-	r.GET("/department/:id/supervisor", middleware.AuthMiddleware(s.userService), departmentController.GetSupervisorNameByDepartmentID)
+	r.GET("/department/:id/supervisor", middleware.AuthMiddleware(s.userService), departmentController.GetSupervisorByDepartmentID)
 
 	r.POST("/client/create", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), departmentController.CreateClient)
 	r.GET("/client/", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager"), departmentController.GetAllClients)

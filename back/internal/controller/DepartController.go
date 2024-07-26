@@ -18,7 +18,7 @@ func NewDepartmentController(departmentService *service.DepartmentService) *Depa
 		departmentService: departmentService,
 	}
 }
-func (dc *DepartmentController) GetSupervisorNameByDepartmentID(c *gin.Context) {
+func (dc *DepartmentController) GetSupervisorByDepartmentID(c *gin.Context) {
 	departmentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -32,7 +32,7 @@ func (dc *DepartmentController) GetSupervisorNameByDepartmentID(c *gin.Context) 
 		return
 	}
 
-	supervisorName, err := dc.departmentService.GetSupervisorNameByDepartmentID(uint(departmentID))
+	supervisor, err := dc.departmentService.GetSupervisorByDepartmentID(uint(departmentID))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"data":   nil,
@@ -46,7 +46,7 @@ func (dc *DepartmentController) GetSupervisorNameByDepartmentID(c *gin.Context) 
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   supervisorName,
+		"data":   supervisor,
 		"status": "success",
 		"message": gin.H{
 			"error": "",

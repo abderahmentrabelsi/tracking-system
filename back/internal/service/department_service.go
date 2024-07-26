@@ -7,6 +7,7 @@ import (
 
 type DepartmentService struct {
 	departmentRepo repository.DepartmentRepository
+	userRepo       repository.UserRepository
 }
 
 func NewDepartmentService(departmentRepo repository.DepartmentRepository) *DepartmentService {
@@ -14,9 +15,8 @@ func NewDepartmentService(departmentRepo repository.DepartmentRepository) *Depar
 		departmentRepo: departmentRepo,
 	}
 }
-
-func (s *DepartmentService) GetSupervisorNameByDepartmentID(departmentID uint) (string, error) {
-	return s.departmentRepo.GetSupervisorNameByDepartmentID(departmentID)
+func (s *DepartmentService) GetSupervisorByDepartmentID(departmentID uint) (*models.User, error) {
+	return s.departmentRepo.GetSupervisorByDepartmentID(departmentID)
 }
 func (s *DepartmentService) CreateClient(name string) (*models.Department, error) {
 	return s.departmentRepo.CreateClient(name)

@@ -21,7 +21,7 @@ type DepartmentRepository interface {
 	DeleteClient(id uint) error
 	GetDepartmentByIDd(id uint) (*models.Department, error)
 	GetUsersByDepartmentID(departmentID uint) ([]*models.User, error)
-	GetSupervisorNameByDepartmentID(departmentID uint) (string, error)
+	GetSupervisorByDepartmentID(departmentID uint) (*models.User, error)
 }
 type DepartmentRepositoryImpl struct{}
 
@@ -29,20 +29,19 @@ func NewDepartmentRepository() DepartmentRepository {
 	return &DepartmentRepositoryImpl{}
 }
 
-func (r *DepartmentRepositoryImpl) GetSupervisorNameByDepartmentID(departmentID uint) (string, error) {
+func (r *DepartmentRepositoryImpl) GetSupervisorByDepartmentID(departmentID uint) (*models.User, error) {
 	var department models.Department
 	if err := orm.DB.Preload("Supervisor").Where("id = ?", departmentID).First(&department).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return "", fmt.Errorf("department with ID %d not found", departmentID)
+			return nil, fmt.Errorf("department with ID %d not found", departmentID)
 		}
-		return "", fmt.Errorf("failed to retrieve department: %v", err)
+		return nil, fmt.Errorf("failed to retrieve department: %v", err)
 	}
 	if department.Supervisor == nil {
-		return "", fmt.Errorf("no supervisor assigned to department with ID %d", departmentID)
+		return nil, fmt.Errorf("no supervisor assigned to department with ID %d", departmentID)
 	}
-	return department.Supervisor.FirstName + " " + department.Supervisor.LastName, nil
+	return department.Supervisor, nil
 }
-
 func (r *DepartmentRepositoryImpl) CreateClient(name string) (*models.Department, error) {
 	client := &models.Department{
 		Name:               name,
