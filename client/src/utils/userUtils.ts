@@ -179,7 +179,6 @@ export const login = async (identifier: string, password: string, redirectUri: s
 };
 
 // Function to generate TOTP secret and QR code
-// Function to generate TOTP secret and QR code
 export const generateTOTP = async (): Promise<{ secret: string; qr_code: string }> => {
   try {
     const response = await fetch('http://localhost:8383/totp/generate', {
@@ -276,13 +275,23 @@ export const disableTOTP = async (): Promise<void> => {
   }
 };
 
-
-
-export const getUserIdFromToken = (): number | null => {
-  const token = Cookies.get('access_token');
-  if (token) {
-    const decodedToken = JSON.parse(atob(token.split('.')[1]));
-    return decodedToken.UserID;
+// New method to fetch supervisor details by department ID
+// New method to fetch supervisor details by department ID
+export const fetchSupervisorDetailsByDepartmentID = async (departmentID: number): Promise<UserDetails | null> => {
+  try {
+    const response = await fetch(`http://localhost:8383/department/${departmentID}/supervisor`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.data;
+    } else {
+      console.error('Failed to fetch supervisor details');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching supervisor details:', error);
+    return null;
   }
-  return null;
 };
