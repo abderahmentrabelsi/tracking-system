@@ -155,7 +155,7 @@ func (uc *UserController) SignUp(c *gin.Context) {
 		EmergencyContacts: body.EmergencyContacts,
 	}
 
-	if err := uc.userService.CreateUser(user, body.Files); err != nil {
+	if err := uc.userService.CreateUser(user, body.Files); err != nil { // Pass files here
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"data":   nil,
 			"status": "error",

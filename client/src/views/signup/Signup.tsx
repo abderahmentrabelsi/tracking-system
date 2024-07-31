@@ -207,6 +207,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
 
   const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
+
     const departmentID = parseInt(formData.departmentID as string);
     const filesToUpload = files.map(file => ({
       fileName: file.name,
@@ -220,28 +221,28 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
         const userID = response.data.data.user_id;
         setAlert({
           severity: "success",
-          message: `User created successfully.<br/>Email: ${response.data.data.email}<br/>Username: ${response.data.data.username}<br/>Password: defaultPassword`
+          message: `User created successfully.<br/>Email: ${response.data.data.email}<br/>Username: ${response.data.data.username}<br/>Password: defaultPassword`,
         });
         setOpen(true);
         setTimeout(() => setOpen(false), 9000);
-        await handleFileUpload(userID);
+        await handleFileUpload(userID);  // Add this line to handle file upload
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message?.error === "Username already exists") {
           setAlert({
             severity: "error",
-            message: "Username already exists"
+            message: "Username already exists",
           });
         } else if (error.response?.data?.message?.error === "Email already exists") {
           setAlert({
             severity: "error",
-            message: "Email already exists"
+            message: "Email already exists",
           });
         } else {
           setAlert({
             severity: "error",
-            message: "An error occurred while creating the user"
+            message: "An error occurred while creating the user",
           });
         }
       }
@@ -249,18 +250,6 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       setTimeout(() => setOpen(false), 9000);
     }
   };
-
-  const fetchUploadedFiles = async () => {
-    const response = await axios.get('http://localhost:8383/files', { withCredentials: true });
-    if (response.status !== 200) throw new Error('Failed to fetch files');
-    return response.data;
-  };
-
-  useEffect(() => {
-    fetchUploadedFiles().then(files => {}).catch(error => {
-      console.error("Error fetching files:", error);
-    });
-  }, []);
 
   const handleFileUpload = async (userID: number) => {
     const uploadPromises = files.map(async (file) => {
@@ -327,6 +316,19 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       setTimeout(() => setOpen(false), 9000);
     }
   };
+
+  const fetchUploadedFiles = async () => {
+    const response = await axios.get('http://localhost:8383/files', { withCredentials: true });
+    if (response.status !== 200) throw new Error('Failed to fetch files');
+    return response.data;
+  };
+
+  useEffect(() => {
+    fetchUploadedFiles().then(files => {}).catch(error => {
+      console.error("Error fetching files:", error);
+    });
+  }, []);
+
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
