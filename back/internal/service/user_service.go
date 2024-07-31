@@ -41,6 +41,8 @@ func (us *UserService) CreateUser(user *model.User, files []model.FileUpload) er
 	// Assign UserID to each file and save them
 	for i := range files {
 		files[i].UserID = user.ID
+
+		// Save file and ensure we save the URL returned by tusd
 		if err := us.fileService.SaveFile(&files[i]); err != nil {
 			return err
 		}

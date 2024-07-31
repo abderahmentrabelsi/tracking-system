@@ -289,7 +289,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
             userId: userID,
             fileId,
             fileName: file.name,
-            filePath: `/files/${fileId}`,
+            filePath: fileUploadUrl,  // Use the full URL here
             size: file.size,
           };
 
