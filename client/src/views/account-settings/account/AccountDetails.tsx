@@ -18,6 +18,8 @@ import { fetchUserDetailsByUsername, UserDetails, updateUserProfile } from '@/ut
 import { stringToColor } from '@/utils/colorUtils';
 import { Upload } from 'tus-js-client';
 import Cookies from 'js-cookie';
+import FilesList from '@views/account-settings/account/filelist'
+import Box from '@mui/material/Box'
 
 const languageData = ['English', 'Arabic', 'French', 'German', 'Portuguese'];
 
@@ -284,8 +286,16 @@ const AccountDetails = () => {
             </Grid>
           </Grid>
         </form>
+        <Box mt={4}>
+          <Card>
+            <CardContent>
+              <FilesList />
+            </CardContent>
+          </Card>
+        </Box>
       </CardContent>
-    </Card>
+         </Card>
+
   );
 };
 
