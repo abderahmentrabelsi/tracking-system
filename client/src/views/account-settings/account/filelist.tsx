@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { List, ListItem, ListItemText, CircularProgress, Container, Tabs, Tab, Typography, Box, Badge } from '@mui/material';
@@ -65,6 +65,8 @@ const FilesList: React.FC = () => {
     setTabValue(newValue);
   };
 
+  const filteredFiles = files.filter(file => file.filePath);
+
   if (loading) {
     return <CircularProgress />;
   }
@@ -77,7 +79,7 @@ const FilesList: React.FC = () => {
     <Container>
       <Typography variant="h6" gutterBottom>
         My Files
-        <Badge badgeContent={files.length} color="primary" style={{ marginLeft: 10 }} />
+        <Badge badgeContent={filteredFiles.length} color="primary" style={{ marginLeft: 10 }} />
       </Typography>
       <Tabs value={tabValue} onChange={handleChange} aria-label="file tabs">
         <Tab label="Organization Files" />
@@ -85,7 +87,7 @@ const FilesList: React.FC = () => {
       </Tabs>
       <TabPanel value={tabValue} index={0}>
         <List>
-          {files.map((file) => (
+          {filteredFiles.map((file) => (
             <ListItem button component="a" href={file.filePath || '#'} key={file.ID}>
               <InsertDriveFileIcon color="error" style={{ marginRight: 10 }} />
               <ListItemText primary={file.fileName} />
