@@ -49,6 +49,16 @@ func (fr *FileRepository) GetFileByFileID(uploadID string) (*model.FileUpload, e
 	return &file, nil
 }
 
+func (fr *FileRepository) GetFilesByUserID(userID uint) ([]model.FileUpload, error) {
+	var files []model.FileUpload
+	err := orm.DB.Where("user_id = ?", userID).Find(&files).Error
+	if err != nil {
+		log.Printf("Error fetching files by user ID from database: %v", err)
+		return nil, err
+	}
+	return files, nil
+}
+
 func (fr *FileRepository) UpdateFileUpload(fileUpload *model.FileUpload) error {
 	log.Printf("Attempting to update file in database: %+v", fileUpload)
 	// Assuming `ID` is a field in fileUpload that identifies the record

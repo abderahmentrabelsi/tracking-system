@@ -1078,3 +1078,19 @@ func (uc *UserController) EnableTOTP(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "TOTP enabled successfully"})
 }
+func (uc *UserController) GetUserFiles(c *gin.Context) {
+	userIDStr := c.Param("userID")
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	files, err := uc.fileService.GetFilesByUserID(uint(userID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch files"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": files})
+}

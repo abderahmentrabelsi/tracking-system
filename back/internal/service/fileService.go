@@ -260,3 +260,7 @@ func (fs *FileService) logWithMutex(message string) {
 	defer fs.mu.Unlock()
 	log.Println(message)
 }
+
+func (fs *FileService) GetFilesByUserID(userID uint) ([]model.FileUpload, error) {
+	return fs.fileRepository.GetFilesByUserID(userID)
+}

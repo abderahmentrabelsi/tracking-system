@@ -16,6 +16,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/logout", userController.LogoutHandler)
 	r.GET("/roles", middleware.AuthMiddleware(s.userService), userController.GetAllRoles)
 	r.GET("/user/:id", middleware.AuthMiddleware(s.userService), userController.GetUserByID)
+	r.GET("/user/user/:userID/files", middleware.AuthMiddleware(s.userService), userController.GetUserFiles)
+
 	r.GET("/users", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), userController.GetAllUsers)
 	r.GET("/user/details", middleware.AuthMiddleware(s.userService), userController.GetUserDetails)
 	r.GET("/user/profile/:username", userController.GetUserDetailsByUsername)

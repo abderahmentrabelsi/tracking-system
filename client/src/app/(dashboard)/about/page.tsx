@@ -1,5 +1,5 @@
 // app/views/about/page.tsx
-import { checkAuth } from '../../../utils/checkAuth';
+import { checkAuth } from '@/utils/checkAuth';
 
 const Page = async () => {
   checkAuth();
