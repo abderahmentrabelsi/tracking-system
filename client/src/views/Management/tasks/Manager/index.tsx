@@ -7,6 +7,7 @@ import { TaskType } from '@/types/taskTypes';
 import UserCard from './UserCard';
 import TaskDetails from './TaskDetails';
 import CreateTaskForm from './CreateTaskForm';
+import Cookies from 'js-cookie';
 
 const ManagerDashboard: React.FC = () => {
   const [department, setDepartment] = useState<DepartmentType | null>(null);
@@ -16,9 +17,20 @@ const ManagerDashboard: React.FC = () => {
   const [openTaskDialog, setOpenTaskDialog] = useState(false);
   const [openCreateTaskDialog, setOpenCreateTaskDialog] = useState(false);
 
+  const getTokenData = () => {
+    const token = Cookies.get('access_token');
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      return decodedToken;
+    }
+    return null;
+  };
+
   useEffect(() => {
-    const departmentId = typeof window !== 'undefined' ? Number(localStorage.getItem('departmentId')) : null;
-    fetchDepartment(departmentId);
+    const tokenData = getTokenData();
+    if (tokenData && tokenData.DepartmentID) {
+      fetchDepartment(tokenData.DepartmentID);
+    }
   }, []);
 
   const fetchDepartment = async (departmentId: number) => {
@@ -30,7 +42,7 @@ const ManagerDashboard: React.FC = () => {
     }
   };
 
-  const handleUserClick = async (user: UserType) => {
+  const handleUserClick = (user: UserType) => {
     setSelectedUser(user);
   };
 
@@ -42,7 +54,10 @@ const ManagerDashboard: React.FC = () => {
 
   const handleTaskUpdated = (updatedTask: TaskType) => {
     setTasks(tasks.map(task => task.ID === updatedTask.ID ? updatedTask : task));
-    fetchDepartment(parseInt(localStorage.getItem('departmentId') || '0', 10)); // Ensure the task list is updated
+    const tokenData = getTokenData();
+    if (tokenData && tokenData.DepartmentID) {
+      fetchDepartment(tokenData.DepartmentID);
+    }
   };
 
   const handleTaskClick = (task: TaskType) => {
@@ -75,10 +90,9 @@ const ManagerDashboard: React.FC = () => {
             user={user}
             onTaskCreated={handleTaskCreated}
             departmentId={user.DepartmentID}
-            managerId={typeof window !== 'undefined' ? parseInt(localStorage.getItem('userID') || '0', 10) : null}
+            managerId={getTokenData()?.ID || 0}
             onUserClick={handleUserClick}
             departmentName={department?.name || 'N/A'}
-
           />
         ))}
       </Grid>
@@ -86,7 +100,17 @@ const ManagerDashboard: React.FC = () => {
         <Dialog open={openTaskDialog} onClose={handleCloseTaskDialog} maxWidth="md" fullWidth>
           <DialogTitle>Task Details</DialogTitle>
           <DialogContent>
-            <TaskDetails task={selectedTask} onTaskDeleted={handleCloseTaskDialog} onTaskUpdated={handleTaskUpdated} fetchTasks={fetchDepartment.bind(null, parseInt(localStorage.getItem('departmentId') || '0', 10))} />
+            <TaskDetails
+              task={selectedTask}
+              onTaskDeleted={handleCloseTaskDialog}
+              onTaskUpdated={handleTaskUpdated}
+              fetchTasks={() => {
+                const tokenData = getTokenData();
+                if (tokenData && tokenData.DepartmentID) {
+                  fetchDepartment(tokenData.DepartmentID);
+                }
+              }}
+            />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseTaskDialog} color="primary">
@@ -101,9 +125,14 @@ const ManagerDashboard: React.FC = () => {
           <CreateTaskForm
             assigneeId={selectedUser ? selectedUser.ID : 0}
             departmentId={selectedUser ? selectedUser.DepartmentID : 0}
-            managerId={parseInt(localStorage.getItem('userID') || '0', 10)}
+            managerId={getTokenData()?.ID || 0}
             onTaskCreated={handleTaskCreated}
-            fetchTasks={fetchDepartment.bind(null, parseInt(localStorage.getItem('departmentId') || '0', 10))}
+            fetchTasks={() => {
+              const tokenData = getTokenData();
+              if (tokenData && tokenData.DepartmentID) {
+                fetchDepartment(tokenData.DepartmentID);
+              }
+            }}
           />
         </DialogContent>
         <DialogActions>

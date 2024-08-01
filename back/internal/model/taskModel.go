@@ -19,7 +19,7 @@ type Task struct {
 	DepartmentID    uint       `json:"departmentId"`
 	Department      Department `gorm:"foreignKey:DepartmentID"`
 	Comments        []Comment  `gorm:"foreignKey:TaskID;constraint:OnDelete:CASCADE;" json:"comments"`
-	ProjectID       uint       `json:"projectId"`
+	ProjectID       *uint      `json:"projectId"`
 	Project         Project    `gorm:"foreignKey:ProjectID" json:"project"`
 }
 

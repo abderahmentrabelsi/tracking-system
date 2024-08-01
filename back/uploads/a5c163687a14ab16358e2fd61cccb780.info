@@ -1,0 +1,19 @@
+{
+  "ID": "a5c163687a14ab16358e2fd61cccb780",
+  "IsFinal": false,
+  "IsPartial": false,
+  "MetaData": {
+    "filename": "qorelogo.png",
+    "filetype": "image/png",
+    "size": "61871",
+    "userId": "21"
+  },
+  "Offset": 61871,
+  "PartialUploads": null,
+  "Size": 61871,
+  "SizeIsDeferred": false,
+  "Storage": {
+    "Path": "uploads/a5c163687a14ab16358e2fd61cccb780",
+    "Type": "filestore"
+  }
+}
