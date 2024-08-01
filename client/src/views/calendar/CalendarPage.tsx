@@ -13,6 +13,7 @@ import ProjectIcon from '@mui/icons-material/Work';
 import MeetingIcon from '@mui/icons-material/MeetingRoom';
 import CloseIcon from '@mui/icons-material/Close';
 import MuiAlert from '@mui/material/Alert';
+import Cookies from 'js-cookie';
 import { getCalendarByDepartmentId, createCalendar, createEvent, updateEvent, deleteEvent } from '@/app/api/CalendarApi';
 import { getDepartmentById } from '@/app/api/departmentApi';
 import EventDialog from './EventDialog';
@@ -54,9 +55,20 @@ const CalendarPage = () => {
   });
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
 
+  const getTokenData = () => {
+    const token = Cookies.get('access_token');
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      return decodedToken;
+    }
+    return null;
+  };
+
   useEffect(() => {
-    const storedDepartmentId = typeof window !== 'undefined' ? parseInt(localStorage.getItem('departmentId') || '0', 10) : 0;
-    setDepartmentId(storedDepartmentId);
+    const tokenData = getTokenData();
+    if (tokenData && tokenData.DepartmentID) {
+      setDepartmentId(tokenData.DepartmentID);
+    }
   }, []);
 
   useEffect(() => {
@@ -68,8 +80,7 @@ const CalendarPage = () => {
 
   const fetchDepartmentDetails = async (id: number) => {
     try {
-      const response = await getDepartmentById(id);
-      const department = response;
+      const department = await getDepartmentById(id);
       setDepartmentName(department.name);
       const parentDepartment = await getDepartmentById(department.parentDepartmentId);
       setClientName(parentDepartment.name);
@@ -78,7 +89,7 @@ const CalendarPage = () => {
     }
   };
 
-  const fetchCalendar = async (deptId) => {
+  const fetchCalendar = async (deptId: number) => {
     try {
       const response = await getCalendarByDepartmentId(deptId);
       const calendarData = response.data.data;
@@ -99,9 +110,10 @@ const CalendarPage = () => {
     }
   };
 
-  const handleNoCalendar = async (deptId) => {
-    const userRole = localStorage.getItem('userRole');
-    const userId = parseInt(localStorage.getItem('userID') || '0', 10);
+  const handleNoCalendar = async (deptId: number) => {
+    const tokenData = getTokenData();
+    const userRole = tokenData?.Role;
+    const userId = tokenData?.ID;
 
     if (userRole === 'Admin' || userRole === 'Manager') {
       const newCalendar = {
@@ -332,7 +344,7 @@ const CalendarPage = () => {
     return <div>Loading...</div>;
   }
 
-  if (!calendar && localStorage.getItem('userRole') === 'Employee') {
+  if (!calendar && getTokenData()?.Role === 'Employee') {
     return <div>No calendar available for your current department {departmentName} for client {clientName}</div>;
   }
 
