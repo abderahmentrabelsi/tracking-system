@@ -3,7 +3,7 @@ import { TaskType, CommentType } from '@/types/taskTypes';
 import { DepartmentType } from '@/types/departmentTypes';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8383',
+  baseURL: process.env.NEXT_PUBLIC_GO_APP_SERVER_URL,
   withCredentials: true,
 });
 
@@ -67,8 +67,6 @@ export const getTaskById = async (id: number): Promise<TaskType[]> => {
     throw new Error('Failed to fetch tasks');
   }
 };
-
-
 
 export const createComment = async (comment: CommentType): Promise<CommentType> => {
   const response = await apiClient.post('/comments', comment);
