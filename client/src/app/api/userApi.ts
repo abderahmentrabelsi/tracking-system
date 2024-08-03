@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { UserType } from '@/types/departmentTypes';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8383',
+  baseURL: process.env.NEXT_PUBLIC_GO_APP_SERVER_URL,
   withCredentials: true,
 });
 
