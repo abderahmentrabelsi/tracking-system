@@ -8,8 +8,8 @@ const nextConfig = withPWA({
   basePath: process.env.BASEPATH,
   reactStrictMode: false,
   experimental: {
-    turboMode: false,
-    reactServerComponents: false,
+    // turboMode: false,
+    // reactServerComponents: false,
   },
   eslint: {
     ignoreDuringBuilds: true,

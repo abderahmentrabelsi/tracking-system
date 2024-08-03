@@ -15,12 +15,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.POST("/login", userController.LoginHandler)
 	r.POST("/logout", userController.LogoutHandler)
 	r.GET("/roles", middleware.AuthMiddleware(s.userService), userController.GetAllRoles)
+	r.GET("/user/profile/*username", middleware.AuthMiddleware(s.userService), userController.GetUserDetailsByUsername)
+
 	r.GET("/user/:id", middleware.AuthMiddleware(s.userService), userController.GetUserByID)
 	r.GET("/user/user/:userID/files", middleware.AuthMiddleware(s.userService), userController.GetUserFiles)
 
 	r.GET("/users", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), userController.GetAllUsers)
 	r.GET("/user/details", middleware.AuthMiddleware(s.userService), userController.GetUserDetails)
-	r.GET("/user/profile/:username", userController.GetUserDetailsByUsername)
 	r.PUT("/user/profile/:username", middleware.AuthMiddleware(s.userService), userController.UpdateUserProfile)
 	r.POST("/user/change-password", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin", "Manager", "Employee"), userController.ChangePassword)
 	r.GET("/user/:id/login-history", middleware.AuthMiddleware(s.userService), userController.GetLoginHistory)

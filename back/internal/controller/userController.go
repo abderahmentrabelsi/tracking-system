@@ -4,11 +4,11 @@ import (
 	model "back/internal/model"
 	"back/internal/service"
 	"back/internal/store"
-	"back/internal/utils"
 	"encoding/base64"
 	"fmt"
 	"github.com/skip2/go-qrcode"
 	"gorm.io/gorm"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -500,20 +500,29 @@ func (uc *UserController) GetUserDetails(c *gin.Context) {
 func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 	username := c.Param("username")
 
-	user, err := uc.userService.GetUserByUsername(username)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "User not found",
-		})
-		return
+	// Log the username to debug
+	log.Printf("Fetching details for username: %s", username)
+
+	// Remove leading slash if present
+	if len(username) > 0 && username[0] == '/' {
+		username = username[1:]
 	}
-	if user == nil {
+
+	var user *model.User
+	var err error
+
+	// Fetch user by username
+	user, err = uc.userService.GetUserByUsername(username)
+
+	// Check if user retrieval resulted in error
+	if err != nil || user == nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": "User not found",
 		})
 		return
 	}
 
+	// Fetch user's department details
 	department, err := uc.departmentService.GetDepartmentByIDd(user.DepartmentID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -525,6 +534,7 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 	var clientName string
 	var clientDepartments []*model.Department
 
+	// Determine if the department has a parent
 	if department.ParentDepartmentID != nil {
 		parentDepartment, err := uc.departmentService.GetDepartmentByIDd(*department.ParentDepartmentID)
 		if err != nil {
@@ -550,6 +560,7 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 		}
 	}
 
+	// Build response
 	response := gin.H{
 		"username":       user.Username,
 		"email":          user.Email,
@@ -567,6 +578,7 @@ func (uc *UserController) GetUserDetailsByUsername(c *gin.Context) {
 		"jobTitle":       user.JobTitle,
 	}
 
+	// Send response
 	c.JSON(http.StatusOK, response)
 }
 func (uc *UserController) GetLoginHistory(c *gin.Context) {
@@ -819,12 +831,6 @@ func (uc *UserController) ChangePassword(c *gin.Context) {
 	if err != nil {
 		fmt.Println("Current password mismatch:", err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Current password is incorrect"})
-		return
-	}
-
-	if !utils.ValidatePassword(body.NewPassword) {
-		fmt.Println("New password does not meet criteria")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "New password does not meet the criteria"})
 		return
 	}
 
