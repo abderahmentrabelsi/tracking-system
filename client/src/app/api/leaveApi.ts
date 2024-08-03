@@ -2,7 +2,7 @@ import axios from 'axios';
 import { LeaveRequestPayload, LeaveRequestType } from '@/types/leaveTypes';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8383',
+  baseURL: process.env.NEXT_PUBLIC_GO_APP_SERVER_URL,
   withCredentials: true,
 });
 
@@ -17,7 +17,6 @@ export const createLeaveRequest = async (leaveRequest: LeaveRequestPayload): Pro
     throw new Error('Failed to create leave request');
   }
 };
-
 
 export const approveLeaveRequest = async (id: number, approve: boolean, managerComment: string): Promise<LeaveRequestType> => {
   try {
