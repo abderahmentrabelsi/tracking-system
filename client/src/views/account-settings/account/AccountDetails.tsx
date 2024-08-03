@@ -130,7 +130,7 @@ const AccountDetails = () => {
 
     console.log('Starting upload with user ID:', userId); // Debug log
     const upload = new Upload(file, {
-      endpoint: 'http://localhost:8383/files/',
+      endpoint: `${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/files/`,
       metadata: {
         filename: file.name,
         filetype: file.type,
@@ -294,7 +294,7 @@ const AccountDetails = () => {
           </Card>
         </Box>
       </CardContent>
-         </Card>
+    </Card>
 
   );
 };

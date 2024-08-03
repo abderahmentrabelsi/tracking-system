@@ -56,7 +56,7 @@ const TwoStepsV2 = ({ mode }: { mode: SystemMode }) => {
       const identifier = searchParams.get('identifier');
       const password = searchParams.get('password');
       const redirectUri = searchParams.get('redirect_uri');
-      const response = await axios.post('http://localhost:8383/login', {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/login`, {
         Identifier: identifier,
         Password: password,
         Code: code,

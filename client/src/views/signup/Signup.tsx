@@ -76,19 +76,19 @@ type FileProp = {
 };
 
 const fetchRoles = async (): Promise<RoleType[]> => {
-  const response = await axios.get('http://localhost:8383/roles', { withCredentials: true });
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/roles`, { withCredentials: true });
   if (response.status !== 200) throw new Error('Failed to fetch roles');
   return response.data.data;
 };
 
 const fetchClients = async (): Promise<ClientType[]> => {
-  const response = await axios.get('http://localhost:8383/client/', { withCredentials: true });
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/client/`, { withCredentials: true });
   if (response.status !== 200) throw new Error('Failed to fetch clients');
   return response.data.data;
 };
 
 const fetchDepartmentsByClient = async (clientName: string): Promise<DepartmentType[]> => {
-  const response = await axios.get(`http://localhost:8383/departments/${clientName}`, { withCredentials: true });
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/departments/${clientName}`, { withCredentials: true });
   if (response.status !== 200) throw new Error('Failed to fetch departments');
   return response.data.data;
 };
@@ -216,7 +216,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
     }));
 
     try {
-      const response = await axios.post('http://localhost:8383/signup', { ...formData, departmentID, files: filesToUpload }, { withCredentials: true });
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/signup`, { ...formData, departmentID, files: filesToUpload }, { withCredentials: true });
       if (response.status === 200) {
         const userID = response.data.data.user_id;
         setAlert({
@@ -261,7 +261,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
 
       const uploadMetadata = `filename ${encodedFilename},size ${encodedSize},userId ${userID}`;
 
-      const res = await axios.post('http://localhost:8383/files/', null, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/files/`, null, {
         headers: {
           'Tus-Resumable': '1.0.0',
           'Upload-Length': file.size.toString(),
@@ -270,7 +270,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
       });
 
       const fileId = res.headers['location'].split('/').pop();
-      const fileUploadUrl = `http://localhost:8383/files/${fileId}`;
+      const fileUploadUrl = `${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/files/${fileId}`;
       const fileReader = new FileReader();
 
       fileReader.onload = async (event) => {
@@ -293,7 +293,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
             size: file.size,
           };
 
-          await axios.post('http://localhost:8383/hooks/upload', fileUploadData, { withCredentials: true });
+          await axios.post(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/hooks/upload`, fileUploadData, { withCredentials: true });
         }
       };
 
@@ -318,7 +318,7 @@ const FormLayoutsSeparator = ({ mode }: { mode: SystemMode }) => {
   };
 
   const fetchUploadedFiles = async () => {
-    const response = await axios.get('http://localhost:8383/files', { withCredentials: true });
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/files`, { withCredentials: true });
     if (response.status !== 200) throw new Error('Failed to fetch files');
     return response.data;
   };

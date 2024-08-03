@@ -41,7 +41,7 @@ const FilesList: React.FC = () => {
           throw new Error('User ID not found in token');
         }
 
-        const response = await axios.get(`http://localhost:8383/user/user/${userId}/files`, {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/user/user/${userId}/files`, {
           withCredentials: true,
         });
 
@@ -65,7 +65,7 @@ const FilesList: React.FC = () => {
     setTabValue(newValue);
   };
 
-  const filteredFiles = files.filter(file => file.filePath);
+  const filteredFiles = files.filter(file => file.filePath && file.fileName.toLowerCase().endsWith('.pdf'));
 
   if (loading) {
     return <CircularProgress />;
@@ -78,7 +78,7 @@ const FilesList: React.FC = () => {
   return (
     <Container>
       <Typography variant="h6" gutterBottom>
-        My Files
+        My PDF Files
         <Badge badgeContent={filteredFiles.length} color="primary" style={{ marginLeft: 10 }} />
       </Typography>
       <Tabs value={tabValue} onChange={handleChange} aria-label="file tabs">

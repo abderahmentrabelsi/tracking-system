@@ -162,27 +162,32 @@ export const updateUserPassword = async (data: { currentPassword: string, newPas
   }
 }
 
-export const login = async (identifier: string, password: string, redirectUri: string): Promise<{
+interface LoginResponse {
   access_token: string;
   redirect_uri: string;
-  userRole: string
-}> => {
+  userRole: string;
+  requires_totp: boolean;
+  user_id: number;
+  departmentId: number;
+  UserID: number;
+}
+
+export const login = async (identifier: string, password: string, redirectUri: string): Promise<LoginResponse> => {
   try {
     const response = await axios.post(`${BASE_URL}/login`, {
       Identifier: identifier,
       Password: password,
       RedirectURI: redirectUri
-    })
+    });
     if (response.status === 200) {
-      return response.data.data
+      return response.data.data;
     } else {
-      throw new Error('Login failed')
+      throw new Error('Login failed');
     }
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Failed to login')
+    throw new Error(error.response?.data?.message || 'Failed to login');
   }
-}
-
+};
 export const generateTOTP = async (): Promise<{ secret: string; qr_code: string }> => {
   try {
     const response = await fetch(`${BASE_URL}/totp/generate`, {

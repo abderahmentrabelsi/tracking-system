@@ -53,7 +53,7 @@ const UserDropdown = () => {
   };
 
   const handleUserLogout = async () => {
-    const response = await fetch('http://localhost:8383/logout', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/logout`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -66,7 +66,7 @@ const UserDropdown = () => {
     }
   };
 
-// Ensure userDetails is not null before accessing its properties
+  // Ensure userDetails is not null before accessing its properties
   const avatarColor = userDetails ? stringToColor(userDetails?.username ?? '') : '';
   return (
     <>

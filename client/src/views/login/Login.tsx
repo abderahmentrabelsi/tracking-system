@@ -20,6 +20,7 @@ import IconButton from '@mui/material/IconButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
+import { login } from '@/utils/userUtils';
 
 const LoginIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,
@@ -69,13 +70,9 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
     e.preventDefault();
     try {
       const redirectUri = searchParams.get('redirect') || '/home';
-      const response = await axios.post('http://localhost:8383/login', {
-        Identifier: identifier,
-        Password: password,
-        RedirectURI: redirectUri,
-      });
+      const response = await login(identifier, password, redirectUri); // Use the login method
 
-      const {departmentId,UserID, requires_totp, user_id, redirect_uri, access_token, userRole } = response.data.data;
+      const { departmentId, UserID, requires_totp, user_id, redirect_uri, access_token, userRole } = response;
 
       if (requires_totp) {
         router.push(`/two-steps-v2?user_id=${user_id}&redirect_uri=${redirect_uri}&identifier=${identifier}&password=${password}`);
@@ -84,10 +81,10 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
 
       document.cookie = `access_token=${access_token}; path=/`;
       localStorage.setItem('userRole', userRole);
-      localStorage.setItem('departmentId', departmentId.toString())
-      localStorage.setItem('userID',UserID.toString())
+      localStorage.setItem('departmentId', departmentId.toString());
+      localStorage.setItem('userID', UserID.toString());
 
-      router.push(redirect_uri || '/home')
+      router.push(redirect_uri || '/home');
     } catch (error) {
       console.error('Failed to login', error);
       setErrorMessage('Invalid credentials');
