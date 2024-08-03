@@ -1,8 +1,8 @@
-
 import axios from 'axios';
 import { DepartmentType, ClientType } from '@/types/departmentTypes';
+
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8383',
+  baseURL: process.env.NEXT_PUBLIC_GO_APP_SERVER_URL,
   withCredentials: true,
 });
 
@@ -14,6 +14,7 @@ export const fetchClients = async (): Promise<ClientType[]> => {
     throw new Error('Failed to fetch clients');
   }
 };
+
 export const getDepartmentById = async (id: number): Promise<DepartmentType> => {
   const response = await apiClient.get(`/department/${id}`);
   if (response.status === 200) {
@@ -25,7 +26,6 @@ export const getDepartmentById = async (id: number): Promise<DepartmentType> => 
     throw new Error(`Failed to fetch department with id ${id}`);
   }
 };
-
 
 export const fetchDepartments = async (clientName: string): Promise<DepartmentType[]> => {
   if (!clientName) {
@@ -48,8 +48,6 @@ export const fetchDepartments = async (clientName: string): Promise<DepartmentTy
     throw error;
   }
 };
-
-
 
 export const createDepartment = async (department: { name: string; clientName: string; supervisorId: number }): Promise<DepartmentType> => {
   const response = await apiClient.post('/department/create', department);
@@ -96,7 +94,3 @@ export const deleteClient = async (id: number): Promise<void> => {
     throw new Error('Failed to delete client');
   }
 };
-
-
-
-
