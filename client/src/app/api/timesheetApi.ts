@@ -9,7 +9,7 @@ import {
 } from '@/types/timesheetTypes';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8383',
+  baseURL: process.env.NEXT_PUBLIC_GO_APP_SERVER_URL,
   withCredentials: true,
 });
 
@@ -41,7 +41,6 @@ export const getTaskById = async (id: number): Promise<TaskType[]> => {
     throw new Error('Failed to fetch tasks');
   }
 };
-
 
 export const requestEdit = async (data: RequestEditData): Promise<WorkHours> => {
   const response = await apiClient.post('/timesheet/edit-request', data);
