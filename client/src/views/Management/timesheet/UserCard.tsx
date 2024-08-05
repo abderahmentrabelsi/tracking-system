@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Card, CardContent, Typography, Grid, Avatar, Box, IconButton, Divider, LinearProgress, useTheme
+  Card, CardContent, Typography, Grid, Box, IconButton, Divider, LinearProgress, useTheme
 } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -17,6 +17,7 @@ import {
 import { Bar } from 'react-chartjs-2';
 import TimesheetHistory from './TimesheetHistory';  // Ensure the import path is correct
 import { getTimesheet } from '@/app/api/timesheetApi';  // Ensure the import path is correct
+import Avatar from 'react-avatar';
 
 // Registering the required chart.js components
 ChartJS.register(
@@ -128,21 +129,31 @@ const UserCard: React.FC<UserCardProps> = ({ user, departmentName }) => {
           width: '100%',
           maxWidth: '600px',
           transition: 'transform 0.3s, box-shadow 0.3s',
-          boxShadow: '0 4px 8px rgba(0,0,0.2,0.9)',
+          boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
           '&:hover': {
             transform: 'scale(1.05)',
-            boxShadow: '0 8px 16px rgba(0,0,0,3)',
+            boxShadow: '0 8px 16px rgba(0,0,0,0.4)',
           },
         }}
       >
         <CardContent>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={3}>
-              <Avatar
-                alt={user.firstName}
-                src={`https://randomuser.me/api/portraits/men/${user.ID}.jpg`}
-                sx={{ width: 60, height: 60, border: '2px solid #3f51b5' }}
-              />
+              {user.picture ? (
+                <Avatar
+                  src={user.picture}
+                  alt={`${user.firstName} ${user.lastName}`}
+                  round
+                  size="60"
+                />
+              ) : (
+                <Avatar
+                  name={`${user.firstName} ${user.lastName}`}
+                  round
+                  size="60"
+                  color={theme.palette.primary.main}
+                />
+              )}
             </Grid>
             <Grid item xs={7}>
               <Typography variant="h6" sx={{ fontWeight: 'bold', textTransform: 'uppercase' }}>
@@ -158,7 +169,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, departmentName }) => {
               </Box>
             </Grid>
             <Grid item xs={2}>
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200%' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <IconButton onClick={handleHistoryClick} sx={{ color: '#101010', position: 'absolute' }}>
                   <HistoryIcon />
                 </IconButton>
