@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -14,7 +14,9 @@ import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Avatar from '@mui/material/Avatar'
+import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
+import { styled } from '@mui/material/styles'
 import { rankItem } from '@tanstack/match-sorter-utils'
 import type { FilterFn } from '@tanstack/react-table'
 
@@ -30,14 +32,40 @@ import tableStyles from '@core/styles/table.module.css'
 // Fetch Function Import
 import { fetchAllUsers, UserResponse } from '@/utils/userUtils'
 
+// Component Imports
+import TableFilters from './TableFilters'
+import { ThemeColor } from '@core/types'
+
 // Type Imports
-type UsersType = UserResponse
+type UsersType = UserResponse & { role: string, onBoardingStatus: string }
 
 // Column Definitions
 const columnHelper = createColumnHelper<UsersType>()
 
+const roleMapping: { [key: number]: string } = {
+  1: 'Admin',
+  2: 'Employee',
+  3: 'Manager'
+}
+
+const roleColors: { [key: string]: { icon: string; color: 'error' | 'warning' | 'info' | 'success' | 'primary' } } = {
+  Admin: { icon: 'tabler-crown', color: 'error' },
+  Employee: { icon: 'tabler-device-desktop', color: 'warning' },
+  Manager: { icon: 'tabler-edit', color: 'info' }
+}
+
+const onboardingStatusColors: { [key: string]: ThemeColor } = {
+  active: 'success',
+  pending: 'warning',
+  inactive: 'secondary'
+}
+
+// Styled Components
+const Icon = styled('i')({})
+
 const UserListTable = () => {
   const [data, setData] = useState<UsersType[]>([])
+  const [filteredData, setFilteredData] = useState<UsersType[]>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [selectedUser, setSelectedUser] = useState<UsersType | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -45,19 +73,49 @@ const UserListTable = () => {
   useEffect(() => {
     const fetchData = async () => {
       const users = await fetchAllUsers()
-      setData(users)
+      const mappedUsers = users.map(user => ({
+        ...user,
+        role: roleMapping[user.roleId],
+        onBoardingStatus: user.onBoardingStatus // Assuming the status is part of user response
+      }))
+      setData(mappedUsers)
+      setFilteredData(mappedUsers)
     }
     fetchData()
   }, [])
 
-  const columns = [
+  const columns = useMemo(() => [
     columnHelper.accessor('username', {
       header: 'Username',
       cell: info => info.getValue()
     }),
-    columnHelper.accessor('email', {
-      header: 'Email',
-      cell: info => info.getValue()
+    columnHelper.accessor('onBoardingStatus', {
+      header: 'Onboarding Status',
+      cell: ({ row }) => (
+        <div className='flex items-center gap-3'>
+          <Chip
+            variant='tonal'
+            className='capitalize'
+            label={row.original.onBoardingStatus}
+            color={onboardingStatusColors[row.original.onBoardingStatus] || 'default'}
+            size='small'
+          />
+        </div>
+      )
+    }),
+    columnHelper.accessor('role', {
+      header: 'Role',
+      cell: ({ row }) => (
+        <div className='flex items-center gap-2'>
+          <Icon
+            className={roleColors[row.original.role].icon}
+            sx={{ color: `var(--mui-palette-${roleColors[row.original.role].color}-main)` }}
+          />
+          <Typography className='capitalize' color='text.primary'>
+            {row.original.role}
+          </Typography>
+        </div>
+      )
     }),
     columnHelper.accessor('firstName', {
       header: 'First Name',
@@ -74,13 +132,13 @@ const UserListTable = () => {
     {
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <IconButton onClick={() => handleRowClick(row.original)}>
           <i className='tabler-eye text-[22px] text-textSecondary' />
         </IconButton>
       )
     }
-  ]
+  ], [])
 
   const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     const itemRank = rankItem(row.getValue(columnId), value)
@@ -113,10 +171,11 @@ const UserListTable = () => {
   }
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     state: { globalFilter },
     filterFns: { fuzzy: fuzzyFilter },
+    globalFilterFn: fuzzyFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -127,6 +186,7 @@ const UserListTable = () => {
     <>
       <Card>
         <CardHeader title='User List' />
+        <TableFilters setData={setFilteredData} tableData={data} />
         <div className='overflow-x-auto'>
           <table className={tableStyles.table}>
             <thead>
