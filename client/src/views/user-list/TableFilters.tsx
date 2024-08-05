@@ -16,22 +16,24 @@ const TableFilters = ({ setData, tableData }: { setData: any; tableData?: UsersT
   // States
   const [role, setRole] = useState<UsersType['role']>('')
   const [onBoardingStatus, setOnBoardingStatus] = useState<UsersType['onBoardingStatus']>('')
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
     const filteredData = tableData?.filter(user => {
       if (role && user.role !== role) return false
       if (onBoardingStatus && user.onBoardingStatus !== onBoardingStatus) return false
+      if (searchTerm && !(`${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) || user.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()))) return false
 
       return true
     })
 
     setData(filteredData)
-  }, [role, onBoardingStatus, tableData, setData])
+  }, [role, onBoardingStatus, searchTerm, tableData, setData])
 
   return (
     <CardContent>
       <Grid container spacing={6}>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={4}>
           <CustomTextField
             select
             fullWidth
@@ -46,7 +48,7 @@ const TableFilters = ({ setData, tableData }: { setData: any; tableData?: UsersT
             <MenuItem value='Manager'>Manager</MenuItem>
           </CustomTextField>
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={4}>
           <CustomTextField
             select
             fullWidth
@@ -60,6 +62,15 @@ const TableFilters = ({ setData, tableData }: { setData: any; tableData?: UsersT
             <MenuItem value='active'>Active</MenuItem>
             <MenuItem value='inactive'>Inactive</MenuItem>
           </CustomTextField>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <CustomTextField
+            fullWidth
+            id='search'
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            placeholder='Search by name or job title'
+          />
         </Grid>
       </Grid>
     </CardContent>
