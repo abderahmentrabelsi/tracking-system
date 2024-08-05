@@ -97,6 +97,10 @@ const VerticalMenu = ({scrollMenu}: Props) => {
 
         {userRole === 'Manager' && (
           <SubMenu label="Management" icon={<i className='tabler-lock' style={{fontSize: '24px'}}/>}>
+            <MenuItem href='/user-list' icon={<i className='tabler-user' style={{fontSize: '24px'}}/>}>
+              Users list
+            </MenuItem>
+
             <MenuItem href='/management/projects' icon={<i className='tabler-briefcase' style={{fontSize: '24px'}}/>}>
               Projects
             </MenuItem>
