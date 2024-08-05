@@ -101,11 +101,16 @@ const HorizontalMenu = () => {
 
         {userRole === 'Admin' && (
           <>
+            <SubMenu label="Users" icon={<i className='tabler-lock' style={{ fontSize: '24px' }} />}>
+              <MenuItem href='/user-list' icon={<i className='tabler-user' style={{fontSize: '24px'}}/>}>
+                Users list
+              </MenuItem>
+              <MenuItem href='/signup' icon={<i className='tabler-users-plus' />}>
+                Register
+              </MenuItem>
+            </SubMenu>
             <MenuItem href='/departments' icon={<i className='tabler-building' />}>
               Organizations
-            </MenuItem>
-            <MenuItem href='/signup' icon={<i className='tabler-users-plus' />}>
-              Register
             </MenuItem>
             <SubMenu label="Roles & Permissions" icon={<i className='tabler-lock' />}>
               <MenuItem href='/roles' icon={<i className='tabler-user' />}>
@@ -120,6 +125,9 @@ const HorizontalMenu = () => {
 
         {userRole === 'Manager' && (
           <SubMenu label="Management" icon={<i className='tabler-lock' style={{ fontSize: '24px' }} />}>
+            <MenuItem href='/user-list' icon={<i className='tabler-user' style={{fontSize: '24px'}}/>}>
+              Users list
+            </MenuItem>
             <MenuItem href='/management/projects' icon={<i className='tabler-briefcase' style={{ fontSize: '24px' }} />}>
               Projects
             </MenuItem>
