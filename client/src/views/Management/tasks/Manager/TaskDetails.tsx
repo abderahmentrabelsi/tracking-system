@@ -205,8 +205,8 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
       <Card sx={{ margin: '20px', padding: '20px', position: 'relative', borderRadius: '15px', boxShadow: 3 }}>
         <CardContent>
           <Grid container justifyContent="space-between" alignItems="center">
-            <Grid item>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Grid item xs={12} sm={8}>
+              <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
                 <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
                   {taskDetails.title}
                 </Typography>
@@ -223,9 +223,9 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, onTaskDeleted, onTaskUp
                 )}
               </Box>
             </Grid>
-            <Grid item>
+            <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
               <Tooltip title="Update Task">
-                <IconButton onClick={() => { setEditingTask(taskDetails); handleOpenUpdateDialog(); }} sx={{ position: 'absolute', top: '10px', right: '10px' }}>
+                <IconButton onClick={() => { setEditingTask(taskDetails); handleOpenUpdateDialog(); }} sx={{ marginLeft: { xs: '0', sm: '10px' } }}>
                   <EditIcon sx={{ color: 'black' }} />
                 </IconButton>
               </Tooltip>

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Select, InputLabel, FormControl, Box, Snackbar, Tooltip, Alert, ListItemIcon, ListItemText, Typography } from '@mui/material';
-import { AddCircleOutline as AddCircleOutlineIcon, Title as TitleIcon, Description as DescriptionIcon, DateRange as DateRangeIcon, AssignmentTurnedIn as AssignmentTurnedInIcon, PendingActions as PendingActionsIcon, Autorenew as AutorenewIcon, CheckCircle as CheckCircleIcon, ThumbUp as ThumbUpIcon, Close as CloseIcon, Check as CheckIcon, SupervisorAccount as SupervisorAccountIcon } from '@mui/icons-material';
+import {
+  TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Select, InputLabel, FormControl, Box, Snackbar, Tooltip, Alert, ListItemIcon, ListItemText, Typography
+} from '@mui/material';
+import {
+  AddCircleOutline as AddCircleOutlineIcon, Title as TitleIcon, Description as DescriptionIcon, DateRange as DateRangeIcon, AssignmentTurnedIn as AssignmentTurnedInIcon, PendingActions as PendingActionsIcon, Autorenew as AutorenewIcon, CheckCircle as CheckCircleIcon, ThumbUp as ThumbUpIcon, Close as CloseIcon, Check as CheckIcon, SupervisorAccount as SupervisorAccountIcon
+} from '@mui/icons-material';
 import { createTask } from '@/app/api/taskApi';
 import { fetchUserById } from '@/app/api/userApi'; // Assuming the path to the user API
 import { TaskType, UsersType } from '@/types/taskTypes';
@@ -99,7 +103,7 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ assigneeId, departmentI
           </Box>
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
             <TitleIcon sx={{ mr: 1, color: '#3f51b5' }} />
             <TextField
               autoFocus
@@ -109,9 +113,10 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ assigneeId, departmentI
               fullWidth
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              sx={{ flexGrow: 1 }}
             />
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
             <DateRangeIcon sx={{ mr: 1, color: '#3f51b5' }} />
             <TextField
               margin="dense"
@@ -123,11 +128,12 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ assigneeId, departmentI
               }}
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              sx={{ flexGrow: 1 }}
             />
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
             <AssignmentTurnedInIcon sx={{ mr: 1, color: '#3f51b5' }} />
-            <FormControl fullWidth margin="dense">
+            <FormControl fullWidth margin="dense" sx={{ flexGrow: 1 }}>
               <InputLabel>Status</InputLabel>
               <Select
                 label="Status"
@@ -153,7 +159,7 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ assigneeId, departmentI
               </Select>
             </FormControl>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, flexWrap: 'wrap' }}>
             <DescriptionIcon sx={{ mr: 1, color: '#3f51b5' }} />
             <TextField
               margin="dense"
@@ -164,6 +170,7 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ assigneeId, departmentI
               onChange={(e) => setDescription(e.target.value)}
               multiline
               rows={4}
+              sx={{ flexGrow: 1 }}
             />
           </Box>
         </DialogContent>

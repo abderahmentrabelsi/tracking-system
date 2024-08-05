@@ -113,7 +113,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, onTaskCreated, departmentId, 
         padding: '20px',
         position: 'relative',
         width: '100%',
-        maxWidth: '500px',
+        maxWidth: { xs: '100%', sm: '500px' },
         minHeight: '350px',
         transition: 'transform 0.3s, box-shadow 0.3s',
         boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
@@ -187,7 +187,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, onTaskCreated, departmentId, 
           ) : (
             <>
               <Grid container spacing={2} justifyContent="center" alignItems="center">
-                <Grid item xs={6}>
+                <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle1" align="center">Task Distribution</Typography>
                   <PieChart width={150} height={150}>
                     <Pie
@@ -206,7 +206,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, onTaskCreated, departmentId, 
                     <Tooltip />
                   </PieChart>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle1" align="center">Task Status</Typography>
                   <BarChart width={150} height={150} data={taskData}>
                     <XAxis dataKey="name" />
