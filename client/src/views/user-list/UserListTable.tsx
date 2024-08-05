@@ -90,7 +90,12 @@ const UserListTable = () => {
   const columns = useMemo(() => [
     columnHelper.accessor('username', {
       header: 'Username',
-      cell: info => info.getValue()
+      cell: ({ row }) => (
+        <div className='flex items-center'>
+          {getAvatar(row.original)}
+          <Typography sx={{ ml: 2 }}>{row.getValue()}</Typography>
+        </div>
+      )
     }),
     columnHelper.accessor('onBoardingStatus', {
       header: 'Onboarding Status',
@@ -142,7 +147,7 @@ const UserListTable = () => {
     {
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }: { row: any }) => (
+      cell: ({ row }) => (
         <IconButton onClick={() => handleRowClick(row.original)}>
           <i className='tabler-eye text-[22px] text-textSecondary' />
         </IconButton>
@@ -234,34 +239,26 @@ const UserListTable = () => {
         />
       </Card>
 
-      <Dialog open={isDialogOpen} onClose={handleCloseDialog}>
+      <Dialog open={isDialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="md">
         <DialogTitle>User Details</DialogTitle>
         {selectedUser && (
           <DialogContent>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
+                {getAvatar(selectedUser)}
+              </Grid>
+              <Grid item xs={12} sm={8}>
+                <Typography variant='h6'>{selectedUser.firstName} {selectedUser.lastName}</Typography>
                 <Typography variant='subtitle1'><strong>Username:</strong> {selectedUser.username}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
                 <Typography variant='subtitle1'><strong>Email:</strong> {selectedUser.email}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
                 <Typography variant='subtitle1'><strong>Role:</strong> {selectedUser.role}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant='subtitle1'><strong>First Name:</strong> {selectedUser.firstName}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant='subtitle1'><strong>Last Name:</strong> {selectedUser.lastName}</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant='subtitle1'><strong>Department:</strong> {selectedUser.DepartmentName}</Typography>
-              </Grid>
-              <Grid item xs={12}>
                 <Typography variant='subtitle1'><strong>Job Title:</strong> {selectedUser.jobTitle}</Typography>
-              </Grid>
-              <Grid item xs={12}>
+                <Typography variant='subtitle1'><strong>Department:</strong> {selectedUser.DepartmentName}</Typography>
                 <Typography variant='subtitle1'><strong>Status:</strong> {selectedUser.onBoardingStatus}</Typography>
+                <Typography variant='subtitle1'><strong>Phone Number:</strong> {selectedUser.phoneNumber}</Typography>
+                <Typography variant='subtitle1'><strong>Address:</strong> {selectedUser.address}</Typography>
+                <Typography variant='subtitle1'><strong>Source of Hire:</strong> {selectedUser.sourceOfHire}</Typography>
+                <Typography variant='subtitle1'><strong>Contract:</strong> {selectedUser.contract?.contractType || 'N/A'}</Typography>
               </Grid>
             </Grid>
           </DialogContent>

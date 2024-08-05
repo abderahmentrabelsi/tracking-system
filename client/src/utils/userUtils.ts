@@ -27,7 +27,6 @@ export interface UserResponse {
   CreatedAt: string;
   UpdatedAt: string;
   DeletedAt: string | null;
-  Department: { name: string },
   ID: number;
   username: string;
   email: string;
