@@ -86,7 +86,7 @@ func (ur *UserRepository) GetUserByID(id uint) (*model.User, error) {
 
 func (ur *UserRepository) GetAllUsers() ([]*model.User, error) {
 	var users []*model.User
-	if err := orm.DB.Find(&users).Error; err != nil {
+	if err := orm.DB.Preload("Department").Preload("Role").Find(&users).Error; err != nil {
 		return nil, fmt.Errorf("failed to retrieve users: %v", err)
 	}
 	return users, nil

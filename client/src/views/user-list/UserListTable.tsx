@@ -16,12 +16,13 @@ import IconButton from '@mui/material/IconButton'
 import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles'
 import { rankItem } from '@tanstack/match-sorter-utils'
 import type { FilterFn } from '@tanstack/react-table'
 
 // Third-party Imports
-import { createColumnHelper, flexRender, getCoreRowModel, useReactTable, getFilteredRowModel, getPaginationRowModel, getSortedRowModel } from '@tanstack/react-table'
+import { createColumnHelper, flexRender, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel } from '@tanstack/react-table'
 
 // Util Imports
 import { getInitials } from '@/utils/getInitials'
@@ -37,21 +38,22 @@ import TableFilters from './TableFilters'
 import { ThemeColor } from '@core/types'
 
 // Type Imports
-type UsersType = UserResponse & { role: string, onBoardingStatus: string }
+type UsersType = UserResponse & { role: string, onBoardingStatus: string, DepartmentName: string }
 
 // Column Definitions
 const columnHelper = createColumnHelper<UsersType>()
 
-const roleMapping: { [key: number]: string } = {
-  1: 'Admin',
-  2: 'Employee',
-  3: 'Manager'
+// Define icons for roles
+const roleIcons: { [key: string]: string } = {
+  Admin: 'tabler-crown',
+  Employee: 'tabler-device-desktop',
+  Manager: 'tabler-edit'
 }
 
 const roleColors: { [key: string]: { icon: string; color: 'error' | 'warning' | 'info' | 'success' | 'primary' } } = {
-  Admin: { icon: 'tabler-crown', color: 'error' },
-  Employee: { icon: 'tabler-device-desktop', color: 'warning' },
-  Manager: { icon: 'tabler-edit', color: 'info' }
+  Admin: { icon: roleIcons.Admin, color: 'error' },
+  Employee: { icon: roleIcons.Employee, color: 'warning' },
+  Manager: { icon: roleIcons.Manager, color: 'info' }
 }
 
 const onboardingStatusColors: { [key: string]: ThemeColor } = {
@@ -75,8 +77,9 @@ const UserListTable = () => {
       const users = await fetchAllUsers()
       const mappedUsers = users.map(user => ({
         ...user,
-        role: roleMapping[user.roleId],
-        onBoardingStatus: user.onBoardingStatus // Assuming the status is part of user response
+        role: user.Role.name, // Updated to use role name
+        onBoardingStatus: user.onBoardingStatus,
+        DepartmentName: user.Department?.name || 'N/A'
       }))
       setData(mappedUsers)
       setFilteredData(mappedUsers)
@@ -105,17 +108,20 @@ const UserListTable = () => {
     }),
     columnHelper.accessor('role', {
       header: 'Role',
-      cell: ({ row }) => (
-        <div className='flex items-center gap-2'>
-          <Icon
-            className={roleColors[row.original.role].icon}
-            sx={{ color: `var(--mui-palette-${roleColors[row.original.role].color}-main)` }}
-          />
-          <Typography className='capitalize' color='text.primary'>
-            {row.original.role}
-          </Typography>
-        </div>
-      )
+      cell: ({ row }) => {
+        const roleColor = roleColors[row.original.role] || { icon: 'tabler-user', color: 'primary' }
+        return (
+          <div className='flex items-center gap-2'>
+            <Icon
+              className={roleColor.icon}
+              sx={{ color: `var(--mui-palette-${roleColor.color}-main)` }}
+            />
+            <Typography className='capitalize' color='text.primary'>
+              {row.original.role}
+            </Typography>
+          </div>
+        )
+      }
     }),
     columnHelper.accessor('firstName', {
       header: 'First Name',
@@ -127,6 +133,10 @@ const UserListTable = () => {
     }),
     columnHelper.accessor('jobTitle', {
       header: 'Job Title',
+      cell: info => info.getValue()
+    }),
+    columnHelper.accessor('DepartmentName', {
+      header: 'Department',
       cell: info => info.getValue()
     }),
     {
@@ -202,17 +212,10 @@ const UserListTable = () => {
             </thead>
             <tbody>
             {table.getRowModel().rows.map(row => (
-              <tr key={row.id} onClick={() => handleRowClick(row.original)} className='cursor-pointer'>
+              <tr key={row.id} onClick={() => handleRowClick(row.original)}>
                 {row.getVisibleCells().map(cell => (
                   <td key={cell.id}>
-                    {cell.column.id === 'username' ? (
-                      <div className='flex items-center'>
-                        {getAvatar(row.original)}
-                        <Typography sx={{ ml: 2 }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</Typography>
-                      </div>
-                    ) : (
-                      flexRender(cell.column.columnDef.cell, cell.getContext())
-                    )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
               </tr>
@@ -221,26 +224,46 @@ const UserListTable = () => {
           </table>
         </div>
         <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
           component='div'
-          count={data.length}
+          count={table.getPageCount()}
           rowsPerPage={table.getState().pagination.pageSize}
           page={table.getState().pagination.pageIndex}
-          onPageChange={(_, page) => table.setPageIndex(page)}
-          onRowsPerPageChange={event => table.setPageSize(Number(event.target.value))}
+          onPageChange={(page) => table.setPageIndex(page)}
+          onRowsPerPageChange={(rowsPerPage) => table.setPageSize(Number(rowsPerPage))}
         />
       </Card>
+
       <Dialog open={isDialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>User Details</DialogTitle>
         {selectedUser && (
           <DialogContent>
-            <p>ID: {selectedUser.ID}</p>
-            <p>Username: {selectedUser.username}</p>
-            <p>Email: {selectedUser.email}</p>
-            <p>First Name: {selectedUser.firstName}</p>
-            <p>Last Name: {selectedUser.lastName}</p>
-            <p>Job Title: {selectedUser.jobTitle}</p>
-            <p>Phone Number: {selectedUser.phoneNumber}</p>
-            <p>Address: {selectedUser.address}</p>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant='subtitle1'><strong>Username:</strong> {selectedUser.username}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant='subtitle1'><strong>Email:</strong> {selectedUser.email}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant='subtitle1'><strong>Role:</strong> {selectedUser.role}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant='subtitle1'><strong>First Name:</strong> {selectedUser.firstName}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant='subtitle1'><strong>Last Name:</strong> {selectedUser.lastName}</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant='subtitle1'><strong>Department:</strong> {selectedUser.DepartmentName}</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant='subtitle1'><strong>Job Title:</strong> {selectedUser.jobTitle}</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant='subtitle1'><strong>Status:</strong> {selectedUser.onBoardingStatus}</Typography>
+              </Grid>
+            </Grid>
           </DialogContent>
         )}
         <DialogActions>

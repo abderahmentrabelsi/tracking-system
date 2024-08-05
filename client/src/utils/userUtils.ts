@@ -23,9 +23,11 @@ export interface UserDetails {
 }
 
 export interface UserResponse {
+  DepartmentName: string;
   CreatedAt: string;
   UpdatedAt: string;
   DeletedAt: string | null;
+  Department: { name: string },
   ID: number;
   username: string;
   email: string;
