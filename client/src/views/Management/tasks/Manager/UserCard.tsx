@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { UserType } from '@/types/departmentTypes';
 import { TaskType } from '@/types/taskTypes';
 import {
-  Card, CardContent, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, Avatar, CircularProgress, Box,
+  Card, CardContent, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, CircularProgress, Box,
 } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import EmailIcon from '@mui/icons-material/Email';
@@ -13,7 +13,8 @@ import TaskList from './TaskList';
 import TaskDetails from './TaskDetails';
 import CreateTaskForm from './CreateTaskForm';
 import PersonIcon from '@mui/icons-material/Person';
-
+import Avatar from 'react-avatar';
+import { useTheme } from '@mui/material/styles';
 
 const COLORS = ["#ca5555","#0f5b90","#b79c5b","#28922d"];
 
@@ -33,6 +34,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, onTaskCreated, departmentId, 
   const [selectedTask, setSelectedTask] = useState<TaskType | null>(null);
   const [openTaskDialog, setOpenTaskDialog] = useState(false);
   const [loading, setLoading] = useState(true);
+  const theme = useTheme();
 
   const fetchTasks = async () => {
     try {
@@ -124,11 +126,21 @@ const UserCard: React.FC<UserCardProps> = ({ user, onTaskCreated, departmentId, 
       <CardContent>
         <Grid container spacing={2} alignItems="center">
           <Grid item>
-            <Avatar
-              alt={user.firstName}
-              src={`https://randomuser.me/api/portraits/men/${user.ID}.jpg`}
-              sx={{ width: 80, height: 80, border: '2px solid #3f51b5' }}
-            />
+            {user.picture ? (
+              <Avatar
+                src={user.picture}
+                alt={`${user.firstName} ${user.lastName}`}
+                round
+                size="80"
+              />
+            ) : (
+              <Avatar
+                name={`${user.firstName} ${user.lastName}`}
+                round
+                size="80"
+                color={theme.palette.primary.main}
+              />
+            )}
           </Grid>
           <Grid item xs>
             <Typography variant="h5" align="center" sx={{ fontWeight: 'bold', textTransform: 'uppercase' }}>
@@ -136,7 +148,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, onTaskCreated, departmentId, 
             </Typography>
             <Grid container spacing={1} justifyContent="center" alignItems="center">
               <Grid item>
-                <EmailIcon sx={{ color: '#3f51b5' }} />
+                <EmailIcon sx={{ color: theme.palette.primary.main }} />
               </Grid>
               <Grid item>
                 <Typography color="textSecondary" align="center">{user.email}</Typography>
@@ -144,7 +156,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, onTaskCreated, departmentId, 
             </Grid>
             <Grid container spacing={1} justifyContent="center" alignItems="center">
               <Grid item>
-                <BusinessIcon sx={{ color: '#3f51b5' }} />
+                <BusinessIcon sx={{ color: theme.palette.primary.main }} />
               </Grid>
               <Grid item>
                 <Typography color="textSecondary" align="center">Department: {departmentName}</Typography>
@@ -154,7 +166,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, onTaskCreated, departmentId, 
           {!loading && tasks.length > 0 && (
             <Grid item>
               <IconButton onClick={handleClickOpen} sx={{ position: 'absolute', top: 10, right: 10 }}>
-                <AssignmentIcon sx={{ color: '#3f51b5' }} />
+                <AssignmentIcon sx={{ color: theme.palette.primary.main }} />
               </IconButton>
             </Grid>
           )}
