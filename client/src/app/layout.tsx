@@ -12,6 +12,7 @@ import '@assets/iconify-icons/generated-icons.css'
 
 // Local Imports
 import ReactQueryProvider from '../views/ReactQueryProvider'
+import GoogleAnalytics from '@components/GoogleAnalytics'
 
 export const metadata = {
   title: 'Qore Tracking System',
@@ -66,6 +67,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
       <meta property="og:url" content="https://yourdomain.com" />
       <meta property="og:image" content="https://yourdomain.com/icons/apple-touch-icon.png" />
     </head>
+    <GoogleAnalytics />
     <body className='flex is-full min-bs-full flex-auto flex-col'>
     <ReactQueryProvider>
       {children}
