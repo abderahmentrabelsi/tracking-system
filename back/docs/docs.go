@@ -111,6 +111,10 @@ const docTemplate = `{
                 "country": {
                     "type": "string"
                 },
+                "date": {
+                    "description": "Added for tracking activity over time",
+                    "type": "string"
+                },
                 "deviceCategory": {
                     "type": "string"
                 },

@@ -29,6 +29,7 @@ type AnalyticsData struct {
 	Conversions            int64   `json:"conversions"`
 	Revenue                float64 `json:"revenue"`
 	DeviceCategory         string  `json:"deviceCategory"`
+	Date                   string  `json:"date"` // Added for tracking activity over time
 }
 
 // AggregateMetrics represents the structure of aggregate metrics
@@ -117,6 +118,7 @@ func GetAnalyticsData(c *gin.Context) {
 		{Name: "country"},
 		{Name: "pagePath"},
 		{Name: "deviceCategory"},
+		{Name: "date"}, // Added to track data over time
 	}
 	metrics := []*analyticsdata.Metric{
 		{Name: "activeUsers"},
@@ -178,6 +180,8 @@ func GetAnalyticsData(c *gin.Context) {
 				data.PagePath = dimension.Value
 			case "deviceCategory":
 				data.DeviceCategory = dimension.Value
+			case "date":
+				data.Date = formatDateString(dimension.Value) // Format the date
 			}
 		}
 		for i, metric := range row.MetricValues {
@@ -249,6 +253,14 @@ func parseInt64(value string) int64 {
 func parseFloat64(value string) float64 {
 	v, _ := strconv.ParseFloat(value, 64)
 	return v
+}
+
+// Helper function to format date string from "YYYYMMDD" to "YYYY-MM-DD"
+func formatDateString(dateStr string) string {
+	if len(dateStr) != 8 {
+		return dateStr // return the original string if it's not in the expected format
+	}
+	return dateStr[:4] + "-" + dateStr[4:6] + "-" + dateStr[6:]
 }
 
 // Helper function to get the key with the maximum value from a map of int64

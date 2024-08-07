@@ -25,6 +25,10 @@ export type ControllerAnalyticsData = {
   city?: string;
   conversions?: number;
   country?: string;
+  /**
+   * Added for tracking activity over time
+   */
+  date?: string;
   deviceCategory?: string;
   eventCount?: number;
   newUsers?: number;
