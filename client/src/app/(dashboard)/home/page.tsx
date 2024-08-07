@@ -99,30 +99,30 @@ export default function Page() {
   }));
 
   return (
-    <Grid container spacing={6}>
-      <Grid item xs={6} lg={6}>
+    <Grid container spacing={3} justifyContent="center" alignItems="stretch">
+      <Grid item xs={12} lg={12}>
         <WebsiteAnalyticsSlider metrics={analyticsData} />
       </Grid>
-      <Grid item xs={3} lg={3}>
+      <Grid item xs={6} lg={6}>
         <LineAreaDailySalesChart title={'Growth'} subtitle={'Total New Users'} value={data.aggregateMetrics.totalNewUsers} />
       </Grid>
-      <Grid item xs={3} lg={3}>
+      <Grid item xs={6} lg={6}>
         <SalesByCountries data={userAnalyticsData} />
       </Grid>
       <Grid item xs={6} lg={6}>
-        <DeviceCategoryChart data={userAnalyticsData} serverMode={'light'} /> {/* Add the Device Category Chart */}
+        <DeviceCategoryChart data={userAnalyticsData} serverMode={'light'} />
       </Grid>
       <Grid item xs={6} lg={6}>
-        <EventCountByPagePathChart data={aggregatedEventData} serverMode={'light'} /> {/* Add the Event Count by Page Path Chart */}
+        <EventCountByPagePathChart data={aggregatedEventData} serverMode={'light'} />
       </Grid>
       <Grid item xs={12} lg={6}>
-        <AverageSessionDurationByPagePathChart data={aggregatedSessionData} serverMode={'light'} /> {/* Add the Average Session Duration by Page Path Chart */}
+        <AverageSessionDurationByPagePathChart data={aggregatedSessionData} serverMode={'light'} />
       </Grid>
       <Grid item xs={12} lg={6}>
-        <EventCountChart data={aggregatedEventCounts} serverMode={'light'} /> {/* Add the Event Count Chart */}
+        <EventCountChart data={aggregatedEventCounts} serverMode={'light'} />
       </Grid>
       <Grid item xs={12}>
-        <TimeSeriesChart data={userAnalyticsData} serverMode={'light'} /> {/* Pass the data to the updated component */}
+        <TimeSeriesChart data={userAnalyticsData} serverMode={'light'} />
       </Grid>
     </Grid>
   );
