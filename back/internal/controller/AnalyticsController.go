@@ -67,6 +67,7 @@ type AnalyticsResponse struct {
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /analytics [get]
+// @OperationId GetAnalyticsData
 func GetAnalyticsData(c *gin.Context) {
 	ctx := context.Background()
 

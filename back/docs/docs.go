@@ -13,10 +13,10 @@ const docTemplate = `{
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
-    "basePath": "{{.BasePath}}",
     "paths": {
         "/analytics": {
             "get": {
+				"operationId": "GetAnalyticsData",
                 "description": "Get analytics data from Google Analytics",
                 "produces": [
                     "application/json"
