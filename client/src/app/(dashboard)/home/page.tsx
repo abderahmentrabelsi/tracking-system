@@ -8,7 +8,9 @@ import LineAreaDailySalesChart from '@views/analytics/charts/LineAreaDailySalesC
 import SalesByCountries from '@views/analytics/SalesByCountries';
 import TimeSeriesChart from '@views/analytics/TimeSeriesChart';
 import DeviceCategoryChart from '@views/analytics/DeviceChart'; // Import the Device Category Chart component
-import EventCountByPagePathChart from '@views/analytics/EventCountByPagePathChart'; // Import the new Event Count by Page Path Chart component
+import EventCountByPagePathChart from '@views/analytics/EventCountByPagePathChart'; // Import the Event Count by Page Path Chart component
+import AverageSessionDurationByPagePathChart from '@views/analytics/AverageSessionDurationByPagePathChart'; // Import the Average Session Duration by Page Path Chart component
+import EventCountChart from '@views/analytics/EventCountChart'; // Import the Event Count Chart component
 
 // Helper function to get the country code from country name
 const getCountryCode = (countryName: string) => {
@@ -50,6 +52,38 @@ export default function Page() {
     eventCount: pagePathEventCountMap[pagePath]
   }));
 
+  // Aggregate average session duration by page path
+  const pagePathSessionDataMap = data.analyticsData.reduce((acc: any, item: any) => {
+    if (!acc[item.pagePath]) {
+      acc[item.pagePath] = { totalDuration: 0, sessionCount: 0 };
+    }
+    acc[item.pagePath].totalDuration += item.averageSessionDuration * item.sessions;
+    acc[item.pagePath].sessionCount += item.sessions;
+    return acc;
+  }, {});
+
+  const aggregatedSessionData = Object.keys(pagePathSessionDataMap).map(pagePath => ({
+    pagePath,
+    averageSessionDuration: pagePathSessionDataMap[pagePath].totalDuration / pagePathSessionDataMap[pagePath].sessionCount
+  }));
+
+  // Aggregate event counts for specific events
+  const eventCountMap = data.analyticsData.reduce((acc: any, item: any) => {
+    const eventTypes = ['page_view', 'form_start', 'scroll', 'session_start', 'first_visit'];
+    eventTypes.forEach(event => {
+      if (!acc[event]) {
+        acc[event] = 0;
+      }
+      acc[event] += item.eventCount; // Assuming item.eventCount includes the count for all types of events, adjust accordingly if there's a breakdown
+    });
+    return acc;
+  }, {});
+
+  const aggregatedEventCounts = Object.keys(eventCountMap).map(event => ({
+    event,
+    count: eventCountMap[event]
+  }));
+
   const userAnalyticsData = data.analyticsData.map((item: any) => ({
     country: item.country,
     region: item.region,
@@ -60,6 +94,7 @@ export default function Page() {
     deviceCategory: item.deviceCategory, // Include device category
     pagePath: item.pagePath, // Include page path for Event Count chart
     eventCount: item.eventCount, // Include event count for Event Count chart
+    averageSessionDuration: item.averageSessionDuration, // Include average session duration
     countryCode: getCountryCode(item.country),
   }));
 
@@ -79,6 +114,12 @@ export default function Page() {
       </Grid>
       <Grid item xs={6} lg={6}>
         <EventCountByPagePathChart data={aggregatedEventData} serverMode={'light'} /> {/* Add the Event Count by Page Path Chart */}
+      </Grid>
+      <Grid item xs={12} lg={6}>
+        <AverageSessionDurationByPagePathChart data={aggregatedSessionData} serverMode={'light'} /> {/* Add the Average Session Duration by Page Path Chart */}
+      </Grid>
+      <Grid item xs={12} lg={6}>
+        <EventCountChart data={aggregatedEventCounts} serverMode={'light'} /> {/* Add the Event Count Chart */}
       </Grid>
       <Grid item xs={12}>
         <TimeSeriesChart data={userAnalyticsData} serverMode={'light'} /> {/* Pass the data to the updated component */}
