@@ -1,24 +1,28 @@
 package main
 
 import (
+	"back/docs"
 	model "back/internal/model"
 	"back/internal/orm"
 	"back/internal/server"
 	"fmt"
+	"github.com/rs/cors"
+	_ "github.com/swaggo/files"
+	_ "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/rs/cors"
 )
 
 func main() {
 	initializeORM()
 	srv := server.NewServer()
 	router := srv.RegisterRoutes()
+
+	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	corsConfig := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000"},

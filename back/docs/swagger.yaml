@@ -1,0 +1,98 @@
+definitions:
+  controller.AggregateMetrics:
+    properties:
+      averageBounceRate:
+        type: number
+      averageSessionDuration:
+        type: number
+      topCityByActiveUsers:
+        type: string
+      topPageByScreenPageViews:
+        type: string
+      topRegionByRevenue:
+        type: string
+      totalActiveUsers:
+        type: integer
+      totalConversions:
+        type: integer
+      totalEventCount:
+        type: integer
+      totalNewUsers:
+        type: integer
+      totalRevenue:
+        type: number
+      totalScreenPageViews:
+        type: integer
+      totalSessions:
+        type: integer
+    type: object
+  controller.AnalyticsData:
+    properties:
+      activeUsers:
+        type: integer
+      averageSessionDuration:
+        type: number
+      bounceRate:
+        type: number
+      city:
+        type: string
+      conversions:
+        type: integer
+      country:
+        type: string
+      deviceCategory:
+        type: string
+      eventCount:
+        type: integer
+      newUsers:
+        type: integer
+      pagePath:
+        type: string
+      region:
+        type: string
+      revenue:
+        type: number
+      screenPageViews:
+        type: integer
+      sessions:
+        type: integer
+    type: object
+  controller.AnalyticsResponse:
+    properties:
+      aggregateMetrics:
+        $ref: '#/definitions/controller.AggregateMetrics'
+      analyticsData:
+        items:
+          $ref: '#/definitions/controller.AnalyticsData'
+        type: array
+    type: object
+  controller.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /analytics:
+    get:
+      description: Get analytics data from Google Analytics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.AnalyticsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+      summary: Get Analytics Data
+      tags:
+      - analytics
+swagger: "2.0"

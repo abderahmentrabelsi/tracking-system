@@ -4,11 +4,16 @@ import (
 	"back/internal/controller"
 	"back/internal/middleware"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
+
+	r.GET("/analytics", controller.GetAnalyticsData)
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	userController := controller.NewUserController(s.userService, s.departmentService, s.roleService, s.fileService)
 	r.POST("/signup", middleware.AuthMiddleware(s.userService), middleware.AuthorizeRole("Admin"), userController.SignUp)
