@@ -1,4 +1,3 @@
-// Page.tsx
 'use client'
 
 import { useGetAnalyticsData } from '@/qore-api/qoreComponents';
@@ -7,7 +6,9 @@ import Grid from '@mui/material/Grid';
 import { pluck } from '@/utils/generic-utils';
 import LineAreaDailySalesChart from '@views/analytics/charts/LineAreaDailySalesChart';
 import SalesByCountries from '@views/analytics/SalesByCountries';
-import TimeSeriesChart from '@views/analytics/TimeSeriesChart'; // Import the updated component
+import TimeSeriesChart from '@views/analytics/TimeSeriesChart';
+import DeviceCategoryChart from '@views/analytics/DeviceChart'; // Import the Device Category Chart component
+import EventCountByPagePathChart from '@views/analytics/EventCountByPagePathChart'; // Import the new Event Count by Page Path Chart component
 
 // Helper function to get the country code from country name
 const getCountryCode = (countryName: string) => {
@@ -34,7 +35,21 @@ export default function Page() {
   }
 
   const analyticsData = pluck(data.aggregateMetrics, ['totalConversions', 'totalRevenue', 'averageBounceRate']);
-  // @ts-ignore
+
+  // Aggregate event counts by page path
+  const pagePathEventCountMap = data.analyticsData.reduce((acc: any, item: any) => {
+    if (!acc[item.pagePath]) {
+      acc[item.pagePath] = 0;
+    }
+    acc[item.pagePath] += item.eventCount;
+    return acc;
+  }, {});
+
+  const aggregatedEventData = Object.keys(pagePathEventCountMap).map(pagePath => ({
+    pagePath,
+    eventCount: pagePathEventCountMap[pagePath]
+  }));
+
   const userAnalyticsData = data.analyticsData.map((item: any) => ({
     country: item.country,
     region: item.region,
@@ -42,6 +57,9 @@ export default function Page() {
     activeUsers: item.activeUsers,
     screenPageViews: item.screenPageViews, // Include this for the chart
     date: item.date, // Include this for the chart
+    deviceCategory: item.deviceCategory, // Include device category
+    pagePath: item.pagePath, // Include page path for Event Count chart
+    eventCount: item.eventCount, // Include event count for Event Count chart
     countryCode: getCountryCode(item.country),
   }));
 
@@ -56,10 +74,15 @@ export default function Page() {
       <Grid item xs={3} lg={3}>
         <SalesByCountries data={userAnalyticsData} />
       </Grid>
+      <Grid item xs={6} lg={6}>
+        <DeviceCategoryChart data={userAnalyticsData} serverMode={'light'} /> {/* Add the Device Category Chart */}
+      </Grid>
+      <Grid item xs={6} lg={6}>
+        <EventCountByPagePathChart data={aggregatedEventData} serverMode={'light'} /> {/* Add the Event Count by Page Path Chart */}
+      </Grid>
       <Grid item xs={12}>
         <TimeSeriesChart data={userAnalyticsData} serverMode={'light'} /> {/* Pass the data to the updated component */}
       </Grid>
-
     </Grid>
   );
 }
