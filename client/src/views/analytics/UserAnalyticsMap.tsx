@@ -5,6 +5,7 @@ import geoUrl from './custom.geo.json';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css'; // Import Tippy's CSS
 import { Card, CardHeader, CardContent } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 
 interface AnalyticsData {
   country: string;
@@ -21,7 +22,19 @@ const getCountryCode = (countryName: string): string | undefined => {
   return c?.code.iso2;
 };
 
+// Define styles using makeStyles
+const useStyles = makeStyles({
+  hoverScale: {
+    transition: 'transform 0.3s ease',
+    '&:hover': {
+      transform: 'scale(1.05)',
+    },
+  },
+});
+
 const UserAnalyticsMap: React.FC<UserAnalyticsMapProps> = ({ data }) => {
+  const classes = useStyles();
+
   // Map country codes to active users
   const countryData = data.reduce<Record<string, number>>((acc, item) => {
     const code = getCountryCode(item.country);
@@ -34,7 +47,7 @@ const UserAnalyticsMap: React.FC<UserAnalyticsMapProps> = ({ data }) => {
   }, {});
 
   return (
-    <Card>
+    <Card className={classes.hoverScale}>
       <CardHeader
         title="User Analytics Map"
         subheader="Distribution of active users across different countries"

@@ -114,7 +114,14 @@ const AverageSessionDurationByPagePathChart = ({ data, serverMode }: { data: { p
   }
 
   return (
-    <Card>
+    <Card
+      sx={{
+        transition: 'transform 0.3s ease-in-out',
+        '&:hover': {
+          transform: 'scale(1.05)'
+        }
+      }}
+    >
       <CardHeader
         title='Average Session Duration by Page Path'
         subheader='Duration in seconds'

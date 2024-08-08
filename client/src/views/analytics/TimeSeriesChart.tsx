@@ -1,4 +1,3 @@
-
 // Next Imports
 import dynamic from 'next/dynamic'
 
@@ -86,7 +85,14 @@ const TimeSeriesChart = ({ data, serverMode }: { data: any, serverMode: SystemMo
   ]
 
   return (
-    <Card>
+    <Card
+      sx={{
+        transition: 'transform 0.3s ease-in-out',
+        '&:hover': {
+          transform: 'scale(1.05)'
+        }
+      }}
+    >
       <CardHeader
         title='Screen Page Views Over Time'
         subheader='Commercial networks & enterprises'

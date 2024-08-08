@@ -87,7 +87,14 @@ const EventCountByPagePathChart = ({ data, serverMode }: { data: { pagePath: str
   };
 
   return (
-    <Card>
+    <Card
+      sx={{
+        transition: 'transform 0.3s ease-in-out',
+        '&:hover': {
+          transform: 'scale(1.05)'
+        }
+      }}
+    >
       <CardHeader
         title='Event Count by Page Path'
         subheader='Number of events for each page path'

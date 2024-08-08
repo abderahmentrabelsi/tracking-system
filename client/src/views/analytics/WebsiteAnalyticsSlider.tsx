@@ -177,7 +177,15 @@ const WebsiteAnalyticsSlider = ({ metrics }: Props) => {
 
   return (
     <AppKeenSlider>
-      <Card className='bg-primary'>
+      <Card
+        className='bg-primary'
+        sx={{
+          transition: 'transform 0.3s',
+          '&:hover': {
+            transform: 'scale(1.05)',
+          },
+        }}
+      >
         <div ref={sliderRef} className='keen-slider relative'>
           {loaded && instanceRef.current && (
             <div className='swiper-dots absolute top-1 inline-end-6'>
@@ -215,5 +223,4 @@ const WebsiteAnalyticsSlider = ({ metrics }: Props) => {
     </AppKeenSlider>
   )
 }
-
 export default WebsiteAnalyticsSlider

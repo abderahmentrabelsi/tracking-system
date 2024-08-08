@@ -1,27 +1,14 @@
-'use client'
-
-// Next Imports
-import dynamic from 'next/dynamic'
-
-// MUI Imports
 import Card from '@mui/material/Card'
 import { useColorScheme, useTheme } from '@mui/material/styles'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
-
-// Third-party Imports
+import dynamic from 'next/dynamic'
 import type { ApexOptions } from 'apexcharts'
-
-// Type Imports
 import type { SystemMode } from '@core/types'
-
-// Util Imports
 import { rgbaToHex } from '@/utils/rgbaToHex'
 
-// Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-// Vars
 const donutColors = {
   desktop: '#fdd835',
   mobile: '#00d4bd',
@@ -29,11 +16,9 @@ const donutColors = {
 }
 
 const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: string }[], serverMode: SystemMode }) => {
-  // Hooks
   const theme = useTheme()
   const { mode } = useColorScheme()
 
-  // Aggregate data
   const deviceCategories = data.reduce((acc: { [key: string]: number }, item) => {
     acc[item.deviceCategory] = (acc[item.deviceCategory] || 0) + 1;
     return acc;
@@ -42,13 +27,9 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
   const series = Object.values(deviceCategories);
   const labels = Object.keys(deviceCategories);
 
-  // Vars
   const _mode = (mode === 'system' ? serverMode : mode) || serverMode
   const textSecondary = rgbaToHex(`rgb(${theme.mainColorChannels[_mode]} / 0.7)`)
 
-  // @ts-ignore
-  // @ts-ignore
-  // @ts-ignore
   const options: ApexOptions = {
     stroke: { width: 0 },
     labels,
@@ -134,7 +115,14 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
   }
 
   return (
-    <Card>
+    <Card
+      sx={{
+        transition: 'transform 0.3s',
+        '&:hover': {
+          transform: 'scale(1.05)',
+        },
+      }}
+    >
       <CardHeader title='Device Category Distribution' subheader='Distribution of users by device category' />
       <CardContent>
         <AppReactApexCharts type='donut' width='100%' height={430} options={options} series={series} />

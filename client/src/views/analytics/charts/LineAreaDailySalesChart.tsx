@@ -1,19 +1,11 @@
-'use client'
-
-// Next Imports
 import dynamic from 'next/dynamic'
-
-// MUI Imports
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
 import { useTheme } from '@mui/material/styles'
-
-// Third-party Imports
 import type { ApexOptions } from 'apexcharts'
 
-// Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
 const series = [{ data: [40, 20, 65, 50] }]
@@ -29,7 +21,6 @@ const LineAreaDailySalesChart = ({
                                    subtitle,
                                    value
                                  }: LineAreaDailySalesChartProps) => {
-  // Hook
   const theme = useTheme()
 
   const options: ApexOptions = {
@@ -90,7 +81,15 @@ const LineAreaDailySalesChart = ({
   }
 
   return (
-    <Card className="pbe-6">
+    <Card
+      className="pbe-6"
+      sx={{
+        transition: 'transform 0.3s',
+        '&:hover': {
+          transform: 'scale(1.05)',
+        },
+      }}
+    >
       <CardHeader title={title} className="pbe-3" />
       <CardContent>
         <Typography>{subtitle}</Typography>

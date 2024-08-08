@@ -50,7 +50,15 @@ const SalesByCountries = ({ data }: SalesByCountriesProps) => {
 
   return (
     <>
-      <Card style={{ height: '422px', overflow: 'hidden' }}>
+      <Card
+        sx={{
+          transition: 'transform 0.3s',
+          '&:hover': {
+            transform: 'scale(1.05)',
+          },
+        }}
+        style={{ height: '422px', overflow: 'hidden' }}
+      >
         <CardHeader
           title="User Activity by Country"
           subheader="Analytics Overview according to Active users"
