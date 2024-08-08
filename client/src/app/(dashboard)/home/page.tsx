@@ -12,7 +12,8 @@ import TimeSeriesChart from '@views/analytics/TimeSeriesChart'
 import DeviceCategoryChart from '@views/analytics/DeviceChart' // Import the Device Category Chart component
 import EventCountByPagePathChart from '@views/analytics/EventCountByPagePathChart' // Import the Event Count by Page Path Chart component
 import AverageSessionDurationByPagePathChart from '@views/analytics/AverageSessionDurationByPagePathChart' // Import the Average Session Duration by Page Path Chart component
-import EventCountChart from '@views/analytics/EventCountChart' // Import the Event Count Chart component
+import EventCountChart from '@views/analytics/EventCountChart'
+import UserAnalyticsMap from '@views/analytics/UserAnalyticsMap' // Import the Event Count Chart component
 
 // Helper function to get the country code from country name
 function getCountryCode  (countryName: string) {
@@ -132,6 +133,9 @@ export default function Page() {
       </Grid>
       <Grid item xs={12}>
         <TimeSeriesChart data={userAnalyticsData} serverMode={'light'} />
+      </Grid>
+      <Grid item xs={12}>
+        <UserAnalyticsMap data={userAnalyticsData} />
       </Grid>
     </Grid>
   )
