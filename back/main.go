@@ -22,7 +22,7 @@ func main() {
 	srv := server.NewServer()
 	router := srv.RegisterRoutes()
 
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.BasePath = "/"
 
 	corsConfig := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000"},
