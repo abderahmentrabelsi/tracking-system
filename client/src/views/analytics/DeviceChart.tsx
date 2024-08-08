@@ -48,6 +48,7 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
 
   // @ts-ignore
   // @ts-ignore
+  // @ts-ignore
   const options: ApexOptions = {
     stroke: { width: 0 },
     labels,
@@ -136,7 +137,7 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
     <Card>
       <CardHeader title='Device Category Distribution' subheader='Distribution of users by device category' />
       <CardContent>
-        <AppReactApexCharts type='donut' width='100%' height={400} options={options} series={series} />
+        <AppReactApexCharts type='donut' width='100%' height={430} options={options} series={series} />
       </CardContent>
     </Card>
   )
