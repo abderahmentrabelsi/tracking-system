@@ -129,13 +129,10 @@ export default function Page() {
         <AverageSessionDurationByPagePathChart data={aggregatedSessionData} serverMode={'light'} />
       </Grid>
       <Grid item xs={12} lg={6}>
-        <EventCountChart data={aggregatedEventCounts} serverMode={'light'} />
+        <UserAnalyticsMap data={userAnalyticsData} />
       </Grid>
       <Grid item xs={12}>
         <TimeSeriesChart data={userAnalyticsData} serverMode={'light'} />
-      </Grid>
-      <Grid item xs={12}>
-        <UserAnalyticsMap data={userAnalyticsData} />
       </Grid>
     </Grid>
   )
