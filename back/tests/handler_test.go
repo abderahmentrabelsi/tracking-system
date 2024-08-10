@@ -74,9 +74,15 @@ func setup() {
 	departmentService := service.NewDepartmentService(departmentRepo)
 	roleService := service.NewRoleService(roleRepo)
 	userService = service.NewUserService(userRepo, roleRepo, fileService)
+	workHoursRepo := repository.NewWorkHoursRepository()           // Add WorkHours repository
+	workHoursService := service.NewWorkHoursService(workHoursRepo) // Add WorkHours service
 
-	// Initialize controller
+	// Initialize controllers
 	userController = controller.NewUserController(userService, departmentService, roleService, fileService)
+	timesheetController = controller.NewTimesheetController(workHoursService) // Add Timesheet controller
+
+	// Initialize FileService (if needed for tests)
+	fileService = service.NewFileService(fileRepo)
 }
 
 func TestMain(m *testing.M) {
