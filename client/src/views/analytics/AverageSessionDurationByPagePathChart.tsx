@@ -21,13 +21,6 @@ import { rgbaToHex } from '@/utils/rgbaToHex'
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-// Vars
-const columnColors = {
-  bg: '#f8d3ff',
-  series1: '#826af9',
-  series2: '#d2b0ff'
-}
-
 const AverageSessionDurationByPagePathChart = ({ data, serverMode }: { data: { pagePath: string, averageSessionDuration: number }[], serverMode: SystemMode }) => {
   // Hooks
   const theme = useTheme()
@@ -41,6 +34,7 @@ const AverageSessionDurationByPagePathChart = ({ data, serverMode }: { data: { p
   const pagePaths = data.map(item => item.pagePath);
   const averageSessionDurations = data.map(item => item.averageSessionDuration);
 
+  // Use theme colors instead of hardcoded values
   const options: ApexOptions = {
     chart: {
       offsetX: -10,
@@ -49,7 +43,7 @@ const AverageSessionDurationByPagePathChart = ({ data, serverMode }: { data: { p
     },
     fill: { opacity: 1 },
     dataLabels: { enabled: false },
-    colors: [columnColors.series1],
+    colors: [theme.palette.primary.main], // Use theme primary color for bars
     legend: {
       position: 'top',
       horizontalAlign: 'left',
@@ -73,7 +67,7 @@ const AverageSessionDurationByPagePathChart = ({ data, serverMode }: { data: { p
         columnWidth: '15%',
         colors: {
           backgroundBarRadius: 10,
-          backgroundBarColors: [columnColors.bg, columnColors.bg, columnColors.bg, columnColors.bg, columnColors.bg]
+          backgroundBarColors: [theme.palette.background.paper] // Use theme background color
         }
       }
     },
@@ -133,7 +127,13 @@ const AverageSessionDurationByPagePathChart = ({ data, serverMode }: { data: { p
         }}
       />
       <CardContent>
-        <AppReactApexCharts type='bar' width='100%' height={300} options={options} series={[{ name: 'Average Session Duration', data: averageSessionDurations }]} />
+        <AppReactApexCharts
+          type='bar'
+          width='100%'
+          height={300}
+          options={options}
+          series={[{ name: 'Average Session Duration', data: averageSessionDurations }]}
+        />
       </CardContent>
     </Card>
   )

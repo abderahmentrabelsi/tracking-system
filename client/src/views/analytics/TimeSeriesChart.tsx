@@ -39,14 +39,14 @@ const TimeSeriesChart = ({ data, serverMode }: { data: any, serverMode: SystemMo
       zoom: { enabled: false },
       toolbar: { show: false }
     },
-    colors: ['#ff9f43'],
+    colors: [theme.palette.primary.main], // Use the primary color from the theme
     stroke: { curve: 'smooth', width: 2 },
     dataLabels: { enabled: false },
     markers: {
       strokeWidth: 7,
       strokeOpacity: 1,
-      colors: ['#ff9f43'],
-      strokeColors: ['#fff']
+      colors: [theme.palette.primary.main], // Use the primary color from the theme
+      strokeColors: [theme.palette.background.paper] // Use the theme's background color for marker borders
     },
     grid: {
       padding: { top: -10 },
@@ -104,7 +104,13 @@ const TimeSeriesChart = ({ data, serverMode }: { data: any, serverMode: SystemMo
         }}
       />
       <CardContent>
-        <AppReactApexCharts type='line' width='100%' height={150} options={options} series={series} />
+        <AppReactApexCharts
+          type='line'
+          width='100%'
+          height={150}
+          options={options}
+          series={series}
+        />
       </CardContent>
     </Card>
   )
