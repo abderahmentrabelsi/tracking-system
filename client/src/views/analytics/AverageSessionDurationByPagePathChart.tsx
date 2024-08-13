@@ -133,7 +133,7 @@ const AverageSessionDurationByPagePathChart = ({ data, serverMode }: { data: { p
         }}
       />
       <CardContent>
-        <AppReactApexCharts type='bar' width='100%' height={487} options={options} series={[{ name: 'Average Session Duration', data: averageSessionDurations }]} />
+        <AppReactApexCharts type='bar' width='100%' height={300} options={options} series={[{ name: 'Average Session Duration', data: averageSessionDurations }]} />
       </CardContent>
     </Card>
   )

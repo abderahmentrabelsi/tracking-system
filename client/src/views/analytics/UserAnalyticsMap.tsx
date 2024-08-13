@@ -53,7 +53,11 @@ const UserAnalyticsMap: React.FC<UserAnalyticsMapProps> = ({ data }) => {
         subheader="Distribution of active users across different countries"
       />
       <CardContent>
-        <ComposableMap projection="geoMercator" projectionConfig={{ scale: 150 }}>
+        <ComposableMap
+          projection="geoMercator"
+          projectionConfig={{ scale: 150 }}
+          style={{ height: '400px', width: '100%' }} // Control the height of the map
+        >
           <Geographies geography={geoUrl}>
             {({ geographies }) =>
               geographies.map((geo) => {

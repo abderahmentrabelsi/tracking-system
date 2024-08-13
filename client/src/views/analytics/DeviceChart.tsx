@@ -26,6 +26,7 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
 
   const series = Object.values(deviceCategories);
   const labels = Object.keys(deviceCategories);
+  const total = series.reduce((a, b) => a + b, 0);  // Calculate total
 
   const _mode = (mode === 'system' ? serverMode : mode) || serverMode
   const textSecondary = rgbaToHex(`rgb(${theme.mainColorChannels[_mode]} / 0.7)`)
@@ -35,8 +36,7 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
     labels,
     colors: labels.map(label => donutColors[label]),
     dataLabels: {
-      enabled: true,
-      formatter: (val: string) => `${parseInt(val, 10)}%`
+      enabled: false,  // Disable data labels inside the chart
     },
     legend: {
       fontSize: '13px',
@@ -53,22 +53,7 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
       pie: {
         donut: {
           labels: {
-            show: true,
-            name: {
-              fontSize: '1.2rem'
-            },
-            value: {
-              fontSize: '1.2rem',
-              color: textSecondary,
-              formatter: (val: string) => `${parseInt(val, 10)}`
-            },
-            total: {
-              show: true,
-              fontSize: '1.2rem',
-              label: 'Total',
-              formatter: () => `${series.reduce((a, b) => a + b, 0)}`,
-              color: rgbaToHex(`rgb(${theme.mainColorChannels[_mode]} / 0.9)`)
-            }
+            show: false,  // Hide labels inside the donut
           }
         }
       }
@@ -78,7 +63,7 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
         breakpoint: 992,
         options: {
           chart: {
-            height: 380
+            height: 90
           },
           legend: {
             position: 'bottom'
@@ -89,25 +74,7 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
         breakpoint: 576,
         options: {
           chart: {
-            height: 320
-          },
-          plotOptions: {
-            pie: {
-              donut: {
-                labels: {
-                  show: true,
-                  name: {
-                    fontSize: '1rem'
-                  },
-                  value: {
-                    fontSize: '1rem'
-                  },
-                  total: {
-                    fontSize: '1rem'
-                  }
-                }
-              }
-            }
+            height: 60
           }
         }
       }
@@ -123,9 +90,12 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
         },
       }}
     >
-      <CardHeader title='Device Category Distribution' subheader='Distribution of users by device category' />
+      <CardHeader
+        title={`Device Category Distribution (Total: ${total})`}  // Display total next to the title
+        subheader='Distribution of users by device category'
+      />
       <CardContent>
-        <AppReactApexCharts type='donut' width='100%' height={430} options={options} series={series} />
+        <AppReactApexCharts type='donut' width='100%' height={155} options={options} series={series} />
       </CardContent>
     </Card>
   )

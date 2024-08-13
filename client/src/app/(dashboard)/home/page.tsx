@@ -109,31 +109,42 @@ export default function Page() {
 
   return (
     <Grid container spacing={3} justifyContent="center" alignItems="stretch">
-      <Grid item xs={12} lg={12}>
-        <WebsiteAnalyticsSlider metrics={analyticsData} />
+      {/* First line divided into two sections */}
+      <Grid container item xs={12} lg={12} spacing={3}>
+        <Grid item xs={6} lg={6} >
+          <WebsiteAnalyticsSlider metrics={analyticsData}  />
+        </Grid>
+        <Grid item xs={6} lg={6}>
+          <TimeSeriesChart data={userAnalyticsData} serverMode={'light'} />
+        </Grid>
       </Grid>
-      <Grid item xs={6} lg={6}>
-        <LineAreaDailySalesChart title={'Growth'} subtitle={'Total New Users'}
-                                 value={data.aggregateMetrics.totalNewUsers!.toString()} />
+
+      {/* Remaining sections */}
+      <Grid container item xs={12} lg={12} spacing={3}>
+        <Grid item xs={4} lg={4}>
+          <LineAreaDailySalesChart title={'Growth'} subtitle={'Total New Users'}
+                                   value={data.aggregateMetrics.totalNewUsers!.toString()} />
+        </Grid>
+        <Grid item xs={4} lg={4}>
+          <SalesByCountries data={userAnalyticsData} />
+        </Grid>
+        <Grid item xs={4} lg={4}>
+          <DeviceCategoryChart data={userAnalyticsData} serverMode={'light'} />
+        </Grid>
       </Grid>
-      <Grid item xs={6} lg={6}>
-        <SalesByCountries data={userAnalyticsData} />
+
+      <Grid item xs={12}>
+        <UserAnalyticsMap data={userAnalyticsData} />
       </Grid>
-      <Grid item xs={6} lg={6}>
-        <DeviceCategoryChart data={userAnalyticsData} serverMode={'light'} />
-      </Grid>
+
       <Grid item xs={6} lg={6}>
         <EventCountByPagePathChart data={aggregatedEventData} serverMode={'light'} />
       </Grid>
-      <Grid item xs={12} lg={6}>
+      <Grid item xs={6} lg={6}>
         <AverageSessionDurationByPagePathChart data={aggregatedSessionData} serverMode={'light'} />
-      </Grid>
-      <Grid item xs={12} lg={6}>
-        <UserAnalyticsMap data={userAnalyticsData} />
-      </Grid>
-      <Grid item xs={12}>
-        <TimeSeriesChart data={userAnalyticsData} serverMode={'light'} />
       </Grid>
     </Grid>
   )
+
+
 }

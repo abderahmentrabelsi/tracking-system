@@ -104,7 +104,7 @@ const TimeSeriesChart = ({ data, serverMode }: { data: any, serverMode: SystemMo
         }}
       />
       <CardContent>
-        <AppReactApexCharts type='line' width='100%' height={400} options={options} series={series} />
+        <AppReactApexCharts type='line' width='100%' height={150} options={options} series={series} />
       </CardContent>
     </Card>
   )

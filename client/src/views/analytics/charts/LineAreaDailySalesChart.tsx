@@ -95,7 +95,7 @@ const LineAreaDailySalesChart = ({
         <Typography>{subtitle}</Typography>
         <Typography variant="h4">{value}</Typography>
       </CardContent>
-      <AppReactApexCharts type="area" height={250} series={series} options={options} />
+      <AppReactApexCharts type="area" height={80} series={series} options={options} />
     </Card>
   )
 }

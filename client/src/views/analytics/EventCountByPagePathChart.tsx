@@ -37,7 +37,7 @@ const EventCountByPagePathChart = ({ data, serverMode }: { data: { pagePath: str
   const options: ApexOptions = {
     chart: {
       type: 'bar',
-      height: 350,
+      height: 250,
       parentHeightOffset: 0,
       toolbar: { show: false },
       offsetX: theme.direction === 'rtl' ? 10 : -10
@@ -106,7 +106,7 @@ const EventCountByPagePathChart = ({ data, serverMode }: { data: { pagePath: str
         }}
       />
       <CardContent>
-        <AppReactApexCharts type='bar' width='100%' height={400} options={options} series={[{ name: 'Events', data: eventCounts }]} />
+        <AppReactApexCharts type='bar' width='100%' height={300} options={options} series={[{ name: 'Events', data: eventCounts }]} />
       </CardContent>
     </Card>
   )

@@ -57,7 +57,7 @@ const SalesByCountries = ({ data }: SalesByCountriesProps) => {
             transform: 'scale(1.05)',
           },
         }}
-        style={{ height: '422px', overflow: 'hidden' }}
+        style={{ height: '250px', overflow: 'hidden' }}
       >
         <CardHeader
           title="User Activity by Country"

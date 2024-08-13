@@ -1,6 +1,3 @@
-'use client'
-
-// React Imports
 import { useState } from 'react'
 
 // MUI Imports
@@ -21,7 +18,6 @@ import CustomAvatar from '@core/components/mui/Avatar'
 import AppKeenSlider from '@/libs/styles/AppKeenSlider'
 import { ControllerAggregateMetrics } from '@/qore-api/qoreSchemas'
 
-
 type DataType = {
   img: string
   title: string
@@ -37,18 +33,15 @@ const generateDataFromMetrics = (metrics: ControllerAggregateMetrics): DataType[
 
   const titles = [
     'Average Bounce Rate',
-    'total Conversions',
-    'total Revenue',
-
+    'Total Conversions',
+    'Total Revenue',
   ]
 
-  const details = Object.keys(metrics).map((key, index) => ({
+  return Object.keys(metrics).map((key, index) => ({
     title: titles[index],
     img: images[index % images.length],
     details: { [titles[index]]: metrics[key as keyof ControllerAggregateMetrics]! }
   }))
-
-  return details
 }
 
 type Props = {
@@ -59,63 +52,60 @@ const Slides = ({ metrics }: Props) => {
   const data = generateDataFromMetrics(metrics)
   return (
     <>
-      {data.map((slide: DataType, index: number) => {
-        return (
-          <div key={index} className={classnames('keen-slider__slide p-6 pbe-3 is-full')}>
-            <Typography variant='h5' className='mbe-0.5 text-[var(--mui-palette-common-white)]'>
-              Website Analytics
-            </Typography>
-            <Grid container spacing={4} className='relative'>
-              <Grid item xs={12} sm={8} className='order-2 sm:order-1'>
-                <div className='flex flex-col gap-4 sm:plb-6'>
-                  <Typography className='font-medium text-[var(--mui-palette-common-white)]'>{slide.title}</Typography>
-                  <Grid container spacing={4}>
-                    {Object.keys(slide.details).map((key: string, index: number) => {
-                      return (
-                        <Grid item key={index} xs={6}>
-                          <div className='flex items-center gap-0.5'>
-                            <CustomAvatar
-                              color='primary'
-                              variant='rounded'
-                              className='font-medium mie-2 text-white bg-[var(--mui-palette-primary-dark)] bs-[30px] is-12'
-                            >
-                              {slide.details[key]}
-                            </CustomAvatar>
-                            <Typography noWrap className='text-[var(--mui-palette-common-white)]'>
-                              {key}
-                            </Typography>
-                          </div>
-                        </Grid>
-                      )
-                    })}
-                  </Grid>
-                </div>
-              </Grid>
-              <Grid item xs={12} sm={4} className='flex justify-center order-1 sm:order-2'>
-                <img
-                  src={slide.img}
-                  height={150}
-                  className='max-bs-[150px] lg:bs-[120px] xl:bs-[150px] drop-shadow-[0_4px_60px_rgba(0,0,0,0.5)] sm:absolute bottom-3 end-0'
-                />
-              </Grid>
+      {data.map((slide: DataType, index: number) => (
+        <div
+          key={index}
+          className={classnames('keen-slider__slide p-3 flex items-center')}
+          style={{ height: '100%' }} // Ensure the slide takes the full height
+        >
+          <Grid container spacing={2} className='relative' alignItems='center'>
+            <Grid item xs={8} className='order-2 sm:order-1'>
+              <div className='flex flex-col justify-center gap-2'>
+                <Typography variant='h6' className='font-medium text-[var(--mui-palette-common-white)]'>
+                  {slide.title}
+                </Typography>
+                <Grid container spacing={2}>
+                  {Object.keys(slide.details).map((key: string, index: number) => (
+                    <Grid item key={index} xs={6}>
+                      <div className='flex items-center gap-0.5'>
+                        <CustomAvatar
+                          color='primary'
+                          variant='rounded'
+                          className='font-medium mie-2 text-white bg-[var(--mui-palette-primary-dark)]'
+                          style={{ width: 30, height: 30 }}
+                        >
+                          {slide.details[key]}
+                        </CustomAvatar>
+                        <Typography noWrap className='text-[var(--mui-palette-common-white)]'>
+                          {key}
+                        </Typography>
+                      </div>
+                    </Grid>
+                  ))}
+                </Grid>
+              </div>
             </Grid>
-          </div>
-        )
-      })}
+            <Grid item xs={4} className='order-1 sm:order-2 flex justify-center'>
+              <img
+                src={slide.img}
+                style={{ maxHeight: '80px', maxWidth: '100%', objectFit: 'contain' }}
+                className='drop-shadow-[0_4px_60px_rgba(0,0,0,0.5)]'
+              />
+            </Grid>
+          </Grid>
+        </div>
+      ))}
     </>
   )
 }
 
 const WebsiteAnalyticsSlider = ({ metrics }: Props) => {
-  // States
   const [loaded, setLoaded] = useState<boolean>(false)
   const [currentSlide, setCurrentSlide] = useState<number>(0)
-
-  // Hooks
   const theme = useTheme()
 
   const ResizePlugin: KeenSliderPlugin = slider => {
-    const observer = new ResizeObserver(function () {
+    const observer = new ResizeObserver(() => {
       slider.update()
     })
 
@@ -145,16 +135,12 @@ const WebsiteAnalyticsSlider = ({ metrics }: Props) => {
         let mouseOver = false
         let timeout: number | ReturnType<typeof setTimeout>
 
-        const clearNextTimeout = () => {
-          clearTimeout(timeout as number)
-        }
+        const clearNextTimeout = () => clearTimeout(timeout as number)
 
         const nextTimeout = () => {
           clearTimeout(timeout as number)
           if (mouseOver) return
-          timeout = setTimeout(() => {
-            slider.next()
-          }, 2000)
+          timeout = setTimeout(() => slider.next(), 2000)
         }
 
         slider.on('created', () => {
@@ -180,41 +166,39 @@ const WebsiteAnalyticsSlider = ({ metrics }: Props) => {
       <Card
         className='bg-primary'
         sx={{
+          height: 270,
           transition: 'transform 0.3s',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
           '&:hover': {
             transform: 'scale(1.05)',
           },
         }}
       >
-        <div ref={sliderRef} className='keen-slider relative'>
+        <div ref={sliderRef} className='keen-slider relative' style={{ height: '100%' }}>
           {loaded && instanceRef.current && (
             <div className='swiper-dots absolute top-1 inline-end-6'>
-              {[...Array(instanceRef.current.track.details.slides.length).keys()].map(idx => {
-                return (
-                  <Badge
-                    key={idx}
-                    variant='dot'
-                    component='div'
-                    className={classnames({
-                      active: currentSlide === idx
-                    })}
-                    onClick={() => {
-                      instanceRef.current?.moveToIdx(idx)
-                    }}
-                    sx={{
-                      '& .MuiBadge-dot': {
-                        width: '8px !important',
-                        height: '8px !important',
-                        backgroundColor: `${theme.palette.common.white} !important`,
-                        opacity: 0.4
-                      },
-                      '&.active .MuiBadge-dot': {
-                        opacity: 1
-                      }
-                    }}
-                  ></Badge>
-                )
-              })}
+              {[...Array(instanceRef.current.track.details.slides.length).keys()].map(idx => (
+                <Badge
+                  key={idx}
+                  variant='dot'
+                  component='div'
+                  className={classnames({ active: currentSlide === idx })}
+                  onClick={() => instanceRef.current?.moveToIdx(idx)}
+                  sx={{
+                    '& .MuiBadge-dot': {
+                      width: '8px !important',
+                      height: '8px !important',
+                      backgroundColor: `${theme.palette.common.white} !important`,
+                      opacity: 0.4,
+                    },
+                    '&.active .MuiBadge-dot': {
+                      opacity: 1,
+                    },
+                  }}
+                />
+              ))}
             </div>
           )}
           <Slides metrics={metrics} />
@@ -223,4 +207,5 @@ const WebsiteAnalyticsSlider = ({ metrics }: Props) => {
     </AppKeenSlider>
   )
 }
+
 export default WebsiteAnalyticsSlider
