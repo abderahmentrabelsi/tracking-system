@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -108,15 +107,6 @@ func (fs *FileService) uploadWorker() {
 		fs.handleUploadComplete(event) // Process the completed upload event
 	}
 }
-
-func decodeBase64IfNeeded(value string) (string, error) {
-	decoded, err := base64.StdEncoding.DecodeString(value)
-	if err != nil {
-		return value, nil // Assume it's not base64 encoded if decoding fails
-	}
-	return string(decoded), nil
-}
-
 func (fs *FileService) handleUploadComplete(event tusd.HookEvent) {
 	upload := event.Upload
 	fs.logWithMutex(fmt.Sprintf("Processing upload: %s", upload.ID))

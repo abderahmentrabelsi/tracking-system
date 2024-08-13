@@ -25,11 +25,9 @@ type CardDataType = {
 
 // Vars
 const cardData: CardDataType[] = [
-  { totalUsers: 4, title: 'Administrator', avatars: ['1.png', '2.png', '3.png', '4.png'] },
-  { totalUsers: 7, title: 'Editor', avatars: ['5.png', '6.png', '7.png'] },
-  { totalUsers: 5, title: 'Users', avatars: ['4.png', '5.png', '6.png'] },
-  { totalUsers: 6, title: 'Support', avatars: ['1.png', '2.png', '3.png'] },
-  { totalUsers: 10, title: 'Restricted User', avatars: ['4.png', '5.png', '6.png'] }
+  { totalUsers: 2, title: 'HR', avatars: ['A', 'B', 'C', 'D'] },
+  { totalUsers: 2, title: 'Manager', avatars: ['E', 'F', 'G'] },
+  { totalUsers: 50, title: 'Employee', avatars: ['H', 'I', 'J'] },
 ]
 
 const RoleCards = () => {
@@ -77,8 +75,8 @@ const RoleCards = () => {
                 <div className='flex items-center justify-between'>
                   <Typography className='flex-grow'>{`Total ${item.totalUsers} users`}</Typography>
                   <AvatarGroup total={item.totalUsers}>
-                    {item.avatars.map((img, index: number) => (
-                      <Avatar key={index} alt={item.title} src={`/images/avatars/${img}`} />
+                    {item.avatars.map((letter, index: number) => (
+                      <Avatar key={index}>{letter}</Avatar>
                     ))}
                   </AvatarGroup>
                 </div>
