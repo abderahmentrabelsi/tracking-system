@@ -98,3 +98,5 @@ full-version/node_modules
 /node_modules/scheduler/tracing-profiling.js
 /node_modules/scheduler/unstable_mock.js
 /node_modules/scheduler/unstable_post_task.js
+
+.env

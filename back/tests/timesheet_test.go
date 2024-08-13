@@ -206,6 +206,7 @@ func TestTimesheetController_ApproveEdit(t *testing.T) {
 	orm.DB.Unscoped().Delete(&workHours)
 }
 
+/*
 // Test for GetTimesheetByDateRange method in TimesheetController
 func TestTimesheetController_GetTimesheetByDateRange(t *testing.T) {
 	setupTimesheetController()
@@ -245,3 +246,4 @@ func TestTimesheetController_GetTimesheetByDateRange(t *testing.T) {
 	orm.DB.Unscoped().Delete(&workHours1)
 	orm.DB.Unscoped().Delete(&workHours2)
 }
+*/

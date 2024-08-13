@@ -1,0 +1,18 @@
+{
+  "ID": "test-upload-complete",
+  "IsFinal": false,
+  "IsPartial": false,
+  "MetaData": {
+    "filename": "testfile.txt",
+    "size": "1024",
+    "userId": "1"
+  },
+  "Offset": 0,
+  "PartialUploads": null,
+  "Size": 1024,
+  "SizeIsDeferred": false,
+  "Storage": {
+    "Path": "uploads/test-upload-complete",
+    "Type": "filestore"
+  }
+}
