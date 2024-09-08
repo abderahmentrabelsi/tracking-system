@@ -6,6 +6,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { Vpc } from 'aws-cdk-lib/aws-ec2'
 import * as ssm from 'aws-cdk-lib/aws-ssm'
 import { Secret } from '@aws-cdk/aws-apprunner-alpha'
+import { SecretValue } from 'aws-cdk-lib'
 
 export interface ApiStackProps extends cdk.StackProps {
   vpc?: Vpc;
@@ -38,18 +39,29 @@ export class ApiStack extends cdk.Stack {
     })
     const dbSecret = this.database.secret
 
-    const port = dbSecret.secretValueFromJson('port').unsafeUnwrap().toString()
+    const port = ssm.StringParameter.fromStringParameterAttributes(this, 'PortParameter', {
+      parameterName: '/app/env/PORT',
+      version: 1,
+    });
+
+    const jwtParameter = ssm.StringParameter.fromSecureStringParameterAttributes(this, 'JwtSecretParameter', {
+      parameterName: '/app/env/JWT_SECRET',
+      version: 1,
+    });
+
+    const ipInfoTokenParameter = ssm.StringParameter.fromSecureStringParameterAttributes(this, 'IpInfoTokenParameter', {
+      parameterName: '/app/env/IPINFO_TOKEN',
+      version: 1,
+    });
+    console.log(`Port value: ${port}`);
 
     this.appRunner = new AppRunnerConstruct(this, 'AppRunnerService', {
       repository: this.ecrRepo.repository,
       vpc: this.vpc,
-      port: parseInt(port),
+      port: 8383, // todo: fix me to use the port from the parameter store
       environmentVariables: {
-
         APP_ENV: ssm.StringParameter.valueForStringParameter(this, '/app/env/APP_ENV'),
-        PORT: port,
-        JWT_SECRET: ssm.StringParameter.valueForStringParameter(this, '/app/env/JWT_SECRET'),
-        IPINFO_TOKEN: ssm.StringParameter.valueForStringParameter(this, '/app/env/IPINFO_TOKEN'),
+        PORT: ssm.StringParameter.valueForStringParameter(this, '/app/env/PORT'),
         UPLOAD_PATH: ssm.StringParameter.valueForStringParameter(this, '/app/env/UPLOAD_PATH'),
         MEASUREMENT_ID: ssm.StringParameter.valueForStringParameter(this, '/app/env/MEASUREMENT_ID'),
         PROPERTY_ID: ssm.StringParameter.valueForStringParameter(this, '/app/env/PROPERTY_ID')
@@ -58,7 +70,9 @@ export class ApiStack extends cdk.Stack {
         DB_USERNAME: Secret.fromSecretsManager(dbSecret, 'username'),
         DB_PASSWORD: Secret.fromSecretsManager(dbSecret, 'password'),
         DB_NAME: Secret.fromSecretsManager(dbSecret, 'dbname'),
-        DB_PORT: Secret.fromSecretsManager(dbSecret, 'port')
+        DB_PORT: Secret.fromSecretsManager(dbSecret, 'port'),
+        JWT_SECRET: Secret.fromSsmParameter(jwtParameter),
+        IPINFO_TOKEN: Secret.fromSsmParameter(ipInfoTokenParameter),
       }
     })
   }

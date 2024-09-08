@@ -4,6 +4,7 @@ import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Secret } from '@aws-cdk/aws-apprunner-alpha'
+import { SecretValue } from 'aws-cdk-lib'
 
 export interface AppRunnerConstructProps extends cdk.StackProps {
   repository: ecr.IRepository;
@@ -11,7 +12,7 @@ export interface AppRunnerConstructProps extends cdk.StackProps {
   imageTag?: string;
   vpc: ec2.IVpc;
   environmentVariables?: { [key: string]: string};
-  environmentSecrets?: { [key: string]: Secret };
+  environmentSecrets?: { [key: string]: Secret  };
 }
 
 export class AppRunnerConstruct extends Construct {
