@@ -40,6 +40,7 @@ export class AmplifyGithubConstruct extends Construct {
             build: {
               commands: [
                 'yarn build',
+                'node amplify.mjs'
               ],
             },
           },

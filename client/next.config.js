@@ -6,6 +6,7 @@ const withPWA = require('next-pwa')({
 
 const nextConfig = withPWA({
   basePath: process.env.BASEPATH,
+  output: "standalone",
   reactStrictMode: false,
   experimental: {
     // turboMode: false,
