@@ -51,12 +51,12 @@ const deployManifestConfig = {
     {
       name: "default",
       entrypoint: "server.js",
-      runtime: "nodejs18.x",
+      runtime: "nodejs20.x",
     },
   ],
   framework: {
     name: "next",
-    version: "13.5.6",
+    version: "14.1.3",
   },
 };
 

@@ -45,11 +45,11 @@ export class AmplifyGithubConstruct extends Construct {
             },
           },
           artifacts: {
-            baseDirectory: '.next', // Output the build from the `client` folder
+            baseDirectory: 'client/.next', // Output the build from the `client` folder
             files: ['**/*'],
           },
           cache: {
-            paths: ['node_modules/**/*'], // Cache `node_modules` inside the `client` folder
+            paths: ['client/node_modules/**/*', 'node_modules/**/*'], // Cache `node_modules` inside the `client` folder
           },
         },
       }),
