@@ -34,6 +34,11 @@ jobs:
         id: get-timestamp
         run: echo "::set-output name=timestamp::$(date +'%Y-%m-%d-%H-%M')"
 
+      - name: Debug ECR values
+        run: |
+          echo "ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}"
+          echo "ECR_REPOSITORY: ${{ secrets.REPO_NAME }}"
+
       - name: Build, tag, and push the image to Amazon ECR
         id: build-image
         env:
