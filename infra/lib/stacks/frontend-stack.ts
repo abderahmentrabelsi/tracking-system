@@ -20,7 +20,7 @@ export class FrontendStack extends cdk.Stack {
       owner: 'abderahmentrabelsi',
       repository: 'tracking-system',
       environment: {
-        JWT_SECRET_KEY: jwtParameter.stringValue,
+        JWT_SECRET_KEY: 'PNC9o42M5zrzdfgrm0nQQUAY4AmothvY', // todo: amplify doesn't support ssm parameters, move to secrets manager
         NEXT_PUBLIC_MEASUREMENT_ID: 'G-0Z6D87DQ2N'
       }
     })

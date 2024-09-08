@@ -38,7 +38,6 @@ export class AmplifyGithubConstruct extends Construct {
             },
             build: {
               commands: [
-                'cd client',
                 'yarn build',
               ],
             },
