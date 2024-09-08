@@ -1,41 +1,41 @@
-import * as cdk from 'aws-cdk-lib';
-import { EcrRepoWithPushAccess } from '../constructs/compute/pushable-ecr-construct';
-import { AppRunnerConstruct } from '../constructs/compute/apprunner-container';
-import { RdsDatabaseConstruct } from '../constructs/database/rds-database-construct';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
-import * as ssm from 'aws-cdk-lib/aws-ssm';
+import * as cdk from 'aws-cdk-lib'
+import { EcrRepoWithPushAccess } from '../constructs/compute/pushable-ecr-construct'
+import { AppRunnerConstruct } from '../constructs/compute/apprunner-container'
+import { RdsDatabaseConstruct } from '../constructs/database/rds-database-construct'
+import * as ec2 from 'aws-cdk-lib/aws-ec2'
+import { Vpc } from 'aws-cdk-lib/aws-ec2'
 
 export interface ApiStackProps extends cdk.StackProps {
   vpc?: Vpc;
 }
 
 export class ApiStack extends cdk.Stack {
-  public ecrRepo: EcrRepoWithPushAccess;
-  public appRunner: AppRunnerConstruct;
-  public database: RdsDatabaseConstruct;
-  public vpc: Vpc;
+  public ecrRepo: EcrRepoWithPushAccess
+  public appRunner: AppRunnerConstruct
+  public database: RdsDatabaseConstruct
+  public vpc: Vpc
 
   constructor(scope: cdk.App, id: string, props?: ApiStackProps) {
-    super(scope, id, props);
+    super(scope, id, props)
 
     this.vpc = props?.vpc || new Vpc(this, 'ApiVpc', {
-      maxAzs: 2,
-    });
+      maxAzs: 2
+    })
 
     this.ecrRepo = new EcrRepoWithPushAccess(this, 'EcrRepoWithPushAccess', {
       region: this.region,
-      repositoryName: 'qore-tracking-api',
-    });
+      repositoryName: 'qore-tracking-api'
+    })
 
     this.database = new RdsDatabaseConstruct(this, 'ApiRdsDatabase', {
-      databaseName: 'qore-tracking-api-db',
+      databaseName: 'QoreTrackingApiDb',
+      instanceSize: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
       instanceIdentifier: 'qore-tracking-api-db',
       username: 'admin',
-      passwordParameterName: '/rds/qore-tracking-api-db/admin-password',
-      vpc: this.vpc,
-    });
+      vpc: this.vpc
+    })
 
-    // Get reconciled database credentials from SSM
+    /*
     const dbCredentials = this.database.getCredentials();
 
     const port = ssm.StringParameter.valueForStringParameter(this, '/app/env/PORT');
@@ -58,5 +58,6 @@ export class ApiStack extends cdk.Stack {
         PROPERTY_ID: ssm.StringParameter.valueForStringParameter(this, '/app/env/PROPERTY_ID'),
       },
     });
+    */
   }
 }

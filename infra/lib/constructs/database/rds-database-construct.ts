@@ -3,89 +3,117 @@ import { Construct } from 'constructs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
-import { DatabaseCredentials, SecureDatabase } from '../../utils/database-credentials';
+import { SecureDatabase, DatabaseCredentials, generateRandomPassword } from '../../utils/database-credentials'
+import { SecureStringParameter, ValueType } from 'cdk-secure-string-parameter';
 
 export interface RdsDatabaseProps extends cdk.StackProps {
   databaseName: string;
   instanceIdentifier: string;
   username: string;
-  passwordParameterName: string; // This is the SSM parameter name for the password
   vpc: ec2.Vpc;
+  instanceSize?: ec2.InstanceType;
 }
 
 export class RdsDatabaseConstruct extends Construct implements SecureDatabase<DatabaseCredentials> {
   public readonly dbInstance: rds.DatabaseInstance;
   private readonly dbName: string;
+  private readonly dbUsername: string;
+  private readonly dbPassword: string;
+  private readonly dbPort: string;
 
   constructor(scope: Construct, id: string, props: RdsDatabaseProps) {
     super(scope, id);
 
     this.dbName = props.databaseName;
+    this.dbUsername = props.username;
 
-    // Create RDS Instance
+    // Generate a random password securely
+    const generatedPassword = cdk.SecretValue.unsafePlainText(generateRandomPassword(16));
+    this.dbPassword = generatedPassword.unsafeUnwrap();
+
+    // Create the password parameter in SSM
+    const passwordParam = new SecureStringParameter(this, 'RdsPasswordParameter', {
+      parameterName: '/app/env/DB_PASSWORD',
+      stringValue: this.dbPassword,
+      valueType: ValueType.PLAINTEXT,
+    });
+
+
+    // Ensure RDS instance depends on the SSM parameter being created
     this.dbInstance = new rds.DatabaseInstance(this, 'RdsInstance', {
       engine: rds.DatabaseInstanceEngine.mysql({
         version: rds.MysqlEngineVersion.VER_8_0_39,
       }),
       vpc: props.vpc,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO),
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
       vpcSubnets: {
         subnetType: ec2.SubnetType.PUBLIC,
       },
-      multiAz: false, // Free tier does not support Multi-AZ
-      allocatedStorage: 20, // Minimum storage for free tier
-      maxAllocatedStorage: 100,
+      multiAz: false,
+      allocatedStorage: 20,
+      maxAllocatedStorage: 20,
       storageType: rds.StorageType.GP2,
-      publiclyAccessible: true, // Can be false if private access is needed
-      credentials: rds.Credentials.fromGeneratedSecret(props.username, {
-        secretName: props.passwordParameterName, // Store in SSM Parameter Store
-      }),
+      publiclyAccessible: true, // Make the RDS instance publicly accessible
+      credentials: rds.Credentials.fromPassword(
+        props.username,
+        cdk.SecretValue.ssmSecure(passwordParam.parameterName)
+      ),
       databaseName: this.dbName,
-      deletionProtection: false, // Disable deletion protection for easier cleanup in the free tier
-      backupRetention: cdk.Duration.days(7), // Backup retention period
-      autoMinorVersionUpgrade: true, // Keep DB up to date with minor versions
+      deletionProtection: false,
+      backupRetention: cdk.Duration.days(1),
+      autoMinorVersionUpgrade: true,
     });
 
+    this.dbInstance.connections.allowFromAnyIpv4(ec2.Port.tcp(3306)); // Allow connections from any IP address
+    this.dbInstance.node.addDependency(passwordParam);
+
     // Store RDS Endpoint, Port, and Database Name in SSM Parameter Store
-    new ssm.StringParameter(this, 'RdsEndpoint', {
+    const rdsEndpointParam = new ssm.StringParameter(this, 'RdsEndpoint', {
       parameterName: `/app/env/DB_HOST`,
       stringValue: this.dbInstance.instanceEndpoint.hostname,
     });
 
-    new ssm.StringParameter(this, 'RdsPort', {
+    this.dbPort = this.dbInstance.instanceEndpoint.port.toString();
+
+    const rdsPortParam = new ssm.StringParameter(this, 'RdsPort', {
       parameterName: `/app/env/DB_PORT`,
-      stringValue: this.dbInstance.instanceEndpoint.port.toString(),
+      stringValue: this.dbPort,
     });
 
-    new ssm.StringParameter(this, 'RdsDatabaseName', {
+    const rdsDbNameParam = new ssm.StringParameter(this, 'RdsDatabaseName', {
       parameterName: `/app/env/DB_DATABASE`,
       stringValue: this.dbName,
     });
 
-    // Output to view the RDS information
+    // Ensure SSM parameters depend on the DB instance being created
+    rdsEndpointParam.node.addDependency(this.dbInstance);
+    rdsPortParam.node.addDependency(this.dbInstance);
+    rdsDbNameParam.node.addDependency(this.dbInstance);
+
+    // Output the RDS information and password
     new cdk.CfnOutput(this, 'DBEndpoint', {
       value: this.dbInstance.instanceEndpoint.hostname,
       exportName: `${props.instanceIdentifier}-Endpoint`,
-    });
+    }).node.addDependency(this.dbInstance);
 
     new cdk.CfnOutput(this, 'DBPort', {
       value: this.dbInstance.instanceEndpoint.port.toString(),
       exportName: `${props.instanceIdentifier}-Port`,
-    });
+    }).node.addDependency(this.dbInstance);
+
+    new cdk.CfnOutput(this, 'DBPasswordOutput', {
+      value: passwordParam.stringValue,
+      exportName: `${props.instanceIdentifier}-Password`,
+    }).node.addDependency(passwordParam);
   }
 
-  // Reconciled method to retrieve the same DB credentials from SSM
-  getCredentials(): DatabaseCredentials {
-    const username = ssm.StringParameter.valueForStringParameter(this, '/app/env/DB_USERNAME');
-    const password = ssm.StringParameter.valueForStringParameter(this, '/rds/qore-tracking-api-db/admin-password'); // Secure password
-    const dbName = ssm.StringParameter.valueForStringParameter(this, '/app/env/DB_DATABASE');
-    const port = ssm.StringParameter.valueForStringParameter(this, '/app/env/DB_PORT');
-
+  // Implement the getCredentials method from the SecureDatabase interface
+  public getCredentials(): DatabaseCredentials {
     return {
-      username,
-      password,
-      dbName,
-      port,
+      username: this.dbUsername,
+      password: this.dbPassword,
+      dbName: this.dbName,
+      port: this.dbPort,
     };
   }
 }
