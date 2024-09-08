@@ -2,6 +2,7 @@
 import 'source-map-support/register'
 import * as cdk from 'aws-cdk-lib'
 import { ApiStack } from '../lib/stacks/api-stack'
+import { FrontendStack } from '../lib/stacks/frontend-stack'
 
 const app = new cdk.App()
 
@@ -13,3 +14,6 @@ export const env = {
 new ApiStack(app, 'ApiStack', {
   env
 })
+new FrontendStack(app, 'FrontendStack', {
+  env
+});

@@ -4,15 +4,15 @@
   "license": "Commercial",
   "private": true,
   "scripts": {
-    "dev": "bun run next dev --turbo",
-    "dev-legacy": "next dev",
-    "build": "bun run next build",
-    "start": "bun run next start",
-    "lint": "bun run next lint",
-    "lint:fix": "bun run next lint --fix",
-    "format": "bun run prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-    "build:icons": "bun run tsx src/assets/iconify-icons/bundle-icons-css.ts",
-    "postinstall": "bun run build:icons"
+    "dev": "yarn next dev --turbo",
+    "dev-legacy": "yarn next dev",
+    "build": "yarn next build",
+    "start": "yarn next start",
+    "lint": "yarn next lint",
+    "lint:fix": "yarn next lint --fix",
+    "format": "yarn prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "build:icons": "yarn tsx src/assets/iconify-icons/bundle-icons-css.ts",
+    "postinstall": "yarn build:icons"
   },
   "dependencies": {
     "@asseinfo/react-kanban": "^2.2.0",
