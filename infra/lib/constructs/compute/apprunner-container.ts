@@ -3,13 +3,15 @@ import { Construct } from 'constructs';
 import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { Secret } from '@aws-cdk/aws-apprunner-alpha'
 
 export interface AppRunnerConstructProps extends cdk.StackProps {
   repository: ecr.IRepository;
   port: number;
   imageTag?: string;
   vpc: ec2.IVpc;
-  environmentVariables?: { [key: string]: string };
+  environmentVariables?: { [key: string]: string};
+  environmentSecrets?: { [key: string]: Secret };
 }
 
 export class AppRunnerConstruct extends Construct {
@@ -31,7 +33,8 @@ export class AppRunnerConstruct extends Construct {
         tagOrDigest: imageTag,
         imageConfiguration: {
           port: props.port,
-          environmentVariables: props.environmentVariables, // Use environment variables from SSM
+          environmentVariables: props.environmentVariables,
+          environmentSecrets: props.environmentSecrets
         },
       }),
       autoDeploymentsEnabled: true,
