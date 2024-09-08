@@ -16,7 +16,7 @@ export interface AppRunnerConstructProps extends cdk.StackProps {
 }
 
 export class AppRunnerConstruct extends Construct {
-  private runner: Service
+  public runner: Service
   constructor(scope: Construct, id: string, props: AppRunnerConstructProps) {
     super(scope, id);
 

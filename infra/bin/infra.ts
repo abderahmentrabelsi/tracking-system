@@ -11,9 +11,10 @@ export const env = {
   account: process.env.CDK_DEFAULT_ACCOUNT
 } as const;
 
-new ApiStack(app, 'ApiStack', {
+const apiStack = new ApiStack(app, 'ApiStack', {
   env
 })
 new FrontendStack(app, 'FrontendStack', {
-  env
+  env,
+  apiUrl: apiStack.appRunner.runner.serviceUrl
 });

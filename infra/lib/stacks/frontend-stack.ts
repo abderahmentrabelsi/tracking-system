@@ -3,12 +3,13 @@ import { AmplifyGithubConstruct } from '../constructs/frontend/amplify-github-co
 import * as ssm from 'aws-cdk-lib/aws-ssm'
 
 export interface FrontendStackProps extends cdk.StackProps {
+  apiUrl: string,
 }
 
 export class FrontendStack extends cdk.Stack {
   public amplifyFrontend: AmplifyGithubConstruct
 
-  constructor(scope: cdk.App, id: string, props?: FrontendStackProps) {
+  constructor(scope: cdk.App, id: string, props: FrontendStackProps) {
     super(scope, id, props)
 
     const jwtParameter = ssm.StringParameter.fromSecureStringParameterAttributes(this, 'JwtSecretParameter', {
@@ -21,7 +22,8 @@ export class FrontendStack extends cdk.Stack {
       repository: 'tracking-system',
       environment: {
         JWT_SECRET_KEY: 'PNC9o42M5zrzdfgrm0nQQUAY4AmothvY', // todo: amplify doesn't support ssm parameters, move to secrets manager
-        NEXT_PUBLIC_MEASUREMENT_ID: 'G-0Z6D87DQ2N'
+        NEXT_PUBLIC_MEASUREMENT_ID: 'G-0Z6D87DQ2N',
+        NEXT_PUBLIC_GO_APP_SERVER_URL: props.apiUrl,
       }
     })
 
