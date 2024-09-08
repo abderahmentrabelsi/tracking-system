@@ -3,7 +3,7 @@ import { Construct } from 'constructs';
 import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import { Secret } from '@aws-cdk/aws-apprunner-alpha'
+import { Secret, Service } from '@aws-cdk/aws-apprunner-alpha'
 import { SecretValue } from 'aws-cdk-lib'
 
 export interface AppRunnerConstructProps extends cdk.StackProps {
@@ -16,6 +16,7 @@ export interface AppRunnerConstructProps extends cdk.StackProps {
 }
 
 export class AppRunnerConstruct extends Construct {
+  private runner: Service
   constructor(scope: Construct, id: string, props: AppRunnerConstructProps) {
     super(scope, id);
 
@@ -28,7 +29,7 @@ export class AppRunnerConstruct extends Construct {
       },
     });
 
-    new apprunner.Service(this, 'AppRunnerService', {
+    this.runner = new apprunner.Service(this, 'AppRunnerService', {
       source: apprunner.Source.fromEcr({
         repository: props.repository,
         tagOrDigest: imageTag,
@@ -45,5 +46,10 @@ export class AppRunnerConstruct extends Construct {
     new cdk.CfnOutput(this, 'AppRunnerServiceUrl', {
       value: `Service running with image ${props.repository.repositoryUri}:${imageTag}`,
     });
+
+    new cdk.CfnOutput(this, 'AppRunnerServiceEndpoint', {
+      value: `Service running at ${this.runner.serviceUrl}`,
+    });
+
   }
 }

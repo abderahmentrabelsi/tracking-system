@@ -67,9 +67,10 @@ export class ApiStack extends cdk.Stack {
         PROPERTY_ID: ssm.StringParameter.valueForStringParameter(this, '/app/env/PROPERTY_ID')
       },
       environmentSecrets: {
+        DB_HOST: Secret.fromSecretsManager(dbSecret, 'host'),
         DB_USERNAME: Secret.fromSecretsManager(dbSecret, 'username'),
         DB_PASSWORD: Secret.fromSecretsManager(dbSecret, 'password'),
-        DB_NAME: Secret.fromSecretsManager(dbSecret, 'dbname'),
+        DB_DATABASE: Secret.fromSecretsManager(dbSecret, 'dbname'),
         DB_PORT: Secret.fromSecretsManager(dbSecret, 'port'),
         JWT_SECRET: Secret.fromSsmParameter(jwtParameter),
         IPINFO_TOKEN: Secret.fromSsmParameter(ipInfoTokenParameter),
