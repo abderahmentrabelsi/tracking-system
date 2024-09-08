@@ -32,6 +32,7 @@ export class AmplifyGithubConstruct extends Construct {
           phases: {
             preBuild: {
               commands: [
+                'npm i -g tsx',
                 'cd client',
                 'yarn install',
               ],

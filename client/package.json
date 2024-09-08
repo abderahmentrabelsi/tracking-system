@@ -11,7 +11,7 @@
     "lint": "yarn next lint",
     "lint:fix": "yarn next lint --fix",
     "format": "yarn prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-    "build:icons": "yarn tsx src/assets/iconify-icons/bundle-icons-css.ts",
+    "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.ts",
     "postinstall": "yarn build:icons"
   },
   "dependencies": {
