@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/api/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main main.go
 
 
 # Expose the port that the application will run on

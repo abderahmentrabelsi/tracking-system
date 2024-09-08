@@ -6,6 +6,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 
 export interface AppRunnerConstructProps extends cdk.StackProps {
   repository: ecr.IRepository;
+  port: number;
   imageTag?: string;
   vpc: ec2.IVpc;
   environmentVariables?: { [key: string]: string };
@@ -20,7 +21,7 @@ export class AppRunnerConstruct extends Construct {
     const vpcConnector = new apprunner.VpcConnector(this, 'AppRunnerVpcConnector', {
       vpc: props.vpc,
       vpcSubnets: {
-        subnetType: ec2.SubnetType.PUBLIC, // Choose the appropriate subnet type
+        subnetType: ec2.SubnetType.PUBLIC,
       },
     });
 
@@ -29,6 +30,7 @@ export class AppRunnerConstruct extends Construct {
         repository: props.repository,
         tagOrDigest: imageTag,
         imageConfiguration: {
+          port: props.port,
           environmentVariables: props.environmentVariables, // Use environment variables from SSM
         },
       }),

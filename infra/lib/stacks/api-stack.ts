@@ -3,6 +3,7 @@ import { EcrRepoWithPushAccess } from '../constructs/compute/pushable-ecr-constr
 import { AppRunnerConstruct } from '../constructs/compute/apprunner-container';
 import { RdsDatabaseConstruct } from '../constructs/database/rds-database-construct';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 
 export interface ApiStackProps extends cdk.StackProps {
   vpc?: Vpc;
@@ -34,16 +35,27 @@ export class ApiStack extends cdk.Stack {
       vpc: this.vpc,
     });
 
+    // Get reconciled database credentials from SSM
     const dbCredentials = this.database.getCredentials();
+
+    const port = ssm.StringParameter.valueForStringParameter(this, '/app/env/PORT');
 
     this.appRunner = new AppRunnerConstruct(this, 'AppRunnerService', {
       repository: this.ecrRepo.repository,
       vpc: this.vpc,
+      port: parseInt(port),
       environmentVariables: {
         DB_USERNAME: dbCredentials.username,
         DB_PASSWORD: dbCredentials.password,
         DB_NAME: dbCredentials.dbName,
         DB_PORT: dbCredentials.port,
+        APP_ENV: ssm.StringParameter.valueForStringParameter(this, '/app/env/APP_ENV'),
+        PORT: port,
+        JWT_SECRET: ssm.StringParameter.valueForStringParameter(this, '/app/env/JWT_SECRET'),
+        IPINFO_TOKEN: ssm.StringParameter.valueForStringParameter(this, '/app/env/IPINFO_TOKEN'),
+        UPLOAD_PATH: ssm.StringParameter.valueForStringParameter(this, '/app/env/UPLOAD_PATH'),
+        MEASUREMENT_ID: ssm.StringParameter.valueForStringParameter(this, '/app/env/MEASUREMENT_ID'),
+        PROPERTY_ID: ssm.StringParameter.valueForStringParameter(this, '/app/env/PROPERTY_ID'),
       },
     });
   }

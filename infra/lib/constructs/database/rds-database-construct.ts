@@ -46,22 +46,23 @@ export class RdsDatabaseConstruct extends Construct implements SecureDatabase<Da
       autoMinorVersionUpgrade: true, // Keep DB up to date with minor versions
     });
 
-    // Store RDS Endpoint and Port in SSM Parameter Store
+    // Store RDS Endpoint, Port, and Database Name in SSM Parameter Store
     new ssm.StringParameter(this, 'RdsEndpoint', {
-      parameterName: `/rds/${props.instanceIdentifier}/endpoint`,
+      parameterName: `/app/env/DB_HOST`,
       stringValue: this.dbInstance.instanceEndpoint.hostname,
     });
 
     new ssm.StringParameter(this, 'RdsPort', {
-      parameterName: `/rds/${props.instanceIdentifier}/port`,
+      parameterName: `/app/env/DB_PORT`,
       stringValue: this.dbInstance.instanceEndpoint.port.toString(),
     });
 
     new ssm.StringParameter(this, 'RdsDatabaseName', {
-      parameterName: `/rds/${props.instanceIdentifier}/database-name`,
+      parameterName: `/app/env/DB_DATABASE`,
       stringValue: this.dbName,
     });
 
+    // Output to view the RDS information
     new cdk.CfnOutput(this, 'DBEndpoint', {
       value: this.dbInstance.instanceEndpoint.hostname,
       exportName: `${props.instanceIdentifier}-Endpoint`,
@@ -73,11 +74,12 @@ export class RdsDatabaseConstruct extends Construct implements SecureDatabase<Da
     });
   }
 
+  // Reconciled method to retrieve the same DB credentials from SSM
   getCredentials(): DatabaseCredentials {
-    const username = ssm.StringParameter.valueForStringParameter(this, `/rds/${this.dbInstance.instanceIdentifier}/username`);
-    const password = ssm.StringParameter.valueForStringParameter(this, `/rds/${this.dbInstance.instanceIdentifier}/password`);
-    const dbName = ssm.StringParameter.valueForStringParameter(this, `/rds/${this.dbInstance.instanceIdentifier}/database-name`);
-    const port = ssm.StringParameter.valueForStringParameter(this, `/rds/${this.dbInstance.instanceIdentifier}/port`);
+    const username = ssm.StringParameter.valueForStringParameter(this, '/app/env/DB_USERNAME');
+    const password = ssm.StringParameter.valueForStringParameter(this, '/rds/qore-tracking-api-db/admin-password'); // Secure password
+    const dbName = ssm.StringParameter.valueForStringParameter(this, '/app/env/DB_DATABASE');
+    const port = ssm.StringParameter.valueForStringParameter(this, '/app/env/DB_PORT');
 
     return {
       username,
