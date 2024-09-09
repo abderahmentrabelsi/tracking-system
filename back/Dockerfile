@@ -2,7 +2,7 @@
 FROM golang:latest as builder
 
 # Set GIN_MODE to release
-ENV GIN_MODE=release
+# ENV GIN_MODE=release
 
 # Set the working directory inside the container
 WORKDIR /app
