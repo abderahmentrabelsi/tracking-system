@@ -42,7 +42,7 @@ export class AmplifyGithubConstruct extends Construct {
                 'yarn build',
                 'node amplify.mjs',
                 'cp .amplify-hosting ..',
-                'cp .amplify-hosting/deploy-manifest.json ../.next/deploy-manifest.json'
+                'cp .amplify-hosting/deploy-manifest.json ./.next/deploy-manifest.json'
               ],
             },
           },
