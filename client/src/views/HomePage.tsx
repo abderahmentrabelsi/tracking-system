@@ -5,7 +5,7 @@ import { makeStyles } from '@mui/styles';
 import Image from 'next/image';
 import { Theme } from '@mui/material/styles'
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles({
   root: {
     height: '100vh',
     display: 'flex',
@@ -49,8 +49,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     padding: '20px',
     position: 'relative',
     flexDirection: 'column',
-    [theme.breakpoints.up('md')]: {
-      flexDirection: 'row',
+    '@media (min-width: 960px)': {
+      flexDirection: 'row', // When screen width >= 960px (similar to 'md')
     },
   },
   content: {
@@ -58,8 +58,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     maxWidth: '800px',
     zIndex: 1,
     marginBottom: '20px',
-    [theme.breakpoints.up('md')]: {
-      marginBottom: 0,
+    '@media (min-width: 960px)': {
+      marginBottom: 0, // Reset margin when screen width >= 960px
     },
   },
   title: {
@@ -67,8 +67,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     fontWeight: 'bold',
     marginBottom: '20px',
     color: '#000',
-    [theme.breakpoints.up('md')]: {
-      fontSize: '3em',
+    '@media (min-width: 960px)': {
+      fontSize: '3em', // Adjust font size for wider screens
     },
   },
   description: {
@@ -77,17 +77,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     color: '#000',
     fontWeight: '700',
     lineHeight: '1.4',
-    [theme.breakpoints.up('md')]: {
-      fontSize: '1.2em',
-      width: '100%',
+    width: '100%',
+    '@media (min-width: 960px)': {
+      fontSize: '1.2em', // Adjust font size for wider screens
     },
   },
   imageContainer: {
     zIndex: 0,
     width: '100%',
     textAlign: 'center',
-    [theme.breakpoints.up('md')]: {
-      marginLeft: '50px',
+    '@media (min-width: 960px)': {
+      marginLeft: '50px', // Adjust margin for wider screens
       width: 'auto',
     },
   },
@@ -107,7 +107,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     background: 'rgba(255, 255, 255, 0.8)',
     zIndex: -1,
   },
-}));
+});
 
 const HomePage: React.FC = () => {
   const classes = useStyles();
