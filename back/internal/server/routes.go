@@ -10,7 +10,10 @@ import (
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
-	r := gin.Default()
+	r := gin.New()
+	r.RedirectTrailingSlash = false
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 
 	r.GET("/analytics", controller.GetAnalyticsData)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
