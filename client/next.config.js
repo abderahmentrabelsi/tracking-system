@@ -18,6 +18,14 @@ const nextConfig = withPWA({
   typescript: {
     ignoreBuildErrors: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://aesmm2ss33.us-east-1.awsapprunner.com/:path*', // Proxy to App Runner
+      },
+    ];
+  },
 });
 
 module.exports = nextConfig;
