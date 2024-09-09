@@ -41,7 +41,8 @@ export class AmplifyGithubConstruct extends Construct {
               commands: [
                 'yarn build',
                 'node amplify.mjs',
-                'mv client/.amplify-hosting .',
+                'cp .amplify-hosting ..',
+                'cp .amplify-hosting/deploy-manifest.json ../.next/deploy-manifest.json'
               ],
             },
           },
