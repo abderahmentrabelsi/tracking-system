@@ -3,8 +3,9 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Container, Box } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import Image from 'next/image';
+import { Theme } from '@mui/material/styles'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {
     height: '100vh',
     display: 'flex',
