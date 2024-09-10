@@ -6,14 +6,16 @@ const withPWA = require('next-pwa')({
 
 const nextConfig = withPWA({
   basePath: process.env.BASEPATH,
-  productionBrowserSourceMaps: true,
+  productionBrowserSourceMaps: false,
   reactStrictMode: false,
   experimental: {
     // turboMode: false,
     // reactServerComponents: false,
   },
   webpack: (config) => {
-    config.resolve.fallback = { fs: false };
+    config.resolve.fallback = {
+      fs: false,
+    };
     return config;
   },
   eslint: {

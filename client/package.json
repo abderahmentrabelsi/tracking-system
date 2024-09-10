@@ -115,6 +115,11 @@
     "stylelint-use-logical-spec": "5.0.1",
     "typescript": "5.4.2"
   },
+  "browser": {
+    "crypto": false,
+    "fs": false,
+    "path": false
+  },
   "resolutions": {
     "immutable": "3.7.4"
   },
