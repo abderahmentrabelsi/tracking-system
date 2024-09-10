@@ -12,6 +12,10 @@ const nextConfig = withPWA({
     // turboMode: false,
     // reactServerComponents: false,
   },
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false };
+    return config;
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

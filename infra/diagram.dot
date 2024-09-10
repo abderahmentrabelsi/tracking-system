@@ -1,0 +1,361 @@
+digraph "Diagram" {
+  splines = "ortho";
+  pad = "1.0";
+  nodesep = "0.60";
+  ranksep = "0.75";
+  fontname = "Sans-Serif";
+  fontsize = "15";
+  dpi = "200";
+  rankdir = "BT";
+  compound = "true";
+  fontcolor = "#222222";
+  edge [
+    color = "#D5871488",
+    penwidth = 2,
+    arrowhead = "dot",
+    arrowtail = "dot",
+  ];
+  node [
+    shape = "box",
+    style = "rounded",
+    fixedsize = true,
+    width = 1.7,
+    height = 1.7,
+    labelloc = "c",
+    imagescale = true,
+    fontname = "Sans-Serif",
+    fontsize = 8,
+    margin = 8,
+  ];
+  subgraph "App" {
+    subgraph "cluster-SubGraph.App" {
+      graph [
+        label = "App",
+        labelloc = "b",
+        labeljust = "l",
+        margin = "10",
+        fontsize = "16",
+        penwidth = "2",
+        pencolor = "#888888",
+        style = "filled,rounded",
+        fillcolor = "#f3f3f3",
+      ];
+      subgraph "cluster-SubGraph.ApiStack" {
+        graph [
+          label = "ApiStack",
+          labelloc = "b",
+          labeljust = "l",
+          margin = "10",
+          fontsize = "16",
+          penwidth = "2",
+          pencolor = "#888888",
+          style = "filled,rounded",
+          fillcolor = "#e4e4e4",
+        ];
+        "ApiStack/ApiVpc" [
+          label = " ApiVpc",
+          fontsize = 12,
+          image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Service\Arch_Networking-Content\64\Arch_Amazon-Virtual-Private-Cloud_64@5x.png",
+          imagescale = "true",
+          imagepos = "tc",
+          penwidth = "0",
+          shape = "node",
+          fixedsize = "true",
+          labelloc = "b",
+          width = 2,
+          height = 2.266,
+        ];
+        subgraph "cluster-SubGraph.EcrRepoWithPushAccess" {
+          graph [
+            label = "EcrRepoWithPushAccess",
+            labelloc = "b",
+            labeljust = "l",
+            margin = "10",
+            fontsize = "16",
+            penwidth = "2",
+            pencolor = "#888888",
+            style = "filled,rounded",
+            fillcolor = "#d6d6d6",
+          ];
+          "ApiStack/EcrRepoWithPushAccess/EcrRepo" [
+            label = " EcrRepo",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Service\Arch_Compute\64\Arch_Amazon-Elastic-Container-Registry_64@5x.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 1.2,
+            height = 1.466,
+          ];
+          "ApiStack/EcrRepoWithPushAccess/EcrPushUser" [
+            label = " EcrPushUser",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Service\Arch_Security-Identity-Compliance\64\Arch_AWS-Identity-and-Access-Management_64@5x.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 1.2,
+            height = 1.466,
+          ];
+          "ApiStack/EcrRepoWithPushAccess/PushUserAccessKey" [
+            label = " IAM AccessKey\nPushUserAccessKey",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Service\Arch_Security-Identity-Compliance\64\Arch_AWS-Identity-and-Access-Management_64@5x.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 1.2,
+            height = 1.682,
+          ];
+          "ApiStack/EcrRepoWithPushAccess/AccessKeyParam" [
+            label = " AccessKeyParam",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Resource\Res_Management-Governance\Res_48_Dark\Res_AWS-Systems-Manager_Parameter-Store_48_Dark.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 2,
+            height = 2.266,
+          ];
+          "ApiStack/EcrRepoWithPushAccess/SecretKeyParam" [
+            label = " SecretKeyParam",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Resource\Res_Management-Governance\Res_48_Dark\Res_AWS-Systems-Manager_Parameter-Store_48_Dark.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 2,
+            height = 2.266,
+          ];
+          "ApiStack/EcrRepoWithPushAccess/RepoUriParam" [
+            label = " RepoUriParam",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Resource\Res_Management-Governance\Res_48_Dark\Res_AWS-Systems-Manager_Parameter-Store_48_Dark.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 2,
+            height = 2.266,
+          ];
+          "ApiStack/EcrRepoWithPushAccess/RepoNameParam" [
+            label = " RepoNameParam",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Resource\Res_Management-Governance\Res_48_Dark\Res_AWS-Systems-Manager_Parameter-Store_48_Dark.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 2,
+            height = 2.266,
+          ];
+          "ApiStack/EcrRepoWithPushAccess/RegionParam" [
+            label = " RegionParam",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Resource\Res_Management-Governance\Res_48_Dark\Res_AWS-Systems-Manager_Parameter-Store_48_Dark.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 2,
+            height = 2.266,
+          ];
+        }
+        subgraph "cluster-SubGraph.ApiRdsDatabase" {
+          graph [
+            label = "ApiRdsDatabase",
+            labelloc = "b",
+            labeljust = "l",
+            margin = "10",
+            fontsize = "16",
+            penwidth = "2",
+            pencolor = "#888888",
+            style = "filled,rounded",
+            fillcolor = "#d6d6d6",
+          ];
+          "ApiStack/ApiRdsDatabase/DBSecret" [
+            label = " DBSecret",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Service\Arch_Security-Identity-Compliance\64\Arch_AWS-Secrets-Manager_64@5x.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 1.2,
+            height = 1.466,
+          ];
+          "ApiStack/ApiRdsDatabase/RdsInstance" [
+            label = " RdsInstance",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Resource\Res_Compute\Res_48_Dark\Res_Amazon-EC2_T3-Instance_48_Dark.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 2,
+            height = 2.266,
+          ];
+          "ApiStack/ApiRdsDatabase/RdsEndpoint" [
+            label = " RdsEndpoint",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Resource\Res_Management-Governance\Res_48_Dark\Res_AWS-Systems-Manager_Parameter-Store_48_Dark.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 2,
+            height = 2.266,
+          ];
+          "ApiStack/ApiRdsDatabase/RdsPort" [
+            label = " RdsPort",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Resource\Res_Management-Governance\Res_48_Dark\Res_AWS-Systems-Manager_Parameter-Store_48_Dark.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 2,
+            height = 2.266,
+          ];
+          "ApiStack/ApiRdsDatabase/RdsDatabaseName" [
+            label = " RdsDatabaseName",
+            fontsize = 12,
+            image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Resource\Res_Management-Governance\Res_48_Dark\Res_AWS-Systems-Manager_Parameter-Store_48_Dark.png",
+            imagescale = "true",
+            imagepos = "tc",
+            penwidth = "0",
+            shape = "node",
+            fixedsize = "true",
+            labelloc = "b",
+            width = 2,
+            height = 2.266,
+          ];
+        }
+        subgraph "cluster-SubGraph.AppRunnerService" {
+          graph [
+            label = "AppRunnerService",
+            labelloc = "b",
+            labeljust = "l",
+            margin = "10",
+            fontsize = "16",
+            penwidth = "2",
+            pencolor = "#888888",
+            style = "filled,rounded",
+            fillcolor = "#d6d6d6",
+          ];
+          "ApiStack/AppRunnerService/AppRunnerVpcConnector" [
+            label = "\nAppRunnerVpcConnector",
+            fontsize = 12,
+          ];
+          "ApiStack/AppRunnerService/AppRunnerService" [
+            label = " AppRunnerService",
+            fontsize = 12,
+          ];
+        }
+      }
+      subgraph "cluster-SubGraph.FrontendStack" {
+        graph [
+          label = "FrontendStack",
+          labelloc = "b",
+          labeljust = "l",
+          margin = "10",
+          fontsize = "16",
+          penwidth = "2",
+          pencolor = "#888888",
+          style = "filled,rounded",
+          fillcolor = "#e4e4e4",
+        ];
+        "FrontendStack/AmplifyFrontend/NextjsApp" [
+          label = " NextjsApp",
+          fontsize = 12,
+          image = "C:\Users\MSI\GolandProjects\QoreTracking\infra\node_modules\cdk-dia\icons\aws\Service\Arch_Mobile\64\Arch_AWS-Amplify-Console_64@5x.png",
+          imagescale = "true",
+          imagepos = "tc",
+          penwidth = "0",
+          shape = "node",
+          fixedsize = "true",
+          labelloc = "b",
+          width = 2,
+          height = 2.266,
+        ];
+      }
+    }
+  }
+  "ApiStack/EcrRepoWithPushAccess/EcrPushUser" -> "ApiStack/EcrRepoWithPushAccess/EcrRepo" [
+    dir = "both",
+  ];
+  "ApiStack/EcrRepoWithPushAccess/PushUserAccessKey" -> "ApiStack/EcrRepoWithPushAccess/EcrPushUser" [
+    dir = "both",
+  ];
+  "ApiStack/EcrRepoWithPushAccess/AccessKeyParam" -> "ApiStack/EcrRepoWithPushAccess/PushUserAccessKey" [
+    dir = "both",
+  ];
+  "ApiStack/EcrRepoWithPushAccess/SecretKeyParam" -> "ApiStack/EcrRepoWithPushAccess/PushUserAccessKey" [
+    dir = "both",
+  ];
+  "ApiStack/EcrRepoWithPushAccess/RepoUriParam" -> "ApiStack/EcrRepoWithPushAccess/EcrRepo" [
+    dir = "both",
+  ];
+  "ApiStack/EcrRepoWithPushAccess/RepoNameParam" -> "ApiStack/EcrRepoWithPushAccess/EcrRepo" [
+    dir = "both",
+  ];
+  "ApiStack/ApiRdsDatabase/DBSecret" -> "ApiStack/ApiRdsDatabase/RdsInstance" [
+    dir = "both",
+  ];
+  "ApiStack/ApiRdsDatabase/RdsInstance" -> "ApiStack/ApiVpc" [
+    dir = "both",
+  ];
+  "ApiStack/ApiRdsDatabase/RdsInstance" -> "ApiStack/ApiRdsDatabase/DBSecret" [
+    dir = "both",
+  ];
+  "ApiStack/ApiRdsDatabase/RdsEndpoint" -> "ApiStack/ApiRdsDatabase/RdsInstance" [
+    dir = "both",
+  ];
+  "ApiStack/ApiRdsDatabase/RdsPort" -> "ApiStack/ApiRdsDatabase/RdsInstance" [
+    dir = "both",
+  ];
+  "ApiStack/AppRunnerService/AppRunnerVpcConnector" -> "ApiStack/ApiVpc" [
+    dir = "both",
+  ];
+  "ApiStack/AppRunnerService/AppRunnerService" -> "ApiStack/ApiRdsDatabase/DBSecret" [
+    dir = "both",
+  ];
+  "ApiStack/AppRunnerService/AppRunnerService" -> "ApiStack/EcrRepoWithPushAccess/EcrRepo" [
+    dir = "both",
+  ];
+  "ApiStack/AppRunnerService/AppRunnerService" -> "ApiStack/AppRunnerService/AppRunnerVpcConnector" [
+    dir = "both",
+  ];
+  "FrontendStack/AmplifyFrontend/NextjsApp" -> "ApiStack/AppRunnerService/AppRunnerService" [
+    dir = "both",
+  ];
+}

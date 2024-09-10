@@ -18,7 +18,10 @@ export class AmplifyGithubConstruct extends Construct {
 
     this.amplifyApp = new amplify.App(this, 'NextjsApp', {
       platform: amplify.Platform.WEB_COMPUTE,
-      environmentVariables: props.environment,
+      environmentVariables: {
+        ...props.environment,
+        AMPLIFY_MONOREPO_APP_ROOT: 'client',
+      },
       sourceCodeProvider: new amplify.GitHubSourceCodeProvider({
         owner: props.owner,
         repository: props.repository,
@@ -40,18 +43,15 @@ export class AmplifyGithubConstruct extends Construct {
             build: {
               commands: [
                 'yarn build',
-                'node amplify.mjs',
-                'cp .amplify-hosting ..',
-                'cp .amplify-hosting/deploy-manifest.json ./.next/deploy-manifest.json'
               ],
             },
           },
           artifacts: {
-            baseDirectory: 'client/.next', // Output the build from the `client` folder
+            baseDirectory: '.next', // Output the build from the `client` folder
             files: ['**/*'],
           },
           cache: {
-            paths: ['client/node_modules/**/*', 'node_modules/**/*'], // Cache `node_modules` inside the `client` folder
+            paths: ['node_modules/**/*'], // Cache `node_modules` inside the `client` folder
           },
         },
       }),
