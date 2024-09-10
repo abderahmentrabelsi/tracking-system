@@ -10,7 +10,7 @@ import type { Data } from '@/types/profileTypes'
 import UserProfileHeader from './UserProfileHeader'
 import CustomTabList from '@core/components/mui/TabList'
 
-const UserProfile = ({ tabContentList, data }: { tabContentList: { [key: string]: ReactElement }; data: Data }) => {
+const UserProfile = ({ tabContentList, data }: { tabContentList: { [key: string]: ReactElement }; data?: Data }) => {
   const [activeTab, setActiveTab] = useState('profile')
 
   const handleChange = (event: SyntheticEvent, value: string) => {

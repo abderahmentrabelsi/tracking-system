@@ -1,5 +1,4 @@
 // React Imports
-//client/src/app/(dashboard)/user-profile/[username]/page.tsx
 import type { ReactElement } from 'react'
 
 // Next Imports
@@ -27,25 +26,12 @@ const tabContentList = (data?: Data): { [key: string]: ReactElement } => ({
   connections: <ConnectionsTab data={data?.users.connections} />
 })
 
-const getData = async () => {
-  // Vars
-  const res = await fetch(`http://localhost:3000/api/pages/profile`)
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch profileData')
-  }
-
-  return res.json()
-}
-
 const ProfilePage = async () => {
   // Check authentication
   checkAuth();
 
-  // Vars
-  const data = await getData()
-
-  return <UserProfile data={data} tabContentList={tabContentList(data)} />
+  // Return component without passing any data
+  return <UserProfile tabContentList={tabContentList()} />
 }
 
 export default ProfilePage
