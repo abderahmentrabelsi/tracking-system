@@ -21,6 +21,8 @@ export class AmplifyGithubConstruct extends Construct {
       environmentVariables: {
         ...props.environment,
         AMPLIFY_MONOREPO_APP_ROOT: 'client',
+        AMPLIFY_DIFF_DEPLOY: 'false',
+        _LIVE_UPDATE: '[{"name":"Next.js version","pkg":"next-version","type":"internal","version":"latest"},{"name":"Yarn","pkg":"yarn","type":"npm","version":"latest"},{"name":"Node.js version","pkg":"node","type":"nvm","version":"20.9.0"}]',
       },
       sourceCodeProvider: new amplify.GitHubSourceCodeProvider({
         owner: props.owner,
@@ -35,23 +37,22 @@ export class AmplifyGithubConstruct extends Construct {
           phases: {
             preBuild: {
               commands: [
-                'npm i -g tsx',
-                'cd client',
-                'yarn install',
+                'npm i -g tsx bun',
+                'bun install',
               ],
             },
             build: {
               commands: [
-                'yarn build',
+                'bun run next build',
               ],
             },
           },
           artifacts: {
-            baseDirectory: '.next', // Output the build from the `client` folder
+            baseDirectory: '.next',
             files: ['**/*'],
           },
           cache: {
-            paths: ['node_modules/**/*'], // Cache `node_modules` inside the `client` folder
+            paths: ['node_modules/**/*'],
           },
         },
       }),
