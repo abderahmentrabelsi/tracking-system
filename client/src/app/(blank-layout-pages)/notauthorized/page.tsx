@@ -1,16 +1,16 @@
 // Next Imports
-import Providers from '@components/Providers';
-import BlankLayout from '@layouts/BlankLayout';
-import NotAuthorized from '@views/misc/NotAuthorized';
+import Providers from '@components/Providers'
+import BlankLayout from '@layouts/BlankLayout'
+import NotAuthorized from '@views/misc/NotAuthorized'
 
 // Util Imports
-import { getServerMode, getSystemMode } from '@core/utils/serverHelpers';
+import { getServerMode, getSystemMode } from '@core/utils/serverHelpers'
 
 const NotAuthorizedPage = () => {
   // Vars
-  const direction = 'ltr';
-  const mode = getServerMode();
-  const systemMode = getSystemMode();
+  const direction = 'ltr'
+  const mode = getServerMode()
+  const systemMode = getSystemMode()
 
   return (
     <Providers direction={direction}>
@@ -18,7 +18,7 @@ const NotAuthorizedPage = () => {
         <NotAuthorized mode={mode} />
       </BlankLayout>
     </Providers>
-  );
+  )
 }
 
-export default NotAuthorizedPage;
+export default NotAuthorizedPage

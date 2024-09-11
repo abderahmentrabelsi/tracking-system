@@ -4,46 +4,46 @@
  * @version
  */
 export type ControllerAggregateMetrics = {
-  averageBounceRate?: number;
-  averageSessionDuration?: number;
-  topCityByActiveUsers?: string;
-  topPageByScreenPageViews?: string;
-  topRegionByRevenue?: string;
-  totalActiveUsers?: number;
-  totalConversions?: number;
-  totalEventCount?: number;
-  totalNewUsers?: number;
-  totalRevenue?: number;
-  totalScreenPageViews?: number;
-  totalSessions?: number;
-};
+  averageBounceRate?: number
+  averageSessionDuration?: number
+  topCityByActiveUsers?: string
+  topPageByScreenPageViews?: string
+  topRegionByRevenue?: string
+  totalActiveUsers?: number
+  totalConversions?: number
+  totalEventCount?: number
+  totalNewUsers?: number
+  totalRevenue?: number
+  totalScreenPageViews?: number
+  totalSessions?: number
+}
 
 export type ControllerAnalyticsData = {
-  activeUsers?: number;
-  averageSessionDuration?: number;
-  bounceRate?: number;
-  city?: string;
-  conversions?: number;
-  country?: string;
+  activeUsers?: number
+  averageSessionDuration?: number
+  bounceRate?: number
+  city?: string
+  conversions?: number
+  country?: string
   /**
    * Added for tracking activity over time
    */
-  date?: string;
-  deviceCategory?: string;
-  eventCount?: number;
-  newUsers?: number;
-  pagePath?: string;
-  region?: string;
-  revenue?: number;
-  screenPageViews?: number;
-  sessions?: number;
-};
+  date?: string
+  deviceCategory?: string
+  eventCount?: number
+  newUsers?: number
+  pagePath?: string
+  region?: string
+  revenue?: number
+  screenPageViews?: number
+  sessions?: number
+}
 
 export type ControllerAnalyticsResponse = {
-  aggregateMetrics?: ControllerAggregateMetrics;
-  analyticsData?: ControllerAnalyticsData[];
-};
+  aggregateMetrics?: ControllerAggregateMetrics
+  analyticsData?: ControllerAnalyticsData[]
+}
 
 export type ControllerErrorResponse = {
-  error?: string;
-};
+  error?: string
+}

@@ -16,58 +16,58 @@ import { checkTOTPStatus, disableTOTP, enableTOTP, generateTOTP } from '../../..
 import { useState, useEffect } from 'react'
 
 const TwoFactorAuthenticationCard = () => {
-  const [isTOTPEnabled, setIsTOTPEnabled] = useState<boolean>(false);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [totpData, setTotpData] = useState<{ secret: string; qr_code: string } | null>(null);
+  const [isTOTPEnabled, setIsTOTPEnabled] = useState<boolean>(false)
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
+  const [totpData, setTotpData] = useState<{ secret: string; qr_code: string } | null>(null)
 
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const status = await checkTOTPStatus();
-        setIsTOTPEnabled(status);
+        const status = await checkTOTPStatus()
+        setIsTOTPEnabled(status)
       } catch (error) {
-        console.error('Error checking TOTP status:', error);
+        console.error('Error checking TOTP status:', error)
       }
-    };
+    }
 
-    checkStatus();
-  }, []);
+    checkStatus()
+  }, [])
 
   const handleDisableTOTP = async () => {
     try {
-      await disableTOTP();
-      setIsTOTPEnabled(false);
+      await disableTOTP()
+      setIsTOTPEnabled(false)
     } catch (error) {
-      console.error('Error disabling TOTP:', error);
+      console.error('Error disabling TOTP:', error)
     }
-  };
+  }
 
   const handleEnableTOTP = async () => {
     try {
-      const data = await generateTOTP(); // Trigger TOTP generation
-      setTotpData(data); // Store the TOTP data for use in the dialog
-      await enableTOTP();
-      setIsTOTPEnabled(true);
-      setIsDialogOpen(true);
+      const data = await generateTOTP() // Trigger TOTP generation
+      setTotpData(data) // Store the TOTP data for use in the dialog
+      await enableTOTP()
+      setIsTOTPEnabled(true)
+      setIsDialogOpen(true)
     } catch (error) {
-      console.error('Error generating TOTP:', error);
+      console.error('Error generating TOTP:', error)
     }
-  };
+  }
 
   const handleDialogClose = () => {
-    setIsDialogOpen(false);
-  };
+    setIsDialogOpen(false)
+  }
 
   const handleStatusChange = () => {
-    setIsTOTPEnabled(true);
-    handleDialogClose();
-  };
+    setIsTOTPEnabled(true)
+    handleDialogClose()
+  }
 
   const buttonProps: ButtonProps = {
     variant: 'contained',
     children: isTOTPEnabled ? 'Disable two-factor authentication' : 'Enable two-factor authentication',
-    onClick: isTOTPEnabled ? handleDisableTOTP : handleEnableTOTP,
-  };
+    onClick: isTOTPEnabled ? handleDisableTOTP : handleEnableTOTP
+  }
 
   return (
     <>
@@ -76,7 +76,9 @@ const TwoFactorAuthenticationCard = () => {
         <CardContent className='flex flex-col items-start gap-6'>
           <div className='flex flex-col gap-4'>
             <Typography variant='h5' color='text.secondary'>
-              {isTOTPEnabled ? 'Two-factor authentication is enabled.' : 'Two-factor authentication is not enabled yet.'}
+              {isTOTPEnabled
+                ? 'Two-factor authentication is enabled.'
+                : 'Two-factor authentication is not enabled yet.'}
             </Typography>
             <Typography>
               Two-factor authentication adds an additional layer of security to your account by requiring more than just

@@ -21,7 +21,13 @@ import { rgbaToHex } from '@/utils/rgbaToHex'
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-const EventCountChart = ({ data, serverMode }: { data: { event: string, count: number }[], serverMode: SystemMode }) => {
+const EventCountChart = ({
+  data,
+  serverMode
+}: {
+  data: { event: string; count: number }[]
+  serverMode: SystemMode
+}) => {
   // Hooks
   const theme = useTheme()
   const { mode } = useColorScheme()
@@ -31,8 +37,8 @@ const EventCountChart = ({ data, serverMode }: { data: { event: string, count: n
   const divider = rgbaToHex(`rgb(${theme.mainColorChannels[_mode]} / 0.12)`)
   const disabledText = rgbaToHex(`rgb(${theme.mainColorChannels[_mode]} / 0.4)`)
 
-  const events = data.map(item => item.event);
-  const counts = data.map(item => item.count);
+  const events = data.map(item => item.event)
+  const counts = data.map(item => item.count)
 
   const options: ApexOptions = {
     chart: {

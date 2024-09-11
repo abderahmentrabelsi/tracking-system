@@ -10,8 +10,7 @@ const Account = () => {
       <Grid item xs={12}>
         <AccountDetails />
       </Grid>
-      <Grid item xs={12}>
-      </Grid>
+      <Grid item xs={12}></Grid>
     </Grid>
   )
 }

@@ -1,10 +1,10 @@
 // src/views/departments/index.tsx
-'use client';
+'use client'
 
-import Departments from './Departments';
+import Departments from './Departments'
 
 const DepartmentsPage = () => {
-  return <Departments />;
-};
+  return <Departments />
+}
 
-export default DepartmentsPage;
+export default DepartmentsPage

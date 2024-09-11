@@ -10,7 +10,6 @@ import ActivityTimeline from './ActivityTimeline'
 
 //dynamic import for about overview with making data can take any type
 
-
 const ProfileTab = ({ data }: { data?: ProfileTabType }) => {
   return (
     <Grid container spacing={6}>
@@ -22,8 +21,7 @@ const ProfileTab = ({ data }: { data?: ProfileTabType }) => {
           <Grid item xs={12}>
             <ActivityTimeline />
           </Grid>
-          <Grid item xs={12}>
-          </Grid>
+          <Grid item xs={12}></Grid>
         </Grid>
       </Grid>
     </Grid>

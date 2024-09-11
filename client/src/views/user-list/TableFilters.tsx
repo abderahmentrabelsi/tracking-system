@@ -22,7 +22,14 @@ const TableFilters = ({ setData, tableData }: { setData: any; tableData?: UsersT
     const filteredData = tableData?.filter(user => {
       if (role && user.role !== role) return false
       if (onBoardingStatus && user.onBoardingStatus !== onBoardingStatus) return false
-      if (searchTerm && !(`${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) || user.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()))) return false
+      if (
+        searchTerm &&
+        !(
+          `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.jobTitle.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      )
+        return false
 
       return true
     })

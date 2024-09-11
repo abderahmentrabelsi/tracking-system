@@ -21,9 +21,7 @@ const workTypes = [
   { type: 'Research', color: 'rgba(64,76,88,0.9)' }, // Dark Blue
   { type: 'Support', color: 'rgba(149, 165, 166, 0.9)' }, // Concrete Grey
   { type: 'Development', color: 'rgba(32,33,33,0.9)' } // Asbestos Grey
-];
-
-
+]
 
 const WorkHoursRadarChart = () => {
   const [loading, setLoading] = useState(true)
@@ -76,9 +74,9 @@ const WorkHoursRadarChart = () => {
         pointBorderColor: '#fff',
         pointHoverBackgroundColor: '#fff',
         pointHoverBorderColor: workTypes.map(workType => workType.color),
-        data: workTypeDurations,
-      },
-    ],
+        data: workTypeDurations
+      }
+    ]
   }
 
   const options = {
@@ -90,8 +88,8 @@ const WorkHoursRadarChart = () => {
         labels: {
           fontSize: 13,
           usePointStyle: true,
-          color: mode === 'dark' ? '#fff' : '#000',
-        },
+          color: mode === 'dark' ? '#fff' : '#000'
+        }
       },
       tooltip: {
         callbacks: {
@@ -106,22 +104,22 @@ const WorkHoursRadarChart = () => {
         angleLines: {
           color: 'rgba(0, 0, 0, 1)', // Black color for angle lines
           lineWidth: 1.5, // Increase line thickness
-          borderDash: [5, 5], // Dashed lines for a different effect
+          borderDash: [5, 5] // Dashed lines for a different effect
         },
         grid: {
           color: 'rgba(0, 0, 0, 1)', // Black color for grid lines
-          lineWidth: 1.5, // Increase line thickness
+          lineWidth: 1.5 // Increase line thickness
         },
         suggestedMin: 0,
         suggestedMax: Math.max(...workTypeDurations) + 5,
         pointLabels: {
           fontSize: 12,
-          color: mode === 'dark' ? '#fff' : '#000',
+          color: mode === 'dark' ? '#fff' : '#000'
         },
         ticks: {
           backdropColor: 'transparent',
-          callback: function(value) {
-            return value;
+          callback: function (value) {
+            return value
           },
           color: mode === 'dark' ? '#fff' : '#000',
           font: {
@@ -134,7 +132,7 @@ const WorkHoursRadarChart = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box display='flex' justifyContent='center' alignItems='center' minHeight='100vh'>
         <CircularProgress />
       </Box>
     )
@@ -157,8 +155,8 @@ const WorkHoursRadarChart = () => {
               transition: 'all 0.3s ease', // Smooth transition for hover effect
               boxShadow: '0 6px 16px rgba(0, 0, 0, 0.9), 0 -6px 16px rgba(255, 255, 255, 0.3)',
               '&:hover': {
-                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 -6px 16px rgba(255, 255, 255, 0.2)',
-              },
+                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 -6px 16px rgba(255, 255, 255, 0.2)'
+              }
             }}
           >
             Radar Analysis
@@ -170,15 +168,15 @@ const WorkHoursRadarChart = () => {
           '& .MuiCardHeader-action': { mb: 0 },
           '& .MuiCardHeader-content': { mb: [2, 0] },
           justifyContent: 'center', // Center the title horizontally
-          mt: 2, // Add some margin on top
+          mt: 2 // Add some margin on top
         }}
       />
 
       <CardContent>
-        <Box display="flex" justifyContent="center" mt={2} mb={2} flexWrap="wrap">
+        <Box display='flex' justifyContent='center' mt={2} mb={2} flexWrap='wrap'>
           <Chip
-            key="All"
-            label="All"
+            key='All'
+            label='All'
             onClick={() => setIgnoredWorkTypes([])}
             color='primary'
             style={{

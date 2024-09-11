@@ -1,7 +1,7 @@
 // File: amplify.mjs
 
-import { join } from 'node:path';
-import { writeFileSync, mkdirSync, existsSync, cpSync, rmSync } from 'node:fs';
+import { join } from 'node:path'
+import { writeFileSync, mkdirSync, existsSync, cpSync, rmSync } from 'node:fs'
 
 // Define all the Amplify related directories
 const amplifyDirectories = [
@@ -10,14 +10,14 @@ const amplifyDirectories = [
   join(process.cwd(), '.amplify-hosting', 'static', '_next'),
   join(process.cwd(), '.amplify-hosting', 'compute'),
   join(process.cwd(), '.amplify-hosting', 'compute', 'default'),
-  join(process.cwd(), '.amplify-hosting', 'compute', 'default', 'node_modules'),
+  join(process.cwd(), '.amplify-hosting', 'compute', 'default', 'node_modules')
 ]
 
 // Create directories if they do no exist already
 if (existsSync(amplifyDirectories[0])) rmSync(amplifyDirectories[0], { force: true, recursive: true })
 
 // Create directories if they do no exist already
-amplifyDirectories.forEach((i => mkdirSync(i)))
+amplifyDirectories.forEach(i => mkdirSync(i))
 
 // A general default configuration to fallback to compute if no matching static assets found
 const deployManifestConfig = {
@@ -26,45 +26,42 @@ const deployManifestConfig = {
     {
       path: `/assets/*`,
       target: {
-        kind: "Static",
-      },
+        kind: 'Static'
+      }
     },
     {
       path: `/*.*`,
       target: {
-        kind: "Static",
+        kind: 'Static'
       },
       fallback: {
-        kind: "Compute",
-        src: "default",
-      },
+        kind: 'Compute',
+        src: 'default'
+      }
     },
     {
-      path: "/*",
+      path: '/*',
       target: {
-        kind: "Compute",
-        src: "default",
-      },
-    },
+        kind: 'Compute',
+        src: 'default'
+      }
+    }
   ],
   computeResources: [
     {
-      name: "default",
-      entrypoint: "server.js",
-      runtime: "nodejs20.x",
-    },
+      name: 'default',
+      entrypoint: 'server.js',
+      runtime: 'nodejs20.x'
+    }
   ],
   framework: {
-    name: "next",
-    version: "14.1.3",
-  },
-};
+    name: 'next',
+    version: '14.1.3'
+  }
+}
 
 // Write the config to .amplify-hosting/deploy-manifest.json
-writeFileSync(
-  join(process.cwd(), ".amplify-hosting", "deploy-manifest.json"),
-  JSON.stringify(deployManifestConfig),
-);
+writeFileSync(join(process.cwd(), '.amplify-hosting', 'deploy-manifest.json'), JSON.stringify(deployManifestConfig))
 
 // Copy the static assets generated in .next/static and public to .amplify-hosting/static directory
 cpSync(join(process.cwd(), 'public'), amplifyDirectories[1], { recursive: true })

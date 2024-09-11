@@ -12,21 +12,21 @@ const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexChart
 const donutColors = {
   desktop: '#fdd835',
   mobile: '#00d4bd',
-  tablet: '#826bf8',
+  tablet: '#826bf8'
 }
 
-const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: string }[], serverMode: SystemMode }) => {
+const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: string }[]; serverMode: SystemMode }) => {
   const theme = useTheme()
   const { mode } = useColorScheme()
 
   const deviceCategories = data.reduce((acc: { [key: string]: number }, item) => {
-    acc[item.deviceCategory] = (acc[item.deviceCategory] || 0) + 1;
-    return acc;
-  }, {});
+    acc[item.deviceCategory] = (acc[item.deviceCategory] || 0) + 1
+    return acc
+  }, {})
 
-  const series = Object.values(deviceCategories);
-  const labels = Object.keys(deviceCategories);
-  const total = series.reduce((a, b) => a + b, 0);  // Calculate total
+  const series = Object.values(deviceCategories)
+  const labels = Object.keys(deviceCategories)
+  const total = series.reduce((a, b) => a + b, 0) // Calculate total
 
   const _mode = (mode === 'system' ? serverMode : mode) || serverMode
   const textSecondary = rgbaToHex(`rgb(${theme.mainColorChannels[_mode]} / 0.7)`)
@@ -36,7 +36,7 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
     labels,
     colors: labels.map(label => donutColors[label]),
     dataLabels: {
-      enabled: false,  // Disable data labels inside the chart
+      enabled: false // Disable data labels inside the chart
     },
     legend: {
       fontSize: '13px',
@@ -53,7 +53,7 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
       pie: {
         donut: {
           labels: {
-            show: false,  // Hide labels inside the donut
+            show: false // Hide labels inside the donut
           }
         }
       }
@@ -86,12 +86,12 @@ const DeviceCategoryChart = ({ data, serverMode }: { data: { deviceCategory: str
       sx={{
         transition: 'transform 0.3s',
         '&:hover': {
-          transform: 'scale(1.05)',
-        },
+          transform: 'scale(1.05)'
+        }
       }}
     >
       <CardHeader
-        title={`Device Category Distribution (Total: ${total})`}  // Display total next to the title
+        title={`Device Category Distribution (Total: ${total})`} // Display total next to the title
         subheader='Distribution of users by device category'
       />
       <CardContent>

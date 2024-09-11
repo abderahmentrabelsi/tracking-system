@@ -11,16 +11,12 @@ const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexChart
 const series = [{ data: [40, 20, 65, 50] }]
 
 export interface LineAreaDailySalesChartProps {
-  title: string;
-  subtitle: string;
-  value: string;
+  title: string
+  subtitle: string
+  value: string
 }
 
-const LineAreaDailySalesChart = ({
-                                   title,
-                                   subtitle,
-                                   value
-                                 }: LineAreaDailySalesChartProps) => {
+const LineAreaDailySalesChart = ({ title, subtitle, value }: LineAreaDailySalesChartProps) => {
   const theme = useTheme()
 
   const options: ApexOptions = {
@@ -82,20 +78,20 @@ const LineAreaDailySalesChart = ({
 
   return (
     <Card
-      className="pbe-6"
+      className='pbe-6'
       sx={{
         transition: 'transform 0.3s',
         '&:hover': {
-          transform: 'scale(1.05)',
-        },
+          transform: 'scale(1.05)'
+        }
       }}
     >
-      <CardHeader title={title} className="pbe-3" />
+      <CardHeader title={title} className='pbe-3' />
       <CardContent>
         <Typography>{subtitle}</Typography>
-        <Typography variant="h4">{value}</Typography>
+        <Typography variant='h4'>{value}</Typography>
       </CardContent>
-      <AppReactApexCharts type="area" height={76} series={series} options={options} />
+      <AppReactApexCharts type='area' height={76} series={series} options={options} />
     </Card>
   )
 }

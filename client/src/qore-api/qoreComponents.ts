@@ -3,77 +3,61 @@
  *
  * @version
  */
-import * as reactQuery from "@tanstack/react-query";
-import { useQoreContext, QoreContext } from "./qoreContext";
-import type * as Fetcher from "./qoreFetcher";
-import { qoreFetch } from "./qoreFetcher";
-import type * as Schemas from "./qoreSchemas";
+import * as reactQuery from '@tanstack/react-query'
+import { useQoreContext, QoreContext } from './qoreContext'
+import type * as Fetcher from './qoreFetcher'
+import { qoreFetch } from './qoreFetcher'
+import type * as Schemas from './qoreSchemas'
 
 export type GetAnalyticsDataError = Fetcher.ErrorWrapper<
   | {
-      status: 400;
-      payload: Schemas.ControllerErrorResponse;
+      status: 400
+      payload: Schemas.ControllerErrorResponse
     }
   | {
-      status: 500;
-      payload: Schemas.ControllerErrorResponse;
+      status: 500
+      payload: Schemas.ControllerErrorResponse
     }
->;
+>
 
-export type GetAnalyticsDataVariables = QoreContext["fetcherOptions"];
-
-/**
- * Get analytics data from Google Analytics
- */
-export const fetchGetAnalyticsData = (
-  variables: GetAnalyticsDataVariables,
-  signal?: AbortSignal,
-) =>
-  qoreFetch<
-    Schemas.ControllerAnalyticsResponse,
-    GetAnalyticsDataError,
-    undefined,
-    {},
-    {},
-    {}
-  >({ url: "/analytics", method: "get", ...variables, signal });
+export type GetAnalyticsDataVariables = QoreContext['fetcherOptions']
 
 /**
  * Get analytics data from Google Analytics
  */
-export const useGetAnalyticsData = <
-  TData = Schemas.ControllerAnalyticsResponse,
->(
+export const fetchGetAnalyticsData = (variables: GetAnalyticsDataVariables, signal?: AbortSignal) =>
+  qoreFetch<Schemas.ControllerAnalyticsResponse, GetAnalyticsDataError, undefined, {}, {}, {}>({
+    url: '/analytics',
+    method: 'get',
+    ...variables,
+    signal
+  })
+
+/**
+ * Get analytics data from Google Analytics
+ */
+export const useGetAnalyticsData = <TData = Schemas.ControllerAnalyticsResponse>(
   variables: GetAnalyticsDataVariables,
   options?: Omit<
-    reactQuery.UseQueryOptions<
-      Schemas.ControllerAnalyticsResponse,
-      GetAnalyticsDataError,
-      TData
-    >,
-    "queryKey" | "queryFn" | "initialData"
-  >,
+    reactQuery.UseQueryOptions<Schemas.ControllerAnalyticsResponse, GetAnalyticsDataError, TData>,
+    'queryKey' | 'queryFn' | 'initialData'
+  >
 ) => {
-  const { fetcherOptions, queryOptions, queryKeyFn } = useQoreContext(options);
-  return reactQuery.useQuery<
-    Schemas.ControllerAnalyticsResponse,
-    GetAnalyticsDataError,
-    TData
-  >({
+  const { fetcherOptions, queryOptions, queryKeyFn } = useQoreContext(options)
+  return reactQuery.useQuery<Schemas.ControllerAnalyticsResponse, GetAnalyticsDataError, TData>({
     queryKey: queryKeyFn({
-      path: "/analytics",
-      operationId: "getAnalyticsData",
-      variables,
+      path: '/analytics',
+      operationId: 'getAnalyticsData',
+      variables
     }),
-    queryFn: ({ signal }) =>
-      fetchGetAnalyticsData({ ...fetcherOptions, ...variables }, signal),
+    queryFn: ({ signal }) => fetchGetAnalyticsData({ ...fetcherOptions, ...variables }, signal),
     ...options,
-    ...queryOptions,
-  });
-};
+    ...queryOptions
+  })
+}
 
 export type QueryOperation = {
-  path: "/analytics";
-  operationId: "getAnalyticsData";
-  variables: GetAnalyticsDataVariables;
-};
+  path: '/analytics'
+  operationId: 'getAnalyticsData'
+  variables: GetAnalyticsDataVariables
+}

@@ -1,11 +1,11 @@
 // app/views/attendance/page.tsx
-import { checkAuth } from '@/utils/checkAuth';
-import WorkHoursPage from '@/views/attendance/timetracker';
+import { checkAuth } from '@/utils/checkAuth'
+import WorkHoursPage from '@/views/attendance/timetracker'
 
 const App = async () => {
-  checkAuth();
+  checkAuth()
 
-  return <WorkHoursPage />;
-};
+  return <WorkHoursPage />
+}
 
-export default App;
+export default App

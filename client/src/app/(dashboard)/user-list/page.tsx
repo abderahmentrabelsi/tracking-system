@@ -3,7 +3,7 @@ import UserList from '@views/user-list'
 import { checkAuth } from '@/utils/checkAuth'
 
 const UserListApp = () => {
-  checkAuth();
+  checkAuth()
   return <UserList />
 }
 

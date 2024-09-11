@@ -1,11 +1,11 @@
 // app/views/attendance/page.tsx
-import { checkAuth } from '@/utils/checkAuth';
-import LeaveTrackerPage from '@/views/attendance/leavetracker';
+import { checkAuth } from '@/utils/checkAuth'
+import LeaveTrackerPage from '@/views/attendance/leavetracker'
 
 const App = async () => {
-  checkAuth();
+  checkAuth()
 
-  return <LeaveTrackerPage />;
-};
+  return <LeaveTrackerPage />
+}
 
-export default App;
+export default App

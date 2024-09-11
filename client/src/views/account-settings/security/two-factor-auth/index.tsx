@@ -29,7 +29,7 @@ import { generateTOTP, verifyTOTP } from '../../../../utils/userUtils'
 type TwoFactorAuthProps = {
   open: boolean
   setOpen: (open: boolean) => void
-  onStatusChange: () => void;  // New prop to handle status change
+  onStatusChange: () => void // New prop to handle status change
 }
 
 const data: CustomInputHorizontalData[] = [
@@ -90,22 +90,26 @@ const SMSDialog = (handleAuthDialogClose: () => void) => {
   )
 }
 
-const AppDialog = (handleAuthDialogClose: () => void, handleVerification: (code: string) => void, verificationError: string | null) => {
-  const [totpData, setTotpData] = useState<{ secret: string; qr_code: string } | null>(null);
-  const [code, setCode] = useState<string>('');
+const AppDialog = (
+  handleAuthDialogClose: () => void,
+  handleVerification: (code: string) => void,
+  verificationError: string | null
+) => {
+  const [totpData, setTotpData] = useState<{ secret: string; qr_code: string } | null>(null)
+  const [code, setCode] = useState<string>('')
 
   useEffect(() => {
     const fetchTOTP = async () => {
       try {
-        const data = await generateTOTP();
-        setTotpData(data);
+        const data = await generateTOTP()
+        setTotpData(data)
       } catch (error) {
-        console.error('Error generating TOTP:', error);
+        console.error('Error generating TOTP:', error)
       }
-    };
+    }
 
-    fetchTOTP();
-  }, []);
+    fetchTOTP()
+  }, [])
 
   return (
     <>
@@ -162,19 +166,19 @@ const AppDialog = (handleAuthDialogClose: () => void, handleVerification: (code:
         </Button>
       </DialogActions>
     </>
-  );
-};
+  )
+}
 
 const TwoFactorAuth = ({ open, setOpen, onStatusChange }: TwoFactorAuthProps) => {
   // Vars
   const initialSelectedOption: string = data.filter(item => item.isSelected)[
-  data.filter(item => item.isSelected).length - 1
-    ].value
+    data.filter(item => item.isSelected).length - 1
+  ].value
 
   // States
   const [authType, setAuthType] = useState<string>(initialSelectedOption)
   const [showAuthDialog, setShowAuthDialog] = useState<boolean>(false)
-  const [verificationError, setVerificationError] = useState<string | null>(null);
+  const [verificationError, setVerificationError] = useState<string | null>(null)
 
   const handleClose = () => {
     setOpen(false)
@@ -204,18 +208,18 @@ const TwoFactorAuth = ({ open, setOpen, onStatusChange }: TwoFactorAuthProps) =>
 
   const handleVerification = async (code: string) => {
     try {
-      const isSuccess = await verifyTOTP(code);
+      const isSuccess = await verifyTOTP(code)
       if (isSuccess) {
-        onStatusChange();  // Notify parent component about the status change
-        setShowAuthDialog(false);
+        onStatusChange() // Notify parent component about the status change
+        setShowAuthDialog(false)
       } else {
-        setVerificationError('Invalid verification code. Please try again.');
+        setVerificationError('Invalid verification code. Please try again.')
       }
     } catch (error) {
-      console.error('Error verifying TOTP code:', error);
-      setVerificationError('An error occurred during verification. Please try again.');
+      console.error('Error verifying TOTP code:', error)
+      setVerificationError('An error occurred during verification. Please try again.')
     }
-  };
+  }
 
   return (
     <>
@@ -280,7 +284,9 @@ const TwoFactorAuth = ({ open, setOpen, onStatusChange }: TwoFactorAuthProps) =>
           <i className='tabler-x' />
         </DialogCloseButton>
         <form onSubmit={e => e.preventDefault()}>
-          {authType === 'sms' ? SMSDialog(handleAuthDialogClose) : AppDialog(handleAuthDialogClose, handleVerification, verificationError)}
+          {authType === 'sms'
+            ? SMSDialog(handleAuthDialogClose)
+            : AppDialog(handleAuthDialogClose, handleVerification, verificationError)}
         </form>
       </Dialog>
     </>

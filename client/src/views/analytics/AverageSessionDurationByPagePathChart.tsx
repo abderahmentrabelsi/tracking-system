@@ -21,7 +21,13 @@ import { rgbaToHex } from '@/utils/rgbaToHex'
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-const AverageSessionDurationByPagePathChart = ({ data, serverMode }: { data: { pagePath: string, averageSessionDuration: number }[], serverMode: SystemMode }) => {
+const AverageSessionDurationByPagePathChart = ({
+  data,
+  serverMode
+}: {
+  data: { pagePath: string; averageSessionDuration: number }[]
+  serverMode: SystemMode
+}) => {
   // Hooks
   const theme = useTheme()
   const { mode } = useColorScheme()
@@ -31,8 +37,8 @@ const AverageSessionDurationByPagePathChart = ({ data, serverMode }: { data: { p
   const divider = rgbaToHex(`rgb(${theme.mainColorChannels[_mode]} / 0.12)`)
   const textDisabled = rgbaToHex(`rgb(${theme.mainColorChannels[_mode]} / 0.4)`)
 
-  const pagePaths = data.map(item => item.pagePath);
-  const averageSessionDurations = data.map(item => item.averageSessionDuration);
+  const pagePaths = data.map(item => item.pagePath)
+  const averageSessionDurations = data.map(item => item.averageSessionDuration)
 
   // Use theme colors instead of hardcoded values
   const options: ApexOptions = {

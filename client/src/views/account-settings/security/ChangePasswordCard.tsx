@@ -30,7 +30,7 @@ const ChangePasswordCard = () => {
 
   const handlePasswordChange = async () => {
     if (newPassword !== confirmNewPassword) {
-      setErrorMessage("New password and confirm new password do not match")
+      setErrorMessage('New password and confirm new password do not match')
       setSuccessMessage('')
       return
     }
@@ -70,19 +70,19 @@ const ChangePasswordCard = () => {
               type={isCurrentPasswordShown ? 'text' : 'password'}
               placeholder='············'
               value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
+              onChange={e => setCurrentPassword(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
                     <IconButton
                       edge='end'
                       onClick={handleClickShowCurrentPassword}
-                      onMouseDown={(e) => e.preventDefault()}
+                      onMouseDown={e => e.preventDefault()}
                     >
                       <i className={isCurrentPasswordShown ? 'tabler-eye-off' : 'tabler-eye'} />
                     </IconButton>
                   </InputAdornment>
-                ),
+                )
               }}
             />
           </Grid>
@@ -93,19 +93,15 @@ const ChangePasswordCard = () => {
               type={isNewPasswordShown ? 'text' : 'password'}
               placeholder='············'
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={e => setNewPassword(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      onClick={handleClickShowNewPassword}
-                      onMouseDown={(e) => e.preventDefault()}
-                    >
+                    <IconButton edge='end' onClick={handleClickShowNewPassword} onMouseDown={e => e.preventDefault()}>
                       <i className={isNewPasswordShown ? 'tabler-eye-off' : 'tabler-eye'} />
                     </IconButton>
                   </InputAdornment>
-                ),
+                )
               }}
             />
           </Grid>
@@ -116,19 +112,19 @@ const ChangePasswordCard = () => {
               type={isConfirmNewPasswordShown ? 'text' : 'password'}
               placeholder='············'
               value={confirmNewPassword}
-              onChange={(e) => setConfirmNewPassword(e.target.value)}
+              onChange={e => setConfirmNewPassword(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
                     <IconButton
                       edge='end'
                       onClick={handleClickShowConfirmNewPassword}
-                      onMouseDown={(e) => e.preventDefault()}
+                      onMouseDown={e => e.preventDefault()}
                     >
                       <i className={isConfirmNewPasswordShown ? 'tabler-eye-off' : 'tabler-eye'} />
                     </IconButton>
                   </InputAdornment>
-                ),
+                )
               }}
             />
           </Grid>
@@ -141,14 +137,22 @@ const ChangePasswordCard = () => {
             </ul>
           </Grid>
           <Grid item xs={12} className='flex gap-4'>
-            <Button variant='contained' onClick={handlePasswordChange}>Save Changes</Button>
-            <Button variant='tonal' color='secondary' onClick={() => {
-              setCurrentPassword('')
-              setNewPassword('')
-              setConfirmNewPassword('')
-              setErrorMessage('')
-              setSuccessMessage('')
-            }}>Reset</Button>
+            <Button variant='contained' onClick={handlePasswordChange}>
+              Save Changes
+            </Button>
+            <Button
+              variant='tonal'
+              color='secondary'
+              onClick={() => {
+                setCurrentPassword('')
+                setNewPassword('')
+                setConfirmNewPassword('')
+                setErrorMessage('')
+                setSuccessMessage('')
+              }}
+            >
+              Reset
+            </Button>
           </Grid>
         </Grid>
       </CardContent>

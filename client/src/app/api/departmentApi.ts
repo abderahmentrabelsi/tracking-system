@@ -1,96 +1,103 @@
-import axios from 'axios';
-import { DepartmentType, ClientType } from '@/types/departmentTypes';
+import axios from 'axios'
+import { DepartmentType, ClientType } from '@/types/departmentTypes'
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_GO_APP_SERVER_URL,
-  withCredentials: true,
-});
+  withCredentials: true
+})
 
 export const fetchClients = async (): Promise<ClientType[]> => {
-  const response = await apiClient.get('/client/');
+  const response = await apiClient.get('/client/')
   if (response.status === 200) {
-    return response.data.data;
+    return response.data.data
   } else {
-    throw new Error('Failed to fetch clients');
+    throw new Error('Failed to fetch clients')
   }
-};
+}
 
 export const getDepartmentById = async (id: number): Promise<DepartmentType> => {
-  const response = await apiClient.get(`/department/${id}`);
+  const response = await apiClient.get(`/department/${id}`)
   if (response.status === 200) {
     return {
       ...response.data.data,
-      CreatedAt: new Date(response.data.data.CreatedAt).toISOString(),
-    };
+      CreatedAt: new Date(response.data.data.CreatedAt).toISOString()
+    }
   } else {
-    throw new Error(`Failed to fetch department with id ${id}`);
+    throw new Error(`Failed to fetch department with id ${id}`)
   }
-};
+}
 
 export const fetchDepartments = async (clientName: string): Promise<DepartmentType[]> => {
   if (!clientName) {
-    console.warn('Client name is empty, skipping fetchDepartments call.');
-    return [];
+    console.warn('Client name is empty, skipping fetchDepartments call.')
+    return []
   }
 
   try {
-    const response = await apiClient.get(`/departments/${clientName}`);
+    const response = await apiClient.get(`/departments/${clientName}`)
     if (response.status === 200) {
       return response.data.data.map((department: any) => ({
         ...department,
-        CreatedAt: new Date(department.CreatedAt).toISOString(),
-      }));
+        CreatedAt: new Date(department.CreatedAt).toISOString()
+      }))
     } else {
-      throw new Error(`Failed to fetch departments for client ${clientName}`);
+      throw new Error(`Failed to fetch departments for client ${clientName}`)
     }
   } catch (error) {
-    console.error(`Error fetching departments for client ${clientName}:`, error);
-    throw error;
+    console.error(`Error fetching departments for client ${clientName}:`, error)
+    throw error
   }
-};
+}
 
-export const createDepartment = async (department: { name: string; clientName: string; supervisorId: number }): Promise<DepartmentType> => {
-  const response = await apiClient.post('/department/create', department);
+export const createDepartment = async (department: {
+  name: string
+  clientName: string
+  supervisorId: number
+}): Promise<DepartmentType> => {
+  const response = await apiClient.post('/department/create', department)
   if (response.status === 201) {
-    return response.data.data;
+    return response.data.data
   } else {
-    throw new Error('Failed to create department');
+    throw new Error('Failed to create department')
   }
-};
+}
 
-export const updateDepartment = async (id: number, department: { name: string; supervisorId: number }): Promise<void> => {
-  const response = await apiClient.put(`/department/update/${id}`, department);
+export const updateDepartment = async (
+  id: number,
+  department: { name: string; supervisorId: number }
+): Promise<void> => {
+  const response = await apiClient.put(`/department/update/${id}`, department)
   if (response.status !== 200) {
-    throw new Error('Failed to update department');
+    throw new Error('Failed to update department')
   }
-};
+}
 
 export const deleteDepartment = async (id: number): Promise<void> => {
-  const response = await apiClient.delete(`/department/delete/${id}`);
+  const response = await apiClient.delete(`/department/delete/${id}`)
   if (response.status !== 200) {
-    throw new Error('Failed to delete department');
+    throw new Error('Failed to delete department')
   }
-};
+}
 
 export const createClient = async (client: { name: string }): Promise<ClientType> => {
-  const response = await apiClient.post('/client/create', client);
+  const response = await apiClient.post('/client/create', client)
   if (response.status === 201) {
-    return response.data.data;
+    return response.data.data
   } else {
-    throw new Error('Failed to create client');
+    throw new Error('Failed to create client')
   }
-};
+}
 
 export const updateClient = async (id: number, client: { name: string }): Promise<void> => {
-  const response = await apiClient.put(`/client/update/${id}`, client);
+  const response = await apiClient.put(`/client/update/${id}`, client)
   if (response.status !== 200) {
-    throw new Error('Failed to update client');
+    throw new Error('Failed to update client')
   }
-};
+}
 
 export const deleteClient = async (id: number): Promise<void> => {
-  const response = await apiClient.delete(`/client/delete/${id}`);
+  const response = await apiClient.delete(`/client/delete/${id}`)
   if (response.status !== 200) {
-    throw new Error('Failed to delete client');
+    throw new Error('Failed to delete client')
   }
-};
+}

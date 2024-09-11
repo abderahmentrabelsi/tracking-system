@@ -14,8 +14,8 @@ import TabPanel from '@mui/lab/TabPanel'
 import CustomTabList from '@core/components/mui/TabList'
 
 interface AccountSettingsProps {
-  tabContentList: { [key: string]: ReactElement };
-  mode: string;
+  tabContentList: { [key: string]: ReactElement }
+  mode: string
 }
 
 const AccountSettings: React.FC<AccountSettingsProps> = ({ tabContentList, mode }) => {

@@ -18,15 +18,15 @@ const WorkHoursPage = () => {
           transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
           '&:hover': {
             transform: 'scale(1.05)',
-            boxShadow: '0 8px 16px rgba(0, 0, 0, 0.4)', // Enhanced shadow on hover
-          },
+            boxShadow: '0 8px 16px rgba(0, 0, 0, 0.4)' // Enhanced shadow on hover
+          }
         }}
       >
         <CardContent>
           <WorkHoursChart />
         </CardContent>
       </Card>
-      <Box mt={4} display="flex" justifyContent="space-between">
+      <Box mt={4} display='flex' justifyContent='space-between'>
         <Card
           sx={{
             flex: 1,
@@ -36,8 +36,8 @@ const WorkHoursPage = () => {
             transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
             '&:hover': {
               transform: 'scale(1.05)',
-              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.4)', // Enhanced shadow on hover
-            },
+              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.4)' // Enhanced shadow on hover
+            }
           }}
         >
           <CardContent>
@@ -53,8 +53,8 @@ const WorkHoursPage = () => {
             transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
             '&:hover': {
               transform: 'scale(1.05)',
-              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.4)', // Enhanced shadow on hover
-            },
+              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.4)' // Enhanced shadow on hover
+            }
           }}
         >
           <CardContent>

@@ -101,8 +101,8 @@ const HorizontalMenu = () => {
 
         {userRole === 'Admin' && (
           <>
-            <SubMenu label="Users" icon={<i className='tabler-lock' style={{ fontSize: '24px' }} />}>
-              <MenuItem href='/user-list' icon={<i className='tabler-user' style={{fontSize: '24px'}}/>}>
+            <SubMenu label='Users' icon={<i className='tabler-lock' style={{ fontSize: '24px' }} />}>
+              <MenuItem href='/user-list' icon={<i className='tabler-user' style={{ fontSize: '24px' }} />}>
                 Users list
               </MenuItem>
               <MenuItem href='/signup' icon={<i className='tabler-users-plus' />}>
@@ -112,7 +112,7 @@ const HorizontalMenu = () => {
             <MenuItem href='/departments' icon={<i className='tabler-building' />}>
               Organizations
             </MenuItem>
-            <SubMenu label="Roles & Permissions" icon={<i className='tabler-lock' />}>
+            <SubMenu label='Roles & Permissions' icon={<i className='tabler-lock' />}>
               <MenuItem href='/roles' icon={<i className='tabler-user' />}>
                 Role
               </MenuItem>
@@ -124,17 +124,26 @@ const HorizontalMenu = () => {
         )}
 
         {userRole === 'Manager' && (
-          <SubMenu label="Management" icon={<i className='tabler-lock' style={{ fontSize: '24px' }} />}>
-            <MenuItem href='/user-list' icon={<i className='tabler-user' style={{fontSize: '24px'}}/>}>
+          <SubMenu label='Management' icon={<i className='tabler-lock' style={{ fontSize: '24px' }} />}>
+            <MenuItem href='/user-list' icon={<i className='tabler-user' style={{ fontSize: '24px' }} />}>
               Users list
             </MenuItem>
-            <MenuItem href='/management/projects' icon={<i className='tabler-briefcase' style={{ fontSize: '24px' }} />}>
+            <MenuItem
+              href='/management/projects'
+              icon={<i className='tabler-briefcase' style={{ fontSize: '24px' }} />}
+            >
               Projects
             </MenuItem>
-            <MenuItem href='/management/tasks' icon={<i className='tabler-clipboard-list' style={{ fontSize: '24px' }} />}>
+            <MenuItem
+              href='/management/tasks'
+              icon={<i className='tabler-clipboard-list' style={{ fontSize: '24px' }} />}
+            >
               Tasks
             </MenuItem>
-            <MenuItem href='/management/timesheet/' icon={<i className='tabler-calendar' style={{ fontSize: '24px' }} />}>
+            <MenuItem
+              href='/management/timesheet/'
+              icon={<i className='tabler-calendar' style={{ fontSize: '24px' }} />}
+            >
               Work Logs
             </MenuItem>
             <MenuItem href='/management/resources' icon={<i className='tabler-tools' style={{ fontSize: '24px' }} />}>
@@ -159,10 +168,18 @@ const HorizontalMenu = () => {
         <MenuItem className='attendance-tab' href='/attendance' icon={<i className='tabler-clipboard' />}>
           Attendance
         </MenuItem>
-        <MenuItem className='workhours-menu-item' href='/attendance/timetracker' icon={<i className='tabler-briefcase' />}>
+        <MenuItem
+          className='workhours-menu-item'
+          href='/attendance/timetracker'
+          icon={<i className='tabler-briefcase' />}
+        >
           Time Tracker
         </MenuItem>
-        <MenuItem className='workhours-menu-item' href='/attendance/leavetracker' icon={<i className='tabler-calendar-event' />}>
+        <MenuItem
+          className='workhours-menu-item'
+          href='/attendance/leavetracker'
+          icon={<i className='tabler-calendar-event' />}
+        >
           Leave Tracker
         </MenuItem>
         <MenuItem href='/equipments' icon={<i className='tabler-hammer' />}>

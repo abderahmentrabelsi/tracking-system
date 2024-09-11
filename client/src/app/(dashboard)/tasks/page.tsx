@@ -1,11 +1,11 @@
 // src/app/dashboard/page.tsx
-import { checkAuth } from '@/utils/checkAuth';
-import TaskDashboard from '@/views/tasks';
+import { checkAuth } from '@/utils/checkAuth'
+import TaskDashboard from '@/views/tasks'
 
 const DashboardPage: React.FC = async () => {
-  checkAuth();
+  checkAuth()
 
-  return <TaskDashboard />;
-};
+  return <TaskDashboard />
+}
 
-export default DashboardPage;
+export default DashboardPage

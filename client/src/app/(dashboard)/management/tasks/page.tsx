@@ -1,11 +1,11 @@
 // src/app/management/tasks/page.tsx
-import { checkAuth } from '@/utils/checkAuth';
-import ManagerDashboard from '@/views/Management/tasks/Manager';
+import { checkAuth } from '@/utils/checkAuth'
+import ManagerDashboard from '@/views/Management/tasks/Manager'
 
 const App = async () => {
-  checkAuth();
+  checkAuth()
 
-  return <ManagerDashboard />;
-};
+  return <ManagerDashboard />
+}
 
-export default App;
+export default App

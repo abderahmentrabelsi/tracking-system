@@ -1,32 +1,32 @@
-'use client';
-import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Container, Box } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import Image from 'next/image';
+'use client'
+import React from 'react'
+import { AppBar, Toolbar, Typography, Button, Container, Box } from '@mui/material'
+import { makeStyles } from '@mui/styles'
+import Image from 'next/image'
 import { Theme } from '@mui/material/styles'
 
 const useStyles = makeStyles({
   root: {
     height: '100vh',
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column'
   },
   appBar: {
     backgroundColor: '#030303',
-    borderBottom: '2px solid #000',
+    borderBottom: '2px solid #000'
   },
   toolbar: {
     display: 'flex',
     justifyContent: 'space-between',
-    padding: '0 20px',
+    padding: '0 20px'
   },
   logo: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   logoImage: {
     marginRight: '10px',
-    display: 'flex',
+    display: 'flex'
   },
   loginButton: {
     border: '3px solid #000',
@@ -36,8 +36,8 @@ const useStyles = makeStyles({
     backgroundColor: 'rgb(241,235,235)',
     '&:hover': {
       backgroundColor: '#c06767',
-      color: '#e1d9d9',
-    },
+      color: '#e1d9d9'
+    }
   },
   main: {
     flexGrow: 1,
@@ -50,8 +50,8 @@ const useStyles = makeStyles({
     position: 'relative',
     flexDirection: 'column',
     '@media (min-width: 960px)': {
-      flexDirection: 'row', // When screen width >= 960px (similar to 'md')
-    },
+      flexDirection: 'row' // When screen width >= 960px (similar to 'md')
+    }
   },
   content: {
     textAlign: 'left',
@@ -59,8 +59,8 @@ const useStyles = makeStyles({
     zIndex: 1,
     marginBottom: '20px',
     '@media (min-width: 960px)': {
-      marginBottom: 0, // Reset margin when screen width >= 960px
-    },
+      marginBottom: 0 // Reset margin when screen width >= 960px
+    }
   },
   title: {
     fontSize: '2em',
@@ -68,8 +68,8 @@ const useStyles = makeStyles({
     marginBottom: '20px',
     color: '#000',
     '@media (min-width: 960px)': {
-      fontSize: '3em', // Adjust font size for wider screens
-    },
+      fontSize: '3em' // Adjust font size for wider screens
+    }
   },
   description: {
     fontSize: '1em',
@@ -79,8 +79,8 @@ const useStyles = makeStyles({
     lineHeight: '1.4',
     width: '100%',
     '@media (min-width: 960px)': {
-      fontSize: '1.2em', // Adjust font size for wider screens
-    },
+      fontSize: '1.2em' // Adjust font size for wider screens
+    }
   },
   imageContainer: {
     zIndex: 0,
@@ -88,15 +88,15 @@ const useStyles = makeStyles({
     textAlign: 'center',
     '@media (min-width: 960px)': {
       marginLeft: '50px', // Adjust margin for wider screens
-      width: 'auto',
-    },
+      width: 'auto'
+    }
   },
   footer: {
     padding: '10px',
     textAlign: 'center',
     backgroundColor: '#110a0a',
     borderTop: '2px solid #000',
-    color: '#fff',
+    color: '#fff'
   },
   overlay: {
     position: 'absolute',
@@ -105,21 +105,21 @@ const useStyles = makeStyles({
     right: 0,
     bottom: 0,
     background: 'rgba(255, 255, 255, 0.8)',
-    zIndex: -1,
-  },
-});
+    zIndex: -1
+  }
+})
 
 const HomePage: React.FC = () => {
-  const classes = useStyles();
+  const classes = useStyles()
 
   return (
     <div className={classes.root}>
-      <AppBar position="static" className={classes.appBar}>
+      <AppBar position='static' className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
           <div className={classes.logo}>
-            <Image src="/last.png" alt="Company Logo" width={100} height={40} className={classes.logoImage} />
+            <Image src='/last.png' alt='Company Logo' width={100} height={40} className={classes.logoImage} />
           </div>
-          <Button className={classes.loginButton} href="/login">
+          <Button className={classes.loginButton} href='/login'>
             Login
           </Button>
         </Toolbar>
@@ -130,21 +130,29 @@ const HomePage: React.FC = () => {
             Connecting People, Empowering Teams: Your Ultimate TIME TRACKING Toolkit.
           </Typography>
           <Typography className={classes.description}>
-            Unlock organizational success with our Ultimate TIME TRACKING Toolkit:<br />
-            Recruiting excellence, fostering engagement, and building a thriving workplace culture.<br />
+            Unlock organizational success with our Ultimate TIME TRACKING Toolkit:
+            <br />
+            Recruiting excellence, fostering engagement, and building a thriving workplace culture.
+            <br />
             Connect people, empower teams, and drive results.
           </Typography>
         </Container>
         <Box className={classes.imageContainer}>
-          <Image src="/img2homepage.png" alt="HR Toolkit" width={800} height={536} style={{ maxWidth: '100%', height: 'auto' }} />
+          <Image
+            src='/img2homepage.png'
+            alt='HR Toolkit'
+            width={800}
+            height={536}
+            style={{ maxWidth: '100%', height: 'auto' }}
+          />
         </Box>
         <div className={classes.overlay}></div>
       </main>
       <footer className={classes.footer}>
-        <Typography variant="body1">© 2024 QORE VIRTUAL. All rights reserved.</Typography>
+        <Typography variant='body1'>© 2024 QORE VIRTUAL. All rights reserved.</Typography>
       </footer>
     </div>
-  );
-};
+  )
+}
 
-export default HomePage;
+export default HomePage

@@ -1,29 +1,29 @@
 // src/views/departments/ClientCard.tsx
-'use client';
+'use client'
 
-import { Card, CardContent, Typography, Avatar, Grid, IconButton, Tooltip, Box } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { useTheme } from '@mui/material/styles';
+import { Card, CardContent, Typography, Avatar, Grid, IconButton, Tooltip, Box } from '@mui/material'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import { useTheme } from '@mui/material/styles'
 
 interface ClientCardProps {
   client: {
-    ID: number;
-    name: string;
-    departmentCount: number;
-    employeeCount: number;
-  };
-  onClick: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
+    ID: number
+    name: string
+    departmentCount: number
+    employeeCount: number
+  }
+  onClick: () => void
+  onEdit: () => void
+  onDelete: () => void
 }
 
 const ClientCard: React.FC<ClientCardProps> = ({ client, onClick, onEdit, onDelete }) => {
-  const theme = useTheme();
-  const backgroundColor = theme.palette.mode === 'dark' ? theme.palette.background.paper : theme.palette.grey[200];
-  const textColor = theme.palette.text.primary;
-  const avatarBgColor = theme.palette.primary.main;
-  const iconColor = theme.palette.primary.contrastText;
+  const theme = useTheme()
+  const backgroundColor = theme.palette.mode === 'dark' ? theme.palette.background.paper : theme.palette.grey[200]
+  const textColor = theme.palette.text.primary
+  const avatarBgColor = theme.palette.primary.main
+  const iconColor = theme.palette.primary.contrastText
 
   return (
     <Card
@@ -48,19 +48,37 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onClick, onEdit, onDele
           </Grid>
           <Grid item xs>
             <Box display='flex' flexDirection='column'>
-              <Typography variant='h5' color={textColor}>{client.name}</Typography>
-              <Typography variant='body2' color='textSecondary'>Departments: {client.departmentCount}</Typography>
-              <Typography variant='body2' color='textSecondary'>Employees: {client.employeeCount}</Typography>
+              <Typography variant='h5' color={textColor}>
+                {client.name}
+              </Typography>
+              <Typography variant='body2' color='textSecondary'>
+                Departments: {client.departmentCount}
+              </Typography>
+              <Typography variant='body2' color='textSecondary'>
+                Employees: {client.employeeCount}
+              </Typography>
             </Box>
           </Grid>
           <Grid item>
-            <Tooltip title="Edit Client">
-              <IconButton onClick={(e) => { e.stopPropagation(); onEdit(); }} sx={{ color: iconColor }}>
+            <Tooltip title='Edit Client'>
+              <IconButton
+                onClick={e => {
+                  e.stopPropagation()
+                  onEdit()
+                }}
+                sx={{ color: iconColor }}
+              >
                 <EditIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Delete Client">
-              <IconButton onClick={(e) => { e.stopPropagation(); onDelete(); }} sx={{ color: iconColor }}>
+            <Tooltip title='Delete Client'>
+              <IconButton
+                onClick={e => {
+                  e.stopPropagation()
+                  onDelete()
+                }}
+                sx={{ color: iconColor }}
+              >
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
@@ -68,7 +86,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onClick, onEdit, onDele
         </Grid>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default ClientCard;
+export default ClientCard

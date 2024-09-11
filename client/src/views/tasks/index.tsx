@@ -1,26 +1,26 @@
 'use client'
-import React, { useEffect, useState } from 'react';
-import EmployeeDashboard from './Employee';
+import React, { useEffect, useState } from 'react'
+import EmployeeDashboard from './Employee'
 
 const TaskDashboard: React.FC = () => {
-  const [role, setRole] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null)
 
   useEffect(() => {
-    const storedRole = localStorage.getItem('userRole');
+    const storedRole = localStorage.getItem('userRole')
     if (storedRole) {
-      setRole(storedRole);
+      setRole(storedRole)
     }
-  }, []);
+  }, [])
 
   if (!role) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   return (
     <div>
       <EmployeeDashboard />
     </div>
-  );
-};
+  )
+}
 
-export default TaskDashboard;
+export default TaskDashboard

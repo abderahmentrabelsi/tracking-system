@@ -19,7 +19,7 @@ import { rgbaToHex } from '@/utils/rgbaToHex'
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-const TimeSeriesChart = ({ data, serverMode }: { data: any, serverMode: SystemMode }) => {
+const TimeSeriesChart = ({ data, serverMode }: { data: any; serverMode: SystemMode }) => {
   const theme = useTheme()
   const { mode } = useColorScheme()
 
@@ -104,13 +104,7 @@ const TimeSeriesChart = ({ data, serverMode }: { data: any, serverMode: SystemMo
         }}
       />
       <CardContent>
-        <AppReactApexCharts
-          type='line'
-          width='100%'
-          height={150}
-          options={options}
-          series={series}
-        />
+        <AppReactApexCharts type='line' width='100%' height={150} options={options} series={series} />
       </CardContent>
     </Card>
   )

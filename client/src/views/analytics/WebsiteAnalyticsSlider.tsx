@@ -31,11 +31,7 @@ const generateDataFromMetrics = (metrics: ControllerAggregateMetrics): DataType[
     '/images/cards/graphic-illustration-3.png'
   ]
 
-  const titles = [
-    'Average Bounce Rate',
-    'Total Conversions',
-    'Total Revenue',
-  ]
+  const titles = ['Average Bounce Rate', 'Total Conversions', 'Total Revenue']
 
   return Object.keys(metrics).map((key, index) => ({
     title: titles[index],
@@ -172,8 +168,8 @@ const WebsiteAnalyticsSlider = ({ metrics }: Props) => {
           justifyContent: 'center',
           alignItems: 'center',
           '&:hover': {
-            transform: 'scale(1.05)',
-          },
+            transform: 'scale(1.05)'
+          }
         }}
       >
         <div ref={sliderRef} className='keen-slider relative' style={{ height: '100%' }}>
@@ -191,11 +187,11 @@ const WebsiteAnalyticsSlider = ({ metrics }: Props) => {
                       width: '8px !important',
                       height: '8px !important',
                       backgroundColor: `${theme.palette.common.white} !important`,
-                      opacity: 0.4,
+                      opacity: 0.4
                     },
                     '&.active .MuiBadge-dot': {
-                      opacity: 1,
-                    },
+                      opacity: 1
+                    }
                   }}
                 />
               ))}

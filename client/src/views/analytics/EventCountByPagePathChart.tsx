@@ -21,7 +21,13 @@ import { rgbaToHex } from '@/utils/rgbaToHex'
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-const EventCountByPagePathChart = ({ data, serverMode }: { data: { pagePath: string, eventCount: number }[], serverMode: SystemMode }) => {
+const EventCountByPagePathChart = ({
+  data,
+  serverMode
+}: {
+  data: { pagePath: string; eventCount: number }[]
+  serverMode: SystemMode
+}) => {
   // Hooks
   const theme = useTheme()
   const { mode } = useColorScheme()
@@ -31,8 +37,8 @@ const EventCountByPagePathChart = ({ data, serverMode }: { data: { pagePath: str
   const divider = rgbaToHex(`rgb(${theme.mainColorChannels[_mode]} / 0.12)`)
   const disabledText = rgbaToHex(`rgb(${theme.mainColorChannels[_mode]} / 0.4)`)
 
-  const pagePaths = data.map(item => item.pagePath);
-  const eventCounts = data.map(item => item.eventCount);
+  const pagePaths = data.map(item => item.pagePath)
+  const eventCounts = data.map(item => item.eventCount)
 
   const options: ApexOptions = {
     chart: {
@@ -84,7 +90,7 @@ const EventCountByPagePathChart = ({ data, serverMode }: { data: { pagePath: str
         lines: { show: true }
       }
     }
-  };
+  }
 
   return (
     <Card
@@ -106,7 +112,13 @@ const EventCountByPagePathChart = ({ data, serverMode }: { data: { pagePath: str
         }}
       />
       <CardContent>
-        <AppReactApexCharts type='bar' width='100%' height={300} options={options} series={[{ name: 'Events', data: eventCounts }]} />
+        <AppReactApexCharts
+          type='bar'
+          width='100%'
+          height={300}
+          options={options}
+          series={[{ name: 'Events', data: eventCounts }]}
+        />
       </CardContent>
     </Card>
   )

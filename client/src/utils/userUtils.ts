@@ -1,130 +1,130 @@
 import axios from 'axios'
 
 export interface UserDetails {
-  id: number;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  picture: string | null;
-  phoneNumber: string;
-  address: string;
-  roleId: number;
-  departmentId: number;
-  createdAt: string;
-  clientName: string;
-  departmentName: string;
-  departments: Department[];
-  jobTitle: string;
-  profile: any;
-  teams: any;
-  projects: any;
-  connections: any;
+  id: number
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  picture: string | null
+  phoneNumber: string
+  address: string
+  roleId: number
+  departmentId: number
+  createdAt: string
+  clientName: string
+  departmentName: string
+  departments: Department[]
+  jobTitle: string
+  profile: any
+  teams: any
+  projects: any
+  connections: any
 }
 
 export interface UserResponse {
-  DepartmentName: string;
-  CreatedAt: string;
-  UpdatedAt: string;
-  DeletedAt: string | null;
-  ID: number;
-  username: string;
-  email: string;
-  roleId: number;
+  DepartmentName: string
+  CreatedAt: string
+  UpdatedAt: string
+  DeletedAt: string | null
+  ID: number
+  username: string
+  email: string
+  roleId: number
   Role: {
-    ID: number;
-    CreatedAt: string;
-    UpdatedAt: string;
-    DeletedAt: string | null;
-    name: string;
-  };
-  firstName: string;
-  lastName: string;
-  picture: string;
-  phoneNumber: string;
-  address: string;
-  jobTitle: string;
-  DepartmentID: number;
+    ID: number
+    CreatedAt: string
+    UpdatedAt: string
+    DeletedAt: string | null
+    name: string
+  }
+  firstName: string
+  lastName: string
+  picture: string
+  phoneNumber: string
+  address: string
+  jobTitle: string
+  DepartmentID: number
   Department: {
-    CreatedAt: string;
-    UpdatedAt: string;
-    DeletedAt: string | null;
-    ID: number;
-    name: string;
-    users: User[] | null;
-    calendar: string | null;
-  };
-  loginHistory: string | null;
-  workHours: string | null;
-  totpSecret: string;
-  totpEnabled: boolean;
+    CreatedAt: string
+    UpdatedAt: string
+    DeletedAt: string | null
+    ID: number
+    name: string
+    users: User[] | null
+    calendar: string | null
+  }
+  loginHistory: string | null
+  workHours: string | null
+  totpSecret: string
+  totpEnabled: boolean
   salary: {
-    ID: number;
-    CreatedAt: string;
-    UpdatedAt: string;
-    DeletedAt: string | null;
-    userId: number;
-    base: number;
-    subsidy: number;
-    bonus: number;
-    commission: number;
-    other: number;
-    fund: number;
-    pension_insurance: number;
-    unemployment_insurance: number;
-    medical_insurance: number;
-    housing_fund: number;
-    tax: number;
-    overtime: number;
-    total: number;
-    is_pay: number;
-    salary_date: string;
-  };
+    ID: number
+    CreatedAt: string
+    UpdatedAt: string
+    DeletedAt: string | null
+    userId: number
+    base: number
+    subsidy: number
+    bonus: number
+    commission: number
+    other: number
+    fund: number
+    pension_insurance: number
+    unemployment_insurance: number
+    medical_insurance: number
+    housing_fund: number
+    tax: number
+    overtime: number
+    total: number
+    is_pay: number
+    salary_date: string
+  }
   contract: {
-    ID: number;
-    CreatedAt: string;
-    UpdatedAt: string;
-    DeletedAt: string | null;
-    userId: number;
-    contractType: string;
-    startDate: string;
-    contractStatus: string;
-  };
-  files: string | null;
-  sourceOfHire: string;
-  reportingManager: string;
-  gender: string;
-  maritalStatus: string;
-  addedBy: string;
-  modifiedBy: string;
-  onBoardingStatus: string;
-  educationDetails: string | null;
-  emergencyContacts: string | null;
+    ID: number
+    CreatedAt: string
+    UpdatedAt: string
+    DeletedAt: string | null
+    userId: number
+    contractType: string
+    startDate: string
+    contractStatus: string
+  }
+  files: string | null
+  sourceOfHire: string
+  reportingManager: string
+  gender: string
+  maritalStatus: string
+  addedBy: string
+  modifiedBy: string
+  onBoardingStatus: string
+  educationDetails: string | null
+  emergencyContacts: string | null
 }
 
 export interface User {
-  id: number;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
+  id: number
+  username: string
+  email: string
+  firstName: string
+  lastName: string
 }
 
 export interface Department {
-  ID: number;
-  name: string;
-  supervisorId?: number;
-  users: User[];
+  ID: number
+  name: string
+  supervisorId?: number
+  users: User[]
 }
 
 export interface LoginHistory {
-  loginIp: string;
-  loginDevice: string;
-  loginTime: string;
-  location: string;
+  loginIp: string
+  loginDevice: string
+  loginTime: string
+  location: string
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_GO_APP_SERVER_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_GO_APP_SERVER_URL
 
 export const fetchLoginHistory = async (userId: number): Promise<LoginHistory[]> => {
   try {
@@ -152,14 +152,13 @@ export const fetchUserDetails = async (): Promise<UserDetails | null> => {
       headers: {
         'Content-Type': 'application/json'
       }
-    });
-    return res.data;
+    })
+    return res.data
   } catch (error: any) {
-    console.error('Error fetching user details:', error);
-    return null;
+    console.error('Error fetching user details:', error)
+    return null
   }
-};
-
+}
 
 export const fetchUsersByDepartment = async (departmentId: number): Promise<User[]> => {
   try {
@@ -201,13 +200,13 @@ export const fetchUserDetailsByUsername = async (username: string): Promise<User
 }
 
 export const updateUserProfile = async (data: {
-  username: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string | number;
-  address: string;
-  picture?: string | null;
+  username: string
+  firstName: string
+  lastName: string
+  email: string
+  phoneNumber: string | number
+  address: string
+  picture?: string | null
 }): Promise<void> => {
   const { picture, ...restData } = data
   const requestData = picture === null ? restData : data
@@ -226,7 +225,7 @@ export const updateUserProfile = async (data: {
   }
 }
 
-export const updateUserPassword = async (data: { currentPassword: string, newPassword: string }): Promise<void> => {
+export const updateUserPassword = async (data: { currentPassword: string; newPassword: string }): Promise<void> => {
   const response = await fetch(`${BASE_URL}/user/change-password`, {
     method: 'POST',
     headers: {
@@ -243,13 +242,13 @@ export const updateUserPassword = async (data: { currentPassword: string, newPas
 }
 
 interface LoginResponse {
-  access_token: string;
-  redirect_uri: string;
-  userRole: string;
-  requires_totp: boolean;
-  user_id: number;
-  departmentId: number;
-  UserID: number;
+  access_token: string
+  redirect_uri: string
+  userRole: string
+  requires_totp: boolean
+  user_id: number
+  departmentId: number
+  UserID: number
 }
 
 export const login = async (identifier: string, password: string, redirectUri: string): Promise<LoginResponse> => {
@@ -258,16 +257,16 @@ export const login = async (identifier: string, password: string, redirectUri: s
       Identifier: identifier,
       Password: password,
       RedirectURI: redirectUri
-    });
+    })
     if (response.status === 200) {
-      return response.data.data;
+      return response.data.data
     } else {
-      throw new Error('Login failed');
+      throw new Error('Login failed')
     }
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Failed to login');
+    throw new Error(error.response?.data?.message || 'Failed to login')
   }
-};
+}
 export const generateTOTP = async (): Promise<{ secret: string; qr_code: string }> => {
   try {
     const response = await fetch(`${BASE_URL}/totp/generate`, {
@@ -383,17 +382,17 @@ export const fetchAllUsers = async (): Promise<UserResponse[]> => {
   try {
     const response = await fetch(`${BASE_URL}/users`, {
       method: 'GET',
-      credentials: 'include',
-    });
+      credentials: 'include'
+    })
     if (response.ok) {
-      const data = await response.json();
-      return data.data;
+      const data = await response.json()
+      return data.data
     } else {
-      console.error('Failed to fetch all users');
-      return [];
+      console.error('Failed to fetch all users')
+      return []
     }
   } catch (error: any) {
-    console.error('Error fetching all users:', error);
-    return [];
+    console.error('Error fetching all users:', error)
+    return []
   }
-};
+}

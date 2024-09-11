@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react'
 import {
   Card,
   CardContent,
@@ -10,10 +10,10 @@ import {
   TablePagination,
   IconButton,
   MenuItem,
-  styled,
-} from '@mui/material';
-import classnames from 'classnames';
-import { rankItem } from '@tanstack/match-sorter-utils';
+  styled
+} from '@mui/material'
+import classnames from 'classnames'
+import { rankItem } from '@tanstack/match-sorter-utils'
 import {
   createColumnHelper,
   flexRender,
@@ -24,34 +24,34 @@ import {
   getFacetedUniqueValues,
   getFacetedMinMaxValues,
   getPaginationRowModel,
-  getSortedRowModel,
-} from '@tanstack/react-table';
-import type { ColumnDef, FilterFn } from '@tanstack/react-table';
-import type { RankingInfo } from '@tanstack/match-sorter-utils';
-import PermissionDialog from '@components/dialogs/permission-dialog';
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick';
-import CustomTextField from '@core/components/mui/TextField';
-import TablePaginationComponent from '@components/TablePaginationComponent';
-import tableStyles from '@core/styles/table.module.css';
-import type { ThemeColor } from '@core/types';
-import type { PermissionRowType } from '@/types/permissionTypes';
+  getSortedRowModel
+} from '@tanstack/react-table'
+import type { ColumnDef, FilterFn } from '@tanstack/react-table'
+import type { RankingInfo } from '@tanstack/match-sorter-utils'
+import PermissionDialog from '@components/dialogs/permission-dialog'
+import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import CustomTextField from '@core/components/mui/TextField'
+import TablePaginationComponent from '@components/TablePaginationComponent'
+import tableStyles from '@core/styles/table.module.css'
+import type { ThemeColor } from '@core/types'
+import type { PermissionRowType } from '@/types/permissionTypes'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
-    fuzzy: FilterFn<unknown>;
+    fuzzy: FilterFn<unknown>
   }
   interface FilterMeta {
-    itemRank: RankingInfo;
+    itemRank: RankingInfo
   }
 }
 
 type PermissionsTypeWithAction = PermissionRowType & {
-  action?: string;
-};
+  action?: string
+}
 
 type Colors = {
-  [key: string]: ThemeColor;
-};
+  [key: string]: ThemeColor
+}
 
 // Vars
 const colors: Colors = {
@@ -59,61 +59,61 @@ const colors: Colors = {
   users: 'success',
   manager: 'warning',
   administrator: 'primary',
-  'restricted-user': 'error',
-};
+  'restricted-user': 'error'
+}
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   // Rank the item
-  const itemRank = rankItem(row.getValue(columnId), value);
+  const itemRank = rankItem(row.getValue(columnId), value)
 
   // Store the itemRank info
   addMeta({
-    itemRank,
-  });
+    itemRank
+  })
 
   // Return if the item should be filtered in/out
-  return itemRank.passed;
-};
+  return itemRank.passed
+}
 
 const DebouncedInput = ({
-                          value: initialValue,
-                          onChange,
-                          debounce = 500,
-                          ...props
-                        }: {
-  value: string | number;
-  onChange: (value: string | number) => void;
-  debounce?: number;
+  value: initialValue,
+  onChange,
+  debounce = 500,
+  ...props
+}: {
+  value: string | number
+  onChange: (value: string | number) => void
+  debounce?: number
 } & Omit<TextFieldProps, 'onChange'>) => {
   // States
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState(initialValue)
 
   useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setValue(initialValue)
+  }, [initialValue])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      onChange(value);
-    }, debounce);
+      onChange(value)
+    }, debounce)
 
-    return () => clearTimeout(timeout);
+    return () => clearTimeout(timeout)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value])
 
-  return <CustomTextField {...props} value={value} onChange={(e) => setValue(e.target.value)} />;
-};
+  return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
+}
 
 // Column Definitions
-const columnHelper = createColumnHelper<PermissionsTypeWithAction>();
+const columnHelper = createColumnHelper<PermissionsTypeWithAction>()
 
 const Permissions = ({ permissionsData }: { permissionsData: PermissionRowType[] }) => {
   // States
-  const [open, setOpen] = useState(false);
-  const [rowSelection, setRowSelection] = useState({});
-  const [editValue, setEditValue] = useState<string>('');
-  const [data, setData] = useState<PermissionRowType[]>(permissionsData);
-  const [globalFilter, setGlobalFilter] = useState('');
+  const [open, setOpen] = useState(false)
+  const [rowSelection, setRowSelection] = useState({})
+  const [editValue, setEditValue] = useState<string>('')
+  const [data, setData] = useState<PermissionRowType[]>(permissionsData)
+  const [globalFilter, setGlobalFilter] = useState('')
 
   // Vars
   const buttonProps: ButtonProps = {
@@ -121,15 +121,15 @@ const Permissions = ({ permissionsData }: { permissionsData: PermissionRowType[]
     children: 'Add Permission',
     onClick: () => handleAddPermission(),
     className: 'is-full sm:is-auto',
-    startIcon: <i className='tabler-plus' />,
-  };
+    startIcon: <i className='tabler-plus' />
+  }
 
   // Hooks
   const columns = useMemo<ColumnDef<PermissionsTypeWithAction, any>[]>(
     () => [
       columnHelper.accessor('name', {
         header: 'Name',
-        cell: ({ row }) => <Typography color='text.primary'>{row.original.name}</Typography>,
+        cell: ({ row }) => <Typography color='text.primary'>{row.original.name}</Typography>
       }),
       columnHelper.accessor('assignedTo', {
         header: 'Assigned To',
@@ -153,11 +153,11 @@ const Permissions = ({ permissionsData }: { permissionsData: PermissionRowType[]
                 className='capitalize mie-4'
               />
             ))
-          ),
+          )
       }),
       columnHelper.accessor('createdDate', {
         header: 'Created Date',
-        cell: ({ row }) => <Typography>{row.original.createdDate}</Typography>,
+        cell: ({ row }) => <Typography>{row.original.createdDate}</Typography>
       }),
       columnHelper.accessor('action', {
         header: 'Actions',
@@ -171,27 +171,27 @@ const Permissions = ({ permissionsData }: { permissionsData: PermissionRowType[]
             </IconButton>
           </div>
         ),
-        enableSorting: false,
-      }),
+        enableSorting: false
+      })
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
-  );
+  )
 
   const table = useReactTable({
     data: data,
     columns,
     filterFns: {
-      fuzzy: fuzzyFilter,
+      fuzzy: fuzzyFilter
     },
     state: {
       rowSelection,
-      globalFilter,
+      globalFilter
     },
     initialState: {
       pagination: {
-        pageSize: 9,
-      },
+        pageSize: 9
+      }
     },
     enableRowSelection: true, //enable row selection for all rows
     // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
@@ -204,17 +204,17 @@ const Permissions = ({ permissionsData }: { permissionsData: PermissionRowType[]
     getPaginationRowModel: getPaginationRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues(),
-  });
+    getFacetedMinMaxValues: getFacetedMinMaxValues()
+  })
 
   const handleEditPermission = (name: string) => {
-    setOpen(true);
-    setEditValue(name);
-  };
+    setOpen(true)
+    setEditValue(name)
+  }
 
   const handleAddPermission = () => {
-    setEditValue('');
-  };
+    setEditValue('')
+  }
 
   return (
     <>
@@ -225,7 +225,7 @@ const Permissions = ({ permissionsData }: { permissionsData: PermissionRowType[]
             <CustomTextField
               select
               value={table.getState().pagination.pageSize}
-              onChange={(e) => table.setPageSize(Number(e.target.value))}
+              onChange={e => table.setPageSize(Number(e.target.value))}
               className='is-[70px]'
             >
               <MenuItem value='5'>5</MenuItem>
@@ -236,7 +236,7 @@ const Permissions = ({ permissionsData }: { permissionsData: PermissionRowType[]
           <div className='flex flex-wrap gap-4'>
             <DebouncedInput
               value={globalFilter ?? ''}
-              onChange={(value) => setGlobalFilter(String(value))}
+              onChange={value => setGlobalFilter(String(value))}
               placeholder='Search Permissions'
               className='is-full sm:is-auto'
             />
@@ -251,54 +251,54 @@ const Permissions = ({ permissionsData }: { permissionsData: PermissionRowType[]
         <div className='overflow-x-auto'>
           <table className={tableStyles.table}>
             <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id}>
-                    {header.isPlaceholder ? null : (
-                      <>
-                        <div
-                          className={classnames({
-                            'flex items-center': header.column.getIsSorted(),
-                            'cursor-pointer select-none': header.column.getCanSort(),
-                          })}
-                          onClick={header.column.getToggleSortingHandler()}
-                        >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                          {{
-                            asc: <i className='tabler-chevron-up text-xl' />,
-                            desc: <i className='tabler-chevron-down text-xl' />,
-                          }[header.column.getIsSorted() as 'asc' | 'desc'] ?? null}
-                        </div>
-                      </>
-                    )}
-                  </th>
-                ))}
-              </tr>
-            ))}
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <th key={header.id}>
+                      {header.isPlaceholder ? null : (
+                        <>
+                          <div
+                            className={classnames({
+                              'flex items-center': header.column.getIsSorted(),
+                              'cursor-pointer select-none': header.column.getCanSort()
+                            })}
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {{
+                              asc: <i className='tabler-chevron-up text-xl' />,
+                              desc: <i className='tabler-chevron-down text-xl' />
+                            }[header.column.getIsSorted() as 'asc' | 'desc'] ?? null}
+                          </div>
+                        </>
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
             </thead>
             {table.getFilteredRowModel().rows.length === 0 ? (
               <tbody>
-              <tr>
-                <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
-                </td>
-              </tr>
+                <tr>
+                  <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
+                    No data available
+                  </td>
+                </tr>
               </tbody>
             ) : (
               <tbody>
-              {table
-                .getRowModel()
-                .rows.slice(0, table.getState().pagination.pageSize)
-                .map((row) => {
-                  return (
-                    <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                      ))}
-                    </tr>
-                  );
-                })}
+                {table
+                  .getRowModel()
+                  .rows.slice(0, table.getState().pagination.pageSize)
+                  .map(row => {
+                    return (
+                      <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                        {row.getVisibleCells().map(cell => (
+                          <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                        ))}
+                      </tr>
+                    )
+                  })}
               </tbody>
             )}
           </table>
@@ -309,13 +309,13 @@ const Permissions = ({ permissionsData }: { permissionsData: PermissionRowType[]
           rowsPerPage={table.getState().pagination.pageSize}
           page={table.getState().pagination.pageIndex}
           onPageChange={(_, page) => {
-            table.setPageIndex(page);
+            table.setPageIndex(page)
           }}
         />
       </Card>
       <PermissionDialog open={open} setOpen={setOpen} data={editValue} />
     </>
-  );
-};
+  )
+}
 
-export default Permissions;
+export default Permissions

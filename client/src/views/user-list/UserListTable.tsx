@@ -22,7 +22,15 @@ import { rankItem } from '@tanstack/match-sorter-utils'
 import type { FilterFn } from '@tanstack/react-table'
 
 // Third-party Imports
-import { createColumnHelper, flexRender, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel } from '@tanstack/react-table'
+import {
+  createColumnHelper,
+  flexRender,
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  getPaginationRowModel
+} from '@tanstack/react-table'
 
 // Util Imports
 import { getInitials } from '@/utils/getInitials'
@@ -38,7 +46,7 @@ import TableFilters from './TableFilters'
 import { ThemeColor } from '@core/types'
 
 // Type Imports
-type UsersType = UserResponse & { role: string, onBoardingStatus: string, DepartmentName: string }
+type UsersType = UserResponse & { role: string; onBoardingStatus: string; DepartmentName: string }
 
 // Column Definitions
 const columnHelper = createColumnHelper<UsersType>()
@@ -87,78 +95,78 @@ const UserListTable = () => {
     fetchData()
   }, [])
 
-  const columns = useMemo(() => [
-    columnHelper.accessor('username', {
-      header: 'Username',
-      cell: ({ row }) => (
-        <div className='flex items-center'>
-          {getAvatar(row.original)}
-          <Typography sx={{ ml: 2 }}>{row.getValue()}</Typography>
-        </div>
-      )
-    }),
-    columnHelper.accessor('onBoardingStatus', {
-      header: 'Onboarding Status',
-      cell: ({ row }) => (
-        <div className='flex items-center gap-3'>
-          <Chip
-            variant='tonal'
-            className='capitalize'
-            label={row.original.onBoardingStatus}
-            color={onboardingStatusColors[row.original.onBoardingStatus] || 'default'}
-            size='small'
-          />
-        </div>
-      )
-    }),
-    columnHelper.accessor('role', {
-      header: 'Role',
-      cell: ({ row }) => {
-        const roleColor = roleColors[row.original.role] || { icon: 'tabler-user', color: 'primary' }
-        return (
-          <div className='flex items-center gap-2'>
-            <Icon
-              className={roleColor.icon}
-              sx={{ color: `var(--mui-palette-${roleColor.color}-main)` }}
-            />
-            <Typography className='capitalize' color='text.primary'>
-              {row.original.role}
-            </Typography>
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('username', {
+        header: 'Username',
+        cell: ({ row }) => (
+          <div className='flex items-center'>
+            {getAvatar(row.original)}
+            <Typography sx={{ ml: 2 }}>{row.getValue()}</Typography>
           </div>
         )
+      }),
+      columnHelper.accessor('onBoardingStatus', {
+        header: 'Onboarding Status',
+        cell: ({ row }) => (
+          <div className='flex items-center gap-3'>
+            <Chip
+              variant='tonal'
+              className='capitalize'
+              label={row.original.onBoardingStatus}
+              color={onboardingStatusColors[row.original.onBoardingStatus] || 'default'}
+              size='small'
+            />
+          </div>
+        )
+      }),
+      columnHelper.accessor('role', {
+        header: 'Role',
+        cell: ({ row }) => {
+          const roleColor = roleColors[row.original.role] || { icon: 'tabler-user', color: 'primary' }
+          return (
+            <div className='flex items-center gap-2'>
+              <Icon className={roleColor.icon} sx={{ color: `var(--mui-palette-${roleColor.color}-main)` }} />
+              <Typography className='capitalize' color='text.primary'>
+                {row.original.role}
+              </Typography>
+            </div>
+          )
+        }
+      }),
+      columnHelper.accessor('firstName', {
+        header: 'First Name',
+        cell: info => info.getValue()
+      }),
+      columnHelper.accessor('lastName', {
+        header: 'Last Name',
+        cell: info => info.getValue()
+      }),
+      columnHelper.accessor('jobTitle', {
+        header: 'Job Title',
+        cell: info => info.getValue()
+      }),
+      columnHelper.accessor('DepartmentName', {
+        header: 'Department',
+        cell: info => info.getValue()
+      }),
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => (
+          <IconButton onClick={() => handleRowClick(row.original)}>
+            <i className='tabler-eye text-[22px] text-textSecondary' />
+          </IconButton>
+        )
       }
-    }),
-    columnHelper.accessor('firstName', {
-      header: 'First Name',
-      cell: info => info.getValue()
-    }),
-    columnHelper.accessor('lastName', {
-      header: 'Last Name',
-      cell: info => info.getValue()
-    }),
-    columnHelper.accessor('jobTitle', {
-      header: 'Job Title',
-      cell: info => info.getValue()
-    }),
-    columnHelper.accessor('DepartmentName', {
-      header: 'Department',
-      cell: info => info.getValue()
-    }),
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => (
-        <IconButton onClick={() => handleRowClick(row.original)}>
-          <i className='tabler-eye text-[22px] text-textSecondary' />
-        </IconButton>
-      )
-    }
-  ], [])
+    ],
+    []
+  )
 
   const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     const itemRank = rankItem(row.getValue(columnId), value)
     addMeta({
-      itemRank,
+      itemRank
     })
     return itemRank.passed
   }
@@ -205,26 +213,24 @@ const UserListTable = () => {
         <div className='overflow-x-auto'>
           <table className={tableStyles.table}>
             <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th key={header.id}>
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <th key={header.id}>
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                </tr>
+              ))}
             </thead>
             <tbody>
-            {table.getRowModel().rows.map(row => (
-              <tr key={row.id} onClick={() => handleRowClick(row.original)}>
-                {row.getVisibleCells().map(cell => (
-                  <td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
+              {table.getRowModel().rows.map(row => (
+                <tr key={row.id} onClick={() => handleRowClick(row.original)}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -234,12 +240,12 @@ const UserListTable = () => {
           count={table.getPageCount()}
           rowsPerPage={table.getState().pagination.pageSize}
           page={table.getState().pagination.pageIndex}
-          onPageChange={(page) => table.setPageIndex(page)}
-          onRowsPerPageChange={(rowsPerPage) => table.setPageSize(Number(rowsPerPage))}
+          onPageChange={page => table.setPageIndex(page)}
+          onRowsPerPageChange={rowsPerPage => table.setPageSize(Number(rowsPerPage))}
         />
       </Card>
 
-      <Dialog open={isDialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="md">
+      <Dialog open={isDialogOpen} onClose={handleCloseDialog} fullWidth maxWidth='md'>
         <DialogTitle>User Details</DialogTitle>
         {selectedUser && (
           <DialogContent>
@@ -248,17 +254,39 @@ const UserListTable = () => {
                 {getAvatar(selectedUser)}
               </Grid>
               <Grid item xs={12} sm={8}>
-                <Typography variant='h6'>{selectedUser.firstName} {selectedUser.lastName}</Typography>
-                <Typography variant='subtitle1'><strong>Username:</strong> {selectedUser.username}</Typography>
-                <Typography variant='subtitle1'><strong>Email:</strong> {selectedUser.email}</Typography>
-                <Typography variant='subtitle1'><strong>Role:</strong> {selectedUser.role}</Typography>
-                <Typography variant='subtitle1'><strong>Job Title:</strong> {selectedUser.jobTitle}</Typography>
-                <Typography variant='subtitle1'><strong>Department:</strong> {selectedUser.DepartmentName}</Typography>
-                <Typography variant='subtitle1'><strong>Status:</strong> {selectedUser.onBoardingStatus}</Typography>
-                <Typography variant='subtitle1'><strong>Phone Number:</strong> {selectedUser.phoneNumber}</Typography>
-                <Typography variant='subtitle1'><strong>Address:</strong> {selectedUser.address}</Typography>
-                <Typography variant='subtitle1'><strong>Source of Hire:</strong> {selectedUser.sourceOfHire}</Typography>
-                <Typography variant='subtitle1'><strong>Contract:</strong> {selectedUser.contract?.contractType || 'N/A'}</Typography>
+                <Typography variant='h6'>
+                  {selectedUser.firstName} {selectedUser.lastName}
+                </Typography>
+                <Typography variant='subtitle1'>
+                  <strong>Username:</strong> {selectedUser.username}
+                </Typography>
+                <Typography variant='subtitle1'>
+                  <strong>Email:</strong> {selectedUser.email}
+                </Typography>
+                <Typography variant='subtitle1'>
+                  <strong>Role:</strong> {selectedUser.role}
+                </Typography>
+                <Typography variant='subtitle1'>
+                  <strong>Job Title:</strong> {selectedUser.jobTitle}
+                </Typography>
+                <Typography variant='subtitle1'>
+                  <strong>Department:</strong> {selectedUser.DepartmentName}
+                </Typography>
+                <Typography variant='subtitle1'>
+                  <strong>Status:</strong> {selectedUser.onBoardingStatus}
+                </Typography>
+                <Typography variant='subtitle1'>
+                  <strong>Phone Number:</strong> {selectedUser.phoneNumber}
+                </Typography>
+                <Typography variant='subtitle1'>
+                  <strong>Address:</strong> {selectedUser.address}
+                </Typography>
+                <Typography variant='subtitle1'>
+                  <strong>Source of Hire:</strong> {selectedUser.sourceOfHire}
+                </Typography>
+                <Typography variant='subtitle1'>
+                  <strong>Contract:</strong> {selectedUser.contract?.contractType || 'N/A'}
+                </Typography>
               </Grid>
             </Grid>
           </DialogContent>

@@ -1,20 +1,20 @@
 // src/app/roles/page.tsx
-import { checkAuth } from '@/utils/checkAuth';
-import Roles from '@views/roles';
-import type { UsersType } from '@/types/userTypes';
+import { checkAuth } from '@/utils/checkAuth'
+import Roles from '@views/roles'
+import type { UsersType } from '@/types/userTypes'
 
 const getData = async () => {
-  const res = await fetch('https://api.example.com/apps/user-list'); // replace with your static URL
+  const res = await fetch('https://api.example.com/apps/user-list') // replace with your static URL
 
   if (!res.ok) {
-    throw new Error('Failed to fetch userData');
+    throw new Error('Failed to fetch userData')
   }
 
-  return res.json();
-};
+  return res.json()
+}
 
 const RolesApp = async () => {
-  checkAuth();
+  checkAuth()
 
   // Static user data for testing
   const staticUserData: UsersType[] = [
@@ -49,14 +49,13 @@ const RolesApp = async () => {
       status: 'pending',
       avatar: null,
       DepartmentID: 0
-
-    },
+    }
     // Add more users as needed
-  ];
+  ]
 
-  const data: UsersType[] = staticUserData;
+  const data: UsersType[] = staticUserData
 
-  return <Roles userData={data} />;
-};
+  return <Roles userData={data} />
+}
 
-export default RolesApp;
+export default RolesApp

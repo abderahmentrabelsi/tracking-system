@@ -1,11 +1,11 @@
 // src/app/management/timesheet/page.tsx
-import { checkAuth } from '@/utils/checkAuth';
-import TimesheetManagement from '@/views/Management/timesheet';
+import { checkAuth } from '@/utils/checkAuth'
+import TimesheetManagement from '@/views/Management/timesheet'
 
 const App = async () => {
-  checkAuth();
+  checkAuth()
 
-  return <TimesheetManagement />;
-};
+  return <TimesheetManagement />
+}
 
-export default App;
+export default App

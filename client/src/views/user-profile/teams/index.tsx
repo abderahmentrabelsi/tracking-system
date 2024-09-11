@@ -29,13 +29,21 @@ const getInitials = (name: string) => {
 
 // Function to get a random color for the chip
 const getRandomColor = () => {
-  const colors: Array<'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'> = ['default', 'primary', 'secondary', 'success', 'error', 'warning', 'info']
+  const colors: Array<'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'> = [
+    'default',
+    'primary',
+    'secondary',
+    'success',
+    'error',
+    'warning',
+    'info'
+  ]
   return colors[Math.floor(Math.random() * colors.length)]
 }
 
 // Function to render department cards
 const renderDepartmentCards = (departments: Department[], handleOpenModal: (users: User[]) => void) => {
-  return departments.map((department) => (
+  return departments.map(department => (
     <Grid item key={department.ID} xs={12} md={6} lg={4}>
       <Card>
         <CardContent className='flex flex-col gap-4'>
@@ -57,15 +65,16 @@ const renderDepartmentCards = (departments: Department[], handleOpenModal: (user
               sx={{ '& .MuiAvatar-root': { width: '2rem', height: '2rem', fontSize: '1rem' } }}
               className='items-center pull-up'
             >
-              {department.users && department.users.slice(0, 3).map((user, index) => (
-                <Tooltip key={`${department.ID}-${user.id}-${index}`} title={`${user.firstName} ${user.lastName}`}>
-                  <Link href={`/user-profile/${user.username}`} passHref>
-                    <Avatar>{getInitials(`${user.firstName} ${user.lastName}`)}</Avatar>
-                  </Link>
-                </Tooltip>
-              ))}
+              {department.users &&
+                department.users.slice(0, 3).map((user, index) => (
+                  <Tooltip key={`${department.ID}-${user.id}-${index}`} title={`${user.firstName} ${user.lastName}`}>
+                    <Link href={`/user-profile/${user.username}`} passHref>
+                      <Avatar>{getInitials(`${user.firstName} ${user.lastName}`)}</Avatar>
+                    </Link>
+                  </Tooltip>
+                ))}
               {department.users && department.users.length > 3 && (
-                <Tooltip title="Show more">
+                <Tooltip title='Show more'>
                   <Avatar onClick={() => handleOpenModal(department.users.slice(3))}>
                     +{department.users.length - 3}
                   </Avatar>
@@ -95,10 +104,12 @@ const Teams = () => {
         const details = await fetchUserDetailsByUsername(username)
         if (details) {
           // Fetch users for each department
-          const updatedDepartments = await Promise.all(details.departments.map(async (department) => {
-            const users = await fetchUsersByDepartment(department.ID)
-            return { ...department, users }
-          }))
+          const updatedDepartments = await Promise.all(
+            details.departments.map(async department => {
+              const users = await fetchUsersByDepartment(department.ID)
+              return { ...department, users }
+            })
+          )
           setUserDetails({ ...details, departments: updatedDepartments })
         }
       }
@@ -131,12 +142,18 @@ const Teams = () => {
         aria-labelledby='user-list-modal'
         aria-describedby='user-list-modal-description'
       >
-        <Box sx={{ maxWidth: 400, bgcolor: 'background.paper', p: 4, mx: 'auto', my: '10%', borderRadius: 1, position: 'relative' }}>
-          <IconButton
-            aria-label='close'
-            onClick={handleCloseModal}
-            sx={{ position: 'absolute', top: 8, right: 8 }}
-          >
+        <Box
+          sx={{
+            maxWidth: 400,
+            bgcolor: 'background.paper',
+            p: 4,
+            mx: 'auto',
+            my: '10%',
+            borderRadius: 1,
+            position: 'relative'
+          }}
+        >
+          <IconButton aria-label='close' onClick={handleCloseModal} sx={{ position: 'absolute', top: 8, right: 8 }}>
             <CloseIcon />
           </IconButton>
           <Typography variant='h6' id='user-list-modal' sx={{ mb: 2 }}>

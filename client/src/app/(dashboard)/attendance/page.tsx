@@ -1,11 +1,11 @@
 // app/views/attendance/page.tsx
-import { checkAuth } from '@/utils/checkAuth';
-import AttendancePage from '@/views/attendance';
+import { checkAuth } from '@/utils/checkAuth'
+import AttendancePage from '@/views/attendance'
 
 const App = async () => {
-  checkAuth();
+  checkAuth()
 
-  return <AttendancePage />;
-};
+  return <AttendancePage />
+}
 
-export default App;
+export default App

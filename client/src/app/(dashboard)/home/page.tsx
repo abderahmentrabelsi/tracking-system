@@ -16,12 +16,11 @@ import EventCountChart from '@views/analytics/EventCountChart'
 import UserAnalyticsMap from '@views/analytics/UserAnalyticsMap' // Import the Event Count Chart component
 
 // Helper function to get the country code from country name
-function getCountryCode  (countryName: string) {
+function getCountryCode(countryName: string) {
   const c = country.findByName(countryName)
   console.log(c)
   return c?.code.iso2
 }
-
 
 export default function Page() {
   const { data, status, isLoading, isError, error } = useGetAnalyticsData({})
@@ -35,12 +34,15 @@ export default function Page() {
     return <div>No data</div>
   }
 
-
   if (error) {
     return <div>Error: {error.payload.toString()}</div>
   }
 
-  const analyticsData = pluck(data.aggregateMetrics, ['totalConversions' as never, 'totalRevenue' as never, 'averageBounceRate' as never])
+  const analyticsData = pluck(data.aggregateMetrics, [
+    'totalConversions' as never,
+    'totalRevenue' as never,
+    'averageBounceRate' as never
+  ])
 
   // Aggregate event counts by page path
   const pagePathEventCountMap = data.analyticsData.reduce((acc: any, item: any) => {
@@ -72,7 +74,8 @@ export default function Page() {
 
   const aggregatedSessionData = Object.keys(pagePathSessionDataMap).map(pagePath => ({
     pagePath,
-    averageSessionDuration: pagePathSessionDataMap[pagePath].totalDuration / pagePathSessionDataMap[pagePath].sessionCount
+    averageSessionDuration:
+      pagePathSessionDataMap[pagePath].totalDuration / pagePathSessionDataMap[pagePath].sessionCount
   }))
 
   // Aggregate event counts for specific events
@@ -110,11 +113,11 @@ export default function Page() {
   }))
 
   return (
-    <Grid container spacing={3} justifyContent="center" alignItems="stretch">
+    <Grid container spacing={3} justifyContent='center' alignItems='stretch'>
       {/* First line divided into two sections */}
       <Grid container item xs={12} lg={12} spacing={3}>
-        <Grid item xs={6} lg={6} >
-          <WebsiteAnalyticsSlider metrics={analyticsData}  />
+        <Grid item xs={6} lg={6}>
+          <WebsiteAnalyticsSlider metrics={analyticsData} />
         </Grid>
         <Grid item xs={6} lg={6}>
           <TimeSeriesChart data={userAnalyticsData} serverMode={'light'} />
@@ -124,8 +127,11 @@ export default function Page() {
       {/* Remaining sections */}
       <Grid container item xs={12} lg={12} spacing={3}>
         <Grid item xs={4} lg={4}>
-          <LineAreaDailySalesChart title={'Growth'} subtitle={'Total New Users'}
-                                   value={data.aggregateMetrics.totalNewUsers!.toString()} />
+          <LineAreaDailySalesChart
+            title={'Growth'}
+            subtitle={'Total New Users'}
+            value={data.aggregateMetrics.totalNewUsers!.toString()}
+          />
         </Grid>
         <Grid item xs={4} lg={4}>
           <SalesByCountries data={userAnalyticsData} />
@@ -147,6 +153,4 @@ export default function Page() {
       </Grid>
     </Grid>
   )
-
-
 }

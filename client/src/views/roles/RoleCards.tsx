@@ -27,7 +27,7 @@ type CardDataType = {
 const cardData: CardDataType[] = [
   { totalUsers: 2, title: 'HR', avatars: ['A', 'B', 'C', 'D'] },
   { totalUsers: 2, title: 'Manager', avatars: ['E', 'F', 'G'] },
-  { totalUsers: 50, title: 'Employee', avatars: ['H', 'I', 'J'] },
+  { totalUsers: 50, title: 'Employee', avatars: ['H', 'I', 'J'] }
 ]
 
 const RoleCards = () => {

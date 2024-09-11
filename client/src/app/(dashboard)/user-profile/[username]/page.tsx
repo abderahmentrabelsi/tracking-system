@@ -11,7 +11,7 @@ import type { Data } from '@/types/profileTypes'
 import UserProfile from '@views/user-profile'
 
 // Utility Imports
-import { checkAuth } from '@/utils/checkAuth';
+import { checkAuth } from '@/utils/checkAuth'
 
 const ProfileTab = dynamic(() => import('@views/user-profile/profile'))
 const TeamsTab = dynamic<{ data: any }>(() => import('@views/user-profile/teams'))
@@ -28,7 +28,7 @@ const tabContentList = (data?: Data): { [key: string]: ReactElement } => ({
 
 const ProfilePage = async () => {
   // Check authentication
-  checkAuth();
+  checkAuth()
 
   // Return component without passing any data
   return <UserProfile tabContentList={tabContentList()} />

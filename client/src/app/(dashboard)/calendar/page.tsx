@@ -1,15 +1,15 @@
 // src/app/(dashboard)/calendar/page.tsx
-import { checkAuth } from '@/utils/checkAuth';
-import CalendarPage from '@/views/calendar/CalendarPage';
+import { checkAuth } from '@/utils/checkAuth'
+import CalendarPage from '@/views/calendar/CalendarPage'
 
 const Calendar = async () => {
-  checkAuth();
+  checkAuth()
 
   return (
     <div>
       <CalendarPage />
     </div>
-  );
-};
+  )
+}
 
-export default Calendar;
+export default Calendar

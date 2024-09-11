@@ -1,25 +1,25 @@
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from '@mui/styles'
 
 const useStyles = makeStyles({
   calendarContainer: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   filterContainer: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    marginBottom: '16px',
+    marginBottom: '16px'
   },
   eventCard: {
     marginBottom: '8px',
-    borderLeft: '5px solid',
+    borderLeft: '5px solid'
   },
   chipContainer: {
-    marginTop: '8px',
-  },
-});
+    marginTop: '8px'
+  }
+})
 
-export default useStyles;
+export default useStyles

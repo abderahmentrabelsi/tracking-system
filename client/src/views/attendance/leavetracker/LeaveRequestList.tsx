@@ -1,77 +1,77 @@
-'use client';
+'use client'
 
-import React, { useEffect, useState } from 'react';
-import { Box, Card, CardContent, Typography, Grid, Chip, Stack } from '@mui/material';
-import { getLeaveRequestsByUserId } from '@/app/api/leaveApi';
-import { LeaveRequestType } from '@/types/leaveTypes';
-import Cookies from 'js-cookie';
-import dayjs from 'dayjs';
-import { CheckCircleOutline, ErrorOutline, Pending, AccessTime, Comment, CalendarToday } from '@mui/icons-material';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import React, { useEffect, useState } from 'react'
+import { Box, Card, CardContent, Typography, Grid, Chip, Stack } from '@mui/material'
+import { getLeaveRequestsByUserId } from '@/app/api/leaveApi'
+import { LeaveRequestType } from '@/types/leaveTypes'
+import Cookies from 'js-cookie'
+import dayjs from 'dayjs'
+import { CheckCircleOutline, ErrorOutline, Pending, AccessTime, Comment, CalendarToday } from '@mui/icons-material'
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
 
 const getUserIdFromToken = () => {
-  const token = Cookies.get('access_token');
+  const token = Cookies.get('access_token')
   if (token) {
-    const decodedToken = JSON.parse(atob(token.split('.')[1]));
-    return decodedToken.UserID;
+    const decodedToken = JSON.parse(atob(token.split('.')[1]))
+    return decodedToken.UserID
   }
-  return null;
-};
+  return null
+}
 
 const LeaveRequestList = () => {
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequestType[]>([]);
-  const userId = getUserIdFromToken();
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequestType[]>([])
+  const userId = getUserIdFromToken()
 
   useEffect(() => {
     if (userId) {
       getLeaveRequestsByUserId(userId)
-        .then((data) => setLeaveRequests(data))
-        .catch((error) => console.error('Failed to fetch leave requests:', error));
+        .then(data => setLeaveRequests(data))
+        .catch(error => console.error('Failed to fetch leave requests:', error))
     }
-  }, [userId]);
+  }, [userId])
 
   const leaveTypeColors = {
     SICK: 'primary',
     Vacation: 'secondary',
     Personal: 'success',
     default: 'default'
-  };
+  }
 
   const statusColors = {
     Approved: 'success',
     Declined: 'error',
     Processing: 'warning'
-  };
+  }
 
   const statusIcon = (status: string) => {
     switch (status) {
       case 'Approved':
-        return <CheckCircleOutline />;
+        return <CheckCircleOutline />
       case 'Declined':
-        return <ErrorOutline />;
+        return <ErrorOutline />
       default:
-        return <Pending />;
+        return <Pending />
     }
-  };
+  }
 
   const statusBgColor = (status: string) => {
     switch (status) {
       case 'Approved':
-        return 'success.light';
+        return 'success.light'
       case 'Declined':
-        return 'error.light';
+        return 'error.light'
       default:
-        return 'warning.light';
+        return 'warning.light'
     }
-  };
+  }
 
   return (
     <Box sx={{ mt: 4 }}>
       <Grid container spacing={2}>
-        {leaveRequests.map((request) => (
+        {leaveRequests.map(request => (
           <Grid item xs={12} sm={6} md={4} key={request.id}>
             <Card
-              variant="outlined"
+              variant='outlined'
               sx={{
                 bgcolor: 'background.paper',
                 boxShadow: '0 10px 20px rgba(0, 0, 0, 0.9)',
@@ -84,7 +84,7 @@ const LeaveRequestList = () => {
               }}
             >
               <CardContent>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+                <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ mb: 2 }}>
                   <Chip
                     label={request.leaveType}
                     color={leaveTypeColors[request.leaveType] || 'default'}
@@ -104,23 +104,23 @@ const LeaveRequestList = () => {
                 </Stack>
                 <Grid container spacing={1}>
                   <Grid item xs={6}>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant='body2' sx={{ display: 'flex', alignItems: 'center' }}>
                       <CalendarToday sx={{ mr: 1 }} />
                       <strong>Start Date:</strong> {dayjs.unix(request.startDate).format('DD/MM/YYYY')}
                     </Typography>
                   </Grid>
                   <Grid item xs={6}>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant='body2' sx={{ display: 'flex', alignItems: 'center' }}>
                       <CalendarToday sx={{ mr: 1 }} />
                       <strong>End Date:</strong> {dayjs.unix(request.endDate).format('DD/MM/YYYY')}
                     </Typography>
                   </Grid>
-                </Grid >
-                <Typography  variant="body2" sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                </Grid>
+                <Typography variant='body2' sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                   <AccessTime sx={{ mr: 1 }} />
                   <strong>Duration:</strong> {request.duration} days
                 </Typography>
-                <Typography  variant="body2" sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                <Typography variant='body2' sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                   <MonetizationOnIcon sx={{ mr: 1 }} />
                   <strong>Paid Leave:</strong>
                   <Box
@@ -137,12 +137,12 @@ const LeaveRequestList = () => {
                     {request.paid ? 'Yes' : 'No'}
                   </Box>
                 </Typography>
-                <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                <Typography variant='body2' sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                   <Comment sx={{ mr: 1 }} />
                   <strong>Comments:</strong> {request.comments || 'N/A'}
                 </Typography>
                 {request.managerComment && (
-                  <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                  <Typography variant='body2' sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                     <Comment sx={{ mr: 1 }} />
                     <strong>Manager Comment:</strong> {request.managerComment}
                   </Typography>
@@ -153,7 +153,7 @@ const LeaveRequestList = () => {
         ))}
       </Grid>
     </Box>
-  );
-};
+  )
+}
 
-export default LeaveRequestList;
+export default LeaveRequestList

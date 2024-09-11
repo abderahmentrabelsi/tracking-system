@@ -1,14 +1,14 @@
 'use client'
 
-import React, {useEffect, useState} from 'react'
-import {getTimesheet} from '@/app/api/timesheetApi'
-import {getDepartmentById} from '@/app/api/taskApi'
-import {Box, Card, CardContent, CardHeader, Chip, CircularProgress} from '@mui/material'
-import {Doughnut} from 'react-chartjs-2'
+import React, { useEffect, useState } from 'react'
+import { getTimesheet } from '@/app/api/timesheetApi'
+import { getDepartmentById } from '@/app/api/taskApi'
+import { Box, Card, CardContent, CardHeader, Chip, CircularProgress } from '@mui/material'
+import { Doughnut } from 'react-chartjs-2'
 import 'chart.js/auto'
-import {animated, useSpring} from '@react-spring/web'
-import BusinessIcon from '@mui/icons-material/Business';
-import ApartmentIcon from '@mui/icons-material/Apartment';
+import { animated, useSpring } from '@react-spring/web'
+import BusinessIcon from '@mui/icons-material/Business'
+import ApartmentIcon from '@mui/icons-material/Apartment'
 
 const workTypes = [
   { type: 'Workday', color: 'rgba(10,147,237,0.9)' }, // Soft Blue
@@ -24,7 +24,7 @@ const workTypes = [
   { type: 'Research', color: 'rgba(64,76,88,0.9)' }, // Dark Blue
   { type: 'Support', color: 'rgba(149, 165, 166, 0.9)' }, // Concrete Grey
   { type: 'Development', color: 'rgba(32,33,33,0.9)' } // Asbestos Grey
-];
+]
 
 const WorkHoursDoughnutChart = () => {
   const [loading, setLoading] = useState(true)
@@ -54,7 +54,8 @@ const WorkHoursDoughnutChart = () => {
   }, [userId])
 
   useEffect(() => {
-    const storedDepartmentId = typeof window !== 'undefined' ? parseInt(localStorage.getItem('departmentId') || '0', 10) : 0
+    const storedDepartmentId =
+      typeof window !== 'undefined' ? parseInt(localStorage.getItem('departmentId') || '0', 10) : 0
     if (storedDepartmentId) {
       fetchDepartmentDetails(storedDepartmentId)
     }
@@ -96,16 +97,16 @@ const WorkHoursDoughnutChart = () => {
         borderWidth: 1,
         hoverBackgroundColor: workTypes.map(workType => workType.color.replace('0.7', '0.9')),
         hoverBorderColor: workTypes.map(workType => workType.color.replace('0.7', '1')),
-        data: workTypeDurations,
-      },
-    ],
+        data: workTypeDurations
+      }
+    ]
   }
 
   const options = {
     responsive: true,
     plugins: {
       legend: {
-        display: false, // Hide the circle legend
+        display: false // Hide the circle legend
       },
       tooltip: {
         callbacks: {
@@ -118,17 +119,17 @@ const WorkHoursDoughnutChart = () => {
   }
 
   const textAnimation = useSpring({
-    from: {transform: 'rotate(0deg)'},
-    to: {transform: 'rotate(360deg)'},
-    config: {duration: 10000},
+    from: { transform: 'rotate(0deg)' },
+    to: { transform: 'rotate(360deg)' },
+    config: { duration: 10000 },
     reset: true,
-    loop: true,
+    loop: true
   })
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress/>
+      <Box display='flex' justifyContent='center' alignItems='center' minHeight='100vh'>
+        <CircularProgress />
       </Box>
     )
   }
@@ -150,8 +151,8 @@ const WorkHoursDoughnutChart = () => {
               transition: 'all 0.3s ease', // Smooth transition for hover effect
               boxShadow: '0 6px 16px rgba(0, 0, 0.8, 0.9), 0 -6px 16px rgba(255, 255, 255, 0.3)',
               '&:hover': {
-                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 -6px 16px rgba(255, 255, 255, 0.2)',
-              },
+                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 -6px 16px rgba(255, 255, 255, 0.2)'
+              }
             }}
           >
             Doughnut Analysis
@@ -160,17 +161,17 @@ const WorkHoursDoughnutChart = () => {
         sx={{
           flexDirection: ['column', 'row'],
           alignItems: ['flex-start', 'center'],
-          '& .MuiCardHeader-action': {mb: 0},
-          '& .MuiCardHeader-content': {mb: [2, 0]},
+          '& .MuiCardHeader-action': { mb: 0 },
+          '& .MuiCardHeader-content': { mb: [2, 0] },
           justifyContent: 'center', // Center the title horizontally
-          mt: 2, // Add some margin on top
+          mt: 2 // Add some margin on top
         }}
       />
       <CardContent>
-        <Box display="flex" justifyContent="center" mb={4} flexWrap="wrap">
+        <Box display='flex' justifyContent='center' mb={4} flexWrap='wrap'>
           <Chip
-            key="All"
-            label="All"
+            key='All'
+            label='All'
             onClick={() => setIgnoredWorkTypes([])}
             color='primary'
             style={{
@@ -201,8 +202,8 @@ const WorkHoursDoughnutChart = () => {
             />
           ))}
         </Box>
-        <Box position="relative" display="flex" justifyContent="center" alignItems="center">
-          <Doughnut data={data} options={options}/>
+        <Box position='relative' display='flex' justifyContent='center' alignItems='center'>
+          <Doughnut data={data} options={options} />
           <animated.div
             style={{
               ...textAnimation,
@@ -213,39 +214,38 @@ const WorkHoursDoughnutChart = () => {
               padding: '5px' // Added padding
             }}
           >
-            <svg width="100%" height="100%" viewBox="0 0 200 200">
+            <svg width='100%' height='100%' viewBox='0 0 200 200'>
               <defs>
-                <filter id="border">
-                  <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="black"/>
+                <filter id='border'>
+                  <feDropShadow dx='0' dy='0' stdDeviation='3' floodColor='black' />
                 </filter>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+                <filter id='glow'>
+                  <feGaussianBlur stdDeviation='3.5' result='coloredBlur' />
                   <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
+                    <feMergeNode in='coloredBlur' />
+                    <feMergeNode in='SourceGraphic' />
                   </feMerge>
                 </filter>
               </defs>
               <path
-                id="circlePath"
-                d="
+                id='circlePath'
+                d='
         M 100, 100
         m -75, 0
         a 75,75 0 1,1 150,0
         a 75,75 0 1,1 -150,0
-      "
-                fill="transparent"
+      '
+                fill='transparent'
               />
-              <text filter="url(#glow)" fill="black"
-                    style={{textShadow: '0 0 5px rgba(255,255,255,0.5), 0 0 10px rgba(255,255,255,0.5)'}}>
-                <textPath href="#circlePath">
-                  {` ★ ${clientName} - ${departmentName} ★`}
-                </textPath>
+              <text
+                filter='url(#glow)'
+                fill='black'
+                style={{ textShadow: '0 0 5px rgba(255,255,255,0.5), 0 0 10px rgba(255,255,255,0.5)' }}
+              >
+                <textPath href='#circlePath'>{` ★ ${clientName} - ${departmentName} ★`}</textPath>
               </text>
             </svg>
           </animated.div>
-
-
         </Box>
       </CardContent>
     </Card>

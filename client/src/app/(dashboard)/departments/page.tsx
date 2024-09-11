@@ -1,11 +1,11 @@
 // app/views/departments/page.tsx
-import { checkAuth } from '../../../utils/checkAuth';
-import Departments from '@views/departments';
+import { checkAuth } from '../../../utils/checkAuth'
+import Departments from '@views/departments'
 
 const DepartmentsPage = async () => {
-  checkAuth();
+  checkAuth()
 
-  return <Departments />;
-};
+  return <Departments />
+}
 
-export default DepartmentsPage;
+export default DepartmentsPage

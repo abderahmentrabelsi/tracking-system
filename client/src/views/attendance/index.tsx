@@ -1,10 +1,8 @@
 'use client'
-import Attendance from '@/views/attendance/Attendance';
+import Attendance from '@/views/attendance/Attendance'
 
 const AttendancePage = () => {
-  return (
-    <Attendance />
-  );
-};
+  return <Attendance />
+}
 
-export default AttendancePage;
+export default AttendancePage

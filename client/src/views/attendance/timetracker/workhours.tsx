@@ -3,10 +3,33 @@
 import dynamic from 'next/dynamic'
 import { useState, useEffect } from 'react'
 import { getTimesheet } from '@/app/api/timesheetApi'
-import { Box, CircularProgress, Card, CardHeader, CardContent, Chip, MenuItem, Select, FormControl, InputLabel, useTheme } from '@mui/material'
+import {
+  Box,
+  CircularProgress,
+  Card,
+  CardHeader,
+  CardContent,
+  Chip,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  useTheme
+} from '@mui/material'
 import { Bar } from 'react-chartjs-2'
 import 'chart.js/auto'
-import { eachDayOfInterval, startOfWeek, endOfWeek, format, startOfMonth, endOfMonth, getWeeksInMonth, getWeek, getMonth, getDaysInMonth } from 'date-fns'
+import {
+  eachDayOfInterval,
+  startOfWeek,
+  endOfWeek,
+  format,
+  startOfMonth,
+  endOfMonth,
+  getWeeksInMonth,
+  getWeek,
+  getMonth,
+  getDaysInMonth
+} from 'date-fns'
 
 // Define work types and their colors
 const workTypes = [
@@ -23,7 +46,7 @@ const workTypes = [
   { type: 'Research', color: 'rgba(64,76,88,0.9)' }, // Dark Blue
   { type: 'Support', color: 'rgba(149, 165, 166, 0.9)' }, // Concrete Grey
   { type: 'Development', color: 'rgba(32,33,33,0.9)' } // Asbestos Grey
-];
+]
 
 const WorkHoursChart = () => {
   const theme = useTheme()
@@ -57,10 +80,10 @@ const WorkHoursChart = () => {
   }, [userId])
 
   // Filter data by work type
-  const filterDataByWorkType = (workType) => {
+  const filterDataByWorkType = workType => {
     setSelectedWorkType(workType)
     if (workType) {
-      const filtered = timesheet.filter((entry) => entry.workType === workType)
+      const filtered = timesheet.filter(entry => entry.workType === workType)
       setFilteredData(filtered)
     } else {
       setFilteredData(timesheet)
@@ -68,7 +91,7 @@ const WorkHoursChart = () => {
   }
 
   // Get the dates for a specific month
-  const getDatesForMonth = (month) => {
+  const getDatesForMonth = month => {
     return eachDayOfInterval({
       start: startOfMonth(new Date(new Date().getFullYear(), month)),
       end: endOfMonth(new Date(new Date().getFullYear(), month))
@@ -76,7 +99,7 @@ const WorkHoursChart = () => {
   }
 
   // Get the dates for a specific week of the selected month
-  const getDatesForWeek = (weekNumber) => {
+  const getDatesForWeek = weekNumber => {
     const start = startOfMonth(new Date(new Date().getFullYear(), selectedMonth))
     const weekStart = startOfWeek(start, { weekStartsOn: 1 })
     return eachDayOfInterval({
@@ -86,13 +109,13 @@ const WorkHoursChart = () => {
   }
 
   // Handle month change
-  const handleMonthChange = (event) => {
+  const handleMonthChange = event => {
     setSelectedMonth(event.target.value)
     setSelectedWeek('currentWeek')
   }
 
   // Handle week change
-  const handleWeekChange = (event) => {
+  const handleWeekChange = event => {
     setSelectedWeek(event.target.value)
   }
 
@@ -113,8 +136,7 @@ const WorkHoursChart = () => {
   }
 
   const chartData = dateRanges[selectedWeek === 'currentWeek' ? 'currentWeek' : selectedWeek].map(date => {
-    const dateData = filteredData
-      .filter(entry => format(new Date(entry.checkin * 1000), 'yyyy-MM-dd') === date)
+    const dateData = filteredData.filter(entry => format(new Date(entry.checkin * 1000), 'yyyy-MM-dd') === date)
     return {
       date,
       totalDuration: dateData.reduce((sum, entry) => sum + entry.duration, 0),
@@ -129,16 +151,14 @@ const WorkHoursChart = () => {
     borderWidth: 1,
     hoverBackgroundColor: workType.color.replace('0.9', '0.7'),
     hoverBorderColor: workType.color.replace('0.9', '1'),
-    data: chartData.map(data => data.workTypes
-      .filter(entry => entry.workType === workType.type)
-      .reduce((sum, entry) => sum + entry.duration, 0)),
+    data: chartData.map(data =>
+      data.workTypes.filter(entry => entry.workType === workType.type).reduce((sum, entry) => sum + entry.duration, 0)
+    )
   }))
 
   const data = {
     labels: dateRanges[selectedWeek === 'currentWeek' ? 'currentWeek' : selectedWeek],
-    datasets: selectedWorkType
-      ? [datasets.find(dataset => dataset.label === selectedWorkType)]
-      : datasets,
+    datasets: selectedWorkType ? [datasets.find(dataset => dataset.label === selectedWorkType)] : datasets
   }
 
   const options = {
@@ -148,7 +168,7 @@ const WorkHoursChart = () => {
         display: true,
         position: 'top',
         labels: {
-          color: theme.palette.mode === 'dark' ? '#fff' : '#000', // Dynamic color based on theme
+          color: theme.palette.mode === 'dark' ? '#fff' : '#000' // Dynamic color based on theme
         }
       },
       tooltip: {
@@ -164,20 +184,20 @@ const WorkHoursChart = () => {
         grid: {
           color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)', // Dynamic grid color
           borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.2)', // Dynamic border color
-          borderWidth: 1, // Increase border width
+          borderWidth: 1 // Increase border width
         },
         ticks: {
-          color: theme.palette.mode === 'dark' ? '#fff' : '#000', // Dynamic color for x-axis labels
+          color: theme.palette.mode === 'dark' ? '#fff' : '#000' // Dynamic color for x-axis labels
         }
       },
       y: {
         grid: {
           color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)', // Dynamic grid color
           borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.2)', // Dynamic border color
-          borderWidth: 1, // Increase border width
+          borderWidth: 1 // Increase border width
         },
         ticks: {
-          color: theme.palette.mode === 'dark' ? '#fff' : '#000', // Dynamic color for y-axis labels
+          color: theme.palette.mode === 'dark' ? '#fff' : '#000' // Dynamic color for y-axis labels
         }
       }
     }
@@ -185,7 +205,7 @@ const WorkHoursChart = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box display='flex' justifyContent='center' alignItems='center' minHeight='100vh'>
         <CircularProgress />
       </Box>
     )
@@ -208,8 +228,8 @@ const WorkHoursChart = () => {
               border: '1px solid rgba(255, 255, 255, 0.2)', // Adding a subtle border for better visibility
               transition: 'all 0.3s ease', // Smooth transition for hover effect
               '&:hover': {
-                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 -6px 16px rgba(255, 255, 255, 0.2)',
-              },
+                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 -6px 16px rgba(255, 255, 255, 0.2)'
+              }
             }}
           >
             Time Tracker Analysis
@@ -221,20 +241,20 @@ const WorkHoursChart = () => {
           '& .MuiCardHeader-action': { mb: 0 },
           '& .MuiCardHeader-content': { mb: [2, 0] },
           justifyContent: 'center', // Center the title horizontally
-          mt: 2, // Add some margin on top
+          mt: 2 // Add some margin on top
         }}
       />
 
       <CardContent>
-        <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" mb={4}>
-          <Box display="flex" flexWrap="wrap" justifyContent="center" mb={2}>
+        <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' mb={4}>
+          <Box display='flex' flexWrap='wrap' justifyContent='center' mb={2}>
             <Chip
-              label="All"
+              label='All'
               onClick={() => filterDataByWorkType(null)}
               color={!selectedWorkType ? 'primary' : 'default'}
               sx={{ margin: 1 }}
             />
-            {workTypes.map((workType) => (
+            {workTypes.map(workType => (
               <Chip
                 key={workType.type}
                 label={workType.type}
@@ -245,14 +265,10 @@ const WorkHoursChart = () => {
               />
             ))}
           </Box>
-          <Box display="flex" gap={2} justifyContent="center">
-            <FormControl variant="outlined" sx={{ minWidth: 150 }}>
+          <Box display='flex' gap={2} justifyContent='center'>
+            <FormControl variant='outlined' sx={{ minWidth: 150 }}>
               <InputLabel>Month</InputLabel>
-              <Select
-                value={selectedMonth}
-                onChange={handleMonthChange}
-                label="Month"
-              >
+              <Select value={selectedMonth} onChange={handleMonthChange} label='Month'>
                 {Array.from({ length: 12 }, (_, i) => (
                   <MenuItem key={i} value={i}>
                     {format(new Date(2020, i, 1), 'MMMM')}
@@ -261,18 +277,14 @@ const WorkHoursChart = () => {
               </Select>
             </FormControl>
 
-            <FormControl variant="outlined" sx={{ minWidth: 150 }}>
+            <FormControl variant='outlined' sx={{ minWidth: 150 }}>
               <InputLabel>Week</InputLabel>
-              <Select
-                value={selectedWeek}
-                onChange={handleWeekChange}
-                label="Week"
-              >
-                <MenuItem value="currentWeek">Current Week</MenuItem>
-                <MenuItem value="week1">Week 1</MenuItem>
-                <MenuItem value="week2">Week 2</MenuItem>
-                <MenuItem value="week3">Week 3</MenuItem>
-                <MenuItem value="week4">Week 4</MenuItem>
+              <Select value={selectedWeek} onChange={handleWeekChange} label='Week'>
+                <MenuItem value='currentWeek'>Current Week</MenuItem>
+                <MenuItem value='week1'>Week 1</MenuItem>
+                <MenuItem value='week2'>Week 2</MenuItem>
+                <MenuItem value='week3'>Week 3</MenuItem>
+                <MenuItem value='week4'>Week 4</MenuItem>
               </Select>
             </FormControl>
           </Box>

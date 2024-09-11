@@ -28,7 +28,7 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
     label: 'Permissions',
     href: '/permissions',
     icon: 'tabler-shield-check'
-  },
+  }
 ]
 
 export default verticalMenuData

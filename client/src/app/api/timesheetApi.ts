@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'axios'
 import {
   CheckInData,
   CheckOutData,
@@ -6,48 +6,48 @@ import {
   RequestEditData,
   TaskType,
   WorkHours
-} from '@/types/timesheetTypes';
+} from '@/types/timesheetTypes'
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_GO_APP_SERVER_URL,
-  withCredentials: true,
-});
+  withCredentials: true
+})
 
 export const checkIn = async (data: CheckInData): Promise<WorkHours> => {
-  const response = await apiClient.post(`/checkin`, data);
-  return response.data.data;
-};
+  const response = await apiClient.post(`/checkin`, data)
+  return response.data.data
+}
 
 export const checkOut = async (data: CheckOutData): Promise<WorkHours> => {
-  const response = await apiClient.put(`/checkout/${data.workHoursID}`);
-  return response.data.data;
-};
+  const response = await apiClient.put(`/checkout/${data.workHoursID}`)
+  return response.data.data
+}
 
 export const getTimesheet = async (userID: number): Promise<WorkHours[]> => {
-  const response = await apiClient.get(`/timesheet/${userID}`);
-  return response.data.data;
-};
+  const response = await apiClient.get(`/timesheet/${userID}`)
+  return response.data.data
+}
 
 export const getTasksByUserId = async (userID: number): Promise<TaskType[]> => {
-  const response = await apiClient.get(`/tasks/user/${userID}`);
-  return response.data.data;
-};
+  const response = await apiClient.get(`/tasks/user/${userID}`)
+  return response.data.data
+}
 
 export const getTaskById = async (id: number): Promise<TaskType[]> => {
-  const response = await apiClient.get(`/task/${id}`);
+  const response = await apiClient.get(`/task/${id}`)
   if (response.status === 200) {
-    return response.data.data;
+    return response.data.data
   } else {
-    throw new Error('Failed to fetch tasks');
+    throw new Error('Failed to fetch tasks')
   }
-};
+}
 
 export const requestEdit = async (data: RequestEditData): Promise<WorkHours> => {
-  const response = await apiClient.post('/timesheet/edit-request', data);
-  return response.data.data;
-};
+  const response = await apiClient.post('/timesheet/edit-request', data)
+  return response.data.data
+}
 
 export const approveEdit = async (data: RequestApproveData): Promise<WorkHours> => {
-  const response = await apiClient.post('/timesheet/approve-edit', data);
-  return response.data.data;
-};
+  const response = await apiClient.post('/timesheet/approve-edit', data)
+  return response.data.data
+}

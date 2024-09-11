@@ -69,11 +69,7 @@ const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
             <Typography variant='h4'>{firstName}</Typography>
             <div className='flex flex-wrap gap-6 justify-center sm:justify-normal'>
               {userDetails?.jobTitle && (
-                <Chip
-                  label={userDetails.jobTitle}
-                  color='primary'
-                  style={{ color: textColor }}
-                />
+                <Chip label={userDetails.jobTitle} color='primary' style={{ color: textColor }} />
               )}
               <div className='flex items-center gap-2'>
                 <i className='tabler-map-pin' />
@@ -81,7 +77,9 @@ const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
               </div>
               <div className='flex items-center gap-2'>
                 <i className='tabler-calendar' />
-                <Typography className='font-medium'>{userDetails ? new Date(userDetails.createdAt).toLocaleDateString() : ''}</Typography>
+                <Typography className='font-medium'>
+                  {userDetails ? new Date(userDetails.createdAt).toLocaleDateString() : ''}
+                </Typography>
               </div>
             </div>
           </div>

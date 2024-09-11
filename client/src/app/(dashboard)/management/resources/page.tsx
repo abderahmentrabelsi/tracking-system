@@ -1,15 +1,8 @@
 'use client'
 
-import React from 'react';
-import ResourcesDashboard from "@views/Management/resources";
+import React from 'react'
+import ResourcesDashboard from '@views/Management/resources'
 
+const App: React.FC = () => <ResourcesDashboard />
 
-
-const App: React.FC = () => (
-
-  <ResourcesDashboard />
-);
-
-export default App;
-
-
+export default App

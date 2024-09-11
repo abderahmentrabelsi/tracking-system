@@ -1,26 +1,26 @@
 'use client'
-import axios from 'axios';
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { styled, useTheme } from '@mui/material/styles';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Alert from '@mui/material/Alert';
-import classnames from 'classnames';
-import type { SystemMode } from '@core/types';
-import Link from '@components/Link';
-import Logo from '@components/layout/shared/Logo';
-import CustomTextField from '@core/components/mui/TextField';
-import { useImageVariant } from '@core/hooks/useImageVariant';
-import { useSettings } from '@core/hooks/useSettings';
-import themeConfig from '@configs/themeConfig';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Divider from '@mui/material/Divider';
-import { login } from '@/utils/userUtils';
+import axios from 'axios'
+import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { styled, useTheme } from '@mui/material/styles'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import Alert from '@mui/material/Alert'
+import classnames from 'classnames'
+import type { SystemMode } from '@core/types'
+import Link from '@components/Link'
+import Logo from '@components/layout/shared/Logo'
+import CustomTextField from '@core/components/mui/TextField'
+import { useImageVariant } from '@core/hooks/useImageVariant'
+import { useSettings } from '@core/hooks/useSettings'
+import themeConfig from '@configs/themeConfig'
+import InputAdornment from '@mui/material/InputAdornment'
+import IconButton from '@mui/material/IconButton'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Checkbox from '@mui/material/Checkbox'
+import Divider from '@mui/material/Divider'
+import { login } from '@/utils/userUtils'
 
 const LoginIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,
@@ -29,12 +29,12 @@ const LoginIllustration = styled('img')(({ theme }) => ({
   maxInlineSize: '100%',
   margin: theme.spacing(12),
   [theme.breakpoints.down(1536)]: {
-    maxBlockSize: 550,
+    maxBlockSize: 550
   },
   [theme.breakpoints.down('lg')]: {
-    maxBlockSize: 450,
-  },
-}));
+    maxBlockSize: 450
+  }
+}))
 
 const MaskImg = styled('img')({
   blockSize: 'auto',
@@ -42,54 +42,56 @@ const MaskImg = styled('img')({
   inlineSize: '100%',
   position: 'absolute',
   insetBlockEnd: 0,
-  zIndex: -1,
-});
+  zIndex: -1
+})
 
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
-  const [isPasswordShown, setIsPasswordShown] = useState(false);
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { settings } = useSettings();
-  const theme = useTheme();
-  const hidden = useMediaQuery(theme.breakpoints.down('md'));
-  const authBackground = useImageVariant(mode, '/images/pages/auth-mask-light.png', '/images/pages/auth-mask-dark.png');
+  const [isPasswordShown, setIsPasswordShown] = useState(false)
+  const [identifier, setIdentifier] = useState('')
+  const [password, setPassword] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { settings } = useSettings()
+  const theme = useTheme()
+  const hidden = useMediaQuery(theme.breakpoints.down('md'))
+  const authBackground = useImageVariant(mode, '/images/pages/auth-mask-light.png', '/images/pages/auth-mask-dark.png')
   const characterIllustration = useImageVariant(
     mode,
     '/images/illustrations/auth/v2-login-light.png',
     '/images/illustrations/auth/v2-login-dark.png',
     '/images/illustrations/auth/v2-login-light-border.png',
     '/images/illustrations/auth/v2-login-dark-border.png'
-  );
+  )
 
-  const handleClickShowPassword = () => setIsPasswordShown(show => !show);
+  const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
-      const redirectUri = searchParams.get('redirect') || '/home';
-      const response = await login(identifier, password, redirectUri); // Use the login method
+      const redirectUri = searchParams.get('redirect') || '/home'
+      const response = await login(identifier, password, redirectUri) // Use the login method
 
-      const { departmentId, UserID, requires_totp, user_id, redirect_uri, access_token, userRole } = response;
+      const { departmentId, UserID, requires_totp, user_id, redirect_uri, access_token, userRole } = response
 
       if (requires_totp) {
-        router.push(`/two-steps-v2?user_id=${user_id}&redirect_uri=${redirect_uri}&identifier=${identifier}&password=${password}`);
-        return;
+        router.push(
+          `/two-steps-v2?user_id=${user_id}&redirect_uri=${redirect_uri}&identifier=${identifier}&password=${password}`
+        )
+        return
       }
 
-      document.cookie = `access_token=${access_token}; path=/`;
-      localStorage.setItem('userRole', userRole);
-      localStorage.setItem('departmentId', departmentId.toString());
-      localStorage.setItem('userID', UserID.toString());
+      document.cookie = `access_token=${access_token}; path=/`
+      localStorage.setItem('userRole', userRole)
+      localStorage.setItem('departmentId', departmentId.toString())
+      localStorage.setItem('userID', UserID.toString())
 
-      router.push(redirect_uri || '/home');
+      router.push(redirect_uri || '/home')
     } catch (error) {
-      console.error('Failed to login', error);
-      setErrorMessage('Invalid credentials');
+      console.error('Failed to login', error)
+      setErrorMessage('Invalid credentials')
     }
-  };
+  }
 
   return (
     <div className='flex bs-full justify-center'>
@@ -97,7 +99,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         className={classnames(
           'flex bs-full items-center justify-center flex-1 min-bs-[100dvh] relative p-6 max-md:hidden',
           {
-            'border-ie': settings.skin === 'bordered',
+            'border-ie': settings.skin === 'bordered'
           }
         )}
       >
@@ -143,7 +145,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
                       <i className={isPasswordShown ? 'tabler-eye-off' : 'tabler-eye'} />
                     </IconButton>
                   </InputAdornment>
-                ),
+                )
               }}
             />
             <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
@@ -181,7 +183,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default LoginV2;
+export default LoginV2
