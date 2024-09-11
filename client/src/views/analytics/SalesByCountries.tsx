@@ -12,6 +12,7 @@ import classnames from 'classnames'
 
 // Helper function to get the country flag URL from the API
 const getCountryFlagUrl = (countryCode: string) => {
+  if(!countryCode) return 'N/A';
   return `https://flagcdn.com/48x36/${countryCode.toLowerCase()}.png`
 }
 
@@ -68,7 +69,7 @@ const SalesByCountries = ({ data }: SalesByCountriesProps) => {
           {Object.entries(groupedData).slice(0, 2).map(([country, data], index) => (
             <div key={index} className="mb-4">
               <div className="flex items-center gap-2">
-                <img src={getCountryFlagUrl(data.entries[0].countryCode)} alt={country} width={34} />
+                <img src={data?.entries[0]?.countryCode ? getCountryFlagUrl(data.entries[0].countryCode) : '🇺🇳'} alt={country} width={34} />
                 <Typography variant="h6" color="text.primary">
                   {country}
                 </Typography>

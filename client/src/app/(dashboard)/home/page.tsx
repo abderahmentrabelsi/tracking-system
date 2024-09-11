@@ -18,12 +18,14 @@ import UserAnalyticsMap from '@views/analytics/UserAnalyticsMap' // Import the E
 // Helper function to get the country code from country name
 function getCountryCode  (countryName: string) {
   const c = country.findByName(countryName)
+  console.log(c)
   return c?.code.iso2
 }
 
 
 export default function Page() {
   const { data, status, isLoading, isError, error } = useGetAnalyticsData({})
+  console.log(data)
 
   if (isLoading) {
     return <div>Loading...</div>
