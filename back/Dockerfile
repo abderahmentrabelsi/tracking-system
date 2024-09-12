@@ -19,6 +19,7 @@ COPY . .
 # Build the Go application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main main.go
 
+COPY cred.json .
 
 # Expose the port that the application will run on
 EXPOSE 8383
