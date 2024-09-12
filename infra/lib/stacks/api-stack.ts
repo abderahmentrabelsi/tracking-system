@@ -6,7 +6,6 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { Vpc } from 'aws-cdk-lib/aws-ec2'
 import * as ssm from 'aws-cdk-lib/aws-ssm'
 import { Secret } from '@aws-cdk/aws-apprunner-alpha'
-import { SecretValue } from 'aws-cdk-lib'
 
 export interface ApiStackProps extends cdk.StackProps {
   vpc?: Vpc;
@@ -21,14 +20,24 @@ export class ApiStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: ApiStackProps) {
     super(scope, id, props)
 
-    this.vpc = props?.vpc || new Vpc(this, 'ApiVpc', {
-      maxAzs: 2
-    })
-
     this.ecrRepo = new EcrRepoWithPushAccess(this, 'EcrRepoWithPushAccess', {
       region: this.region,
       repositoryName: 'qore-tracking-api'
     })
+
+
+    this.vpc = props?.vpc || new Vpc(this, 'ApiVpc', {
+      maxAzs: 2
+    })
+
+    const securityGroup = new ec2.SecurityGroup(this, 'ApiSecurityGroup', {
+      vpc: this.vpc,
+      allowAllOutbound: true // Allow egress everywhere
+    })
+
+    // Allow all ingress (e.g., within the VPC or specific CIDR block)
+    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTraffic(), 'Allow all ingress traffic')
+
 
     this.database = new RdsDatabaseConstruct(this, 'ApiRdsDatabase', {
       databaseName: 'QoreTrackingApiDb',
@@ -37,28 +46,30 @@ export class ApiStack extends cdk.Stack {
       username: 'admin',
       vpc: this.vpc
     })
+
     const dbSecret = this.database.secret
 
     const port = ssm.StringParameter.fromStringParameterAttributes(this, 'PortParameter', {
       parameterName: '/app/env/PORT',
-      version: 1,
-    });
+      version: 1
+    })
 
     const jwtParameter = ssm.StringParameter.fromSecureStringParameterAttributes(this, 'JwtSecretParameter', {
       parameterName: '/app/env/JWT_SECRET',
-      version: 1,
-    });
+      version: 1
+    })
 
     const ipInfoTokenParameter = ssm.StringParameter.fromSecureStringParameterAttributes(this, 'IpInfoTokenParameter', {
       parameterName: '/app/env/IPINFO_TOKEN',
-      version: 1,
-    });
-    console.log(`Port value: ${port}`);
+      version: 1
+    })
+    console.log(`Port value: ${port}`)
 
     this.appRunner = new AppRunnerConstruct(this, 'AppRunnerService', {
       repository: this.ecrRepo.repository,
       vpc: this.vpc,
       port: 8383, // todo: fix me to use the port from the parameter store
+      securityGroup: securityGroup,
       environmentVariables: {
         APP_ENV: ssm.StringParameter.valueForStringParameter(this, '/app/env/APP_ENV'),
         PORT: ssm.StringParameter.valueForStringParameter(this, '/app/env/PORT'),
@@ -73,8 +84,10 @@ export class ApiStack extends cdk.Stack {
         DB_DATABASE: Secret.fromSecretsManager(dbSecret, 'dbname'),
         DB_PORT: Secret.fromSecretsManager(dbSecret, 'port'),
         JWT_SECRET: Secret.fromSsmParameter(jwtParameter),
-        IPINFO_TOKEN: Secret.fromSsmParameter(ipInfoTokenParameter),
+        IPINFO_TOKEN: Secret.fromSsmParameter(ipInfoTokenParameter)
       }
     })
+
+    this.appRunner.node.addDependency(this.database)
   }
 }

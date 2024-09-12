@@ -13,6 +13,7 @@ export interface AppRunnerConstructProps extends cdk.StackProps {
   vpc: ec2.IVpc;
   environmentVariables?: { [key: string]: string};
   environmentSecrets?: { [key: string]: Secret  };
+  securityGroup: ec2.SecurityGroup;
 }
 
 export class AppRunnerConstruct extends Construct {
@@ -27,6 +28,7 @@ export class AppRunnerConstruct extends Construct {
       vpcSubnets: {
         subnetType: ec2.SubnetType.PUBLIC,
       },
+      securityGroups: [props.securityGroup],
     });
 
     this.runner = new apprunner.Service(this, 'AppRunnerService', {

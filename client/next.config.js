@@ -28,7 +28,7 @@ const nextConfig = withPWA({
     return [
       {
         source: '/api/:path*',
-        destination: 'https://aesmm2ss33.us-east-1.awsapprunner.com/:path*' // Proxy to App Runner
+        destination: 'https://2mpdfm5kn5.us-east-1.awsapprunner.com/:path*' // todo; move to env
       }
     ]
   }

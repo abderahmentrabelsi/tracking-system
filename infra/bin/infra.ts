@@ -14,7 +14,9 @@ export const env = {
 const apiStack = new ApiStack(app, 'ApiStack', {
   env
 })
+/*
 new FrontendStack(app, 'FrontendStack', {
   env,
   apiUrl: apiStack.appRunner.runner.serviceUrl
 });
+ */
