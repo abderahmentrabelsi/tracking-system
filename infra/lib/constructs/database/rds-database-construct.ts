@@ -10,7 +10,7 @@ export interface RdsDatabaseProps extends cdk.StackProps {
   databaseName: string;
   instanceIdentifier: string;
   username: string;
-  vpc: ec2.Vpc;
+  vpc: ec2.IVpc;
   instanceSize?: ec2.InstanceType;
 }
 

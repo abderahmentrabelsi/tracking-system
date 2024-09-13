@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -74,30 +75,26 @@ func GetAnalyticsData(c *gin.Context) {
 
 	dir, err := os.Getwd()
 	if err != nil {
-		log.Printf("Failed to get current working directory: %v", err)
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Internal Server Error"})
+		handleError(c, fmt.Errorf("failed to get current working directory: %w", err), http.StatusInternalServerError)
 		return
 	}
 
 	credentialsPath := dir + "/cred.json"
 	if _, err := os.Stat(credentialsPath); os.IsNotExist(err) {
-		log.Printf("Credentials file not found: %v", credentialsPath)
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Credentials file not found"})
+		handleError(c, fmt.Errorf("credentials file not found: %s", credentialsPath), http.StatusInternalServerError)
 		return
 	}
 
 	// Initialize the Analytics service
 	analyticsService, err := analyticsdata.NewService(ctx, option.WithCredentialsFile(credentialsPath))
 	if err != nil {
-		log.Printf("Failed to create analytics data service: %v", err)
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Internal Server Error"})
+		handleError(c, fmt.Errorf("failed to create analytics data service: %w", err), http.StatusInternalServerError)
 		return
 	}
 
 	propertyID := os.Getenv("PROPERTY_ID")
 	if propertyID == "" {
-		log.Printf("PROPERTY_ID environment variable is not set")
-		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "PROPERTY_ID not set"})
+		handleError(c, fmt.Errorf("PROPERTY_ID environment variable is not set"), http.StatusBadRequest)
 		return
 	}
 
@@ -143,8 +140,7 @@ func GetAnalyticsData(c *gin.Context) {
 	// Run the report
 	response, err := analyticsService.Properties.RunReport("properties/"+propertyID, request).Do()
 	if err != nil {
-		log.Printf("Failed to run report: %v", err)
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to run report"})
+		handleError(c, fmt.Errorf("failed to run report: %w", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -153,8 +149,7 @@ func GetAnalyticsData(c *gin.Context) {
 
 	// Check if the report contains row data
 	if len(response.Rows) == 0 {
-		log.Printf("No data found for the specified report")
-		c.JSON(http.StatusOK, gin.H{"message": "No data found"})
+		handleError(c, fmt.Errorf("no data found for the specified report"), http.StatusOK)
 		return
 	}
 
@@ -246,12 +241,18 @@ func GetAnalyticsData(c *gin.Context) {
 
 // Helper functions to parse metric values
 func parseInt64(value string) int64 {
-	v, _ := strconv.ParseInt(value, 10, 64)
+	v, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		log.Printf("Failed to parse int64: %v", err)
+	}
 	return v
 }
 
 func parseFloat64(value string) float64 {
-	v, _ := strconv.ParseFloat(value, 64)
+	v, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		log.Printf("Failed to parse float64: %v", err)
+	}
 	return v
 }
 
@@ -287,4 +288,10 @@ func getMaxKeyFloat64(m map[string]float64) string {
 		}
 	}
 	return maxKey
+}
+
+// handleError is a helper function to return consistent error responses
+func handleError(c *gin.Context, err error, statusCode int) {
+	log.Printf("Error: %v", err)
+	c.JSON(statusCode, ErrorResponse{Error: err.Error()})
 }
