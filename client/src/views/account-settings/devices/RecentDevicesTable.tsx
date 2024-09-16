@@ -43,18 +43,18 @@ const extractBrowserAndOS = (userAgent: string): { browser: string; os: string }
 
 const getIcon = (browser: string, os: string) => {
   const iconMapping: { [key: string]: JSX.Element } = {
-    Chrome: <i className='tabler-brand-chrome text-[22px] text-info' />,
-    Firefox: <i className='tabler-brand-firefox text-[22px] text-warning' />,
-    Safari: <i className='tabler-brand-apple text-[22px] text-secondary' />,
-    Windows: <i className='tabler-brand-windows text-[22px] text-info' />,
-    MacOS: <i className='tabler-brand-apple text-[22px] text-secondary' />,
-    Linux: <i className='tabler-brand-linux text-[22px] text-danger' />
+    Chrome: <i className="tabler-brand-chrome text-[22px] text-info" />,
+    Firefox: <i className="tabler-brand-firefox text-[22px] text-warning" />,
+    Safari: <i className="tabler-brand-apple text-[22px] text-secondary" />,
+    Windows: <i className="tabler-brand-windows text-[22px] text-info" />,
+    MacOS: <i className="tabler-brand-apple text-[22px] text-secondary" />,
+    Linux: <i className="tabler-brand-linux text-[22px] text-danger" />
   }
 
   return (
-    <div className='flex items-center gap-2.5'>
-      {iconMapping[browser] || iconMapping[os] || <i className='tabler-device-mobile text-[22px] text-error' />}
-      <Typography className='font-medium' color='text.primary'>
+    <div className="flex items-center gap-2.5">
+      {iconMapping[browser] || iconMapping[os] || <i className="tabler-device-mobile text-[22px] text-error" />}
+      <Typography className="font-medium" color="text.primary">
         {browser} on {os}
       </Typography>
     </div>
@@ -87,6 +87,11 @@ const RecentDevicesTable: React.FC = () => {
     }
 
     fetchHistory()
+      .then(e => console.log('fetchHistory', e))
+      .catch(e => {
+        console.error('fetchHistory', e)
+        debugger
+      })
   }, [])
 
   if (loading) {
@@ -101,44 +106,44 @@ const RecentDevicesTable: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader title='Recent Devices' />
-      <div className='overflow-x-auto'>
+      <CardHeader title="Recent Devices" />
+      <div className="overflow-x-auto">
         <table className={tableStyles.table}>
           <thead>
-            <tr>
-              <th>Browser</th>
-              <th>Device</th>
-              <th>Location</th>
-              <th>Recent Activities</th>
-            </tr>
+          <tr>
+            <th>Browser</th>
+            <th>Device</th>
+            <th>Location</th>
+            <th>Recent Activities</th>
+          </tr>
           </thead>
           <tbody>
-            {paginatedData.map((history, index) => {
-              const { browser, os } = extractBrowserAndOS(history.loginDevice)
-              return (
-                <tr key={index}>
-                  <td>{getIcon(browser, os)}</td>
-                  <td>
-                    <Typography>{os}</Typography>
-                  </td>
-                  <td>
-                    <Typography>{history.location}</Typography> {/* Update this line */}
-                  </td>
-                  <td>
-                    <Typography>{new Date(history.loginTime).toLocaleString()}</Typography>
-                  </td>
-                </tr>
-              )
-            })}
+          {paginatedData.map((history, index) => {
+            const { browser, os } = extractBrowserAndOS(history.loginDevice)
+            return (
+              <tr key={index}>
+                <td>{getIcon(browser, os)}</td>
+                <td>
+                  <Typography>{os}</Typography>
+                </td>
+                <td>
+                  <Typography>{history.location}</Typography> {/* Update this line */}
+                </td>
+                <td>
+                  <Typography>{new Date(history.loginTime).toLocaleString()}</Typography>
+                </td>
+              </tr>
+            )
+          })}
           </tbody>
         </table>
-        <div className='flex justify-center mt-4'>
+        <div className="flex justify-center mt-4">
           <Pagination
             count={Math.ceil(loginHistory.length / ITEMS_PER_PAGE)}
             page={page}
             onChange={handlePageChange}
-            color='primary'
-            variant='tonal'
+            color="primary"
+            variant="tonal"
           />
         </div>
       </div>
