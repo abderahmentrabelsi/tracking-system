@@ -70,7 +70,7 @@ const RecentDevicesTable: React.FC = () => {
 
   useEffect(() => {
     const fetchHistory = async () => {
-      const token = localStorage.getItem('access_token')
+      const token = localStorage.getItem('accessToken')
       if (!token) {
         console.error('No token found')
         return
