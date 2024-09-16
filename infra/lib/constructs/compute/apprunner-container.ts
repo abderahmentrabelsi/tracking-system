@@ -23,14 +23,6 @@ export class AppRunnerConstruct extends Construct {
 
     const imageTag = props.imageTag ?? 'latest'
 
-    const vpcConnector = new apprunner.VpcConnector(this, 'AppRunnerVpcConnector', {
-      vpc: props.vpc,
-      vpcSubnets: {
-        // subnetType: ec2.SubnetType.PUBLIC,
-        subnets: props.vpc.publicSubnets.filter(subnet => ['us-east-1a', 'us-east-1b'].includes(subnet.availabilityZone))
-      },
-      securityGroups: [props.securityGroup]
-    })
 
     this.runner = new apprunner.Service(this, 'AppRunnerService', {
       source: apprunner.Source.fromEcr({
@@ -43,7 +35,6 @@ export class AppRunnerConstruct extends Construct {
         }
       }),
       autoDeploymentsEnabled: true,
-      vpcConnector: vpcConnector
     })
 
     new cdk.CfnOutput(this, 'AppRunnerServiceUrl', {

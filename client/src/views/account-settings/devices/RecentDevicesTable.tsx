@@ -70,6 +70,8 @@ const RecentDevicesTable: React.FC = () => {
 
   useEffect(() => {
     const fetchHistory = async () => {
+      console.error('Fetching login history')
+      debugger
       const token = document.cookie
         .split('; ')
         .find(row => row.startsWith('access_token='))
