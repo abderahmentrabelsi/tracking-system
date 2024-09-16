@@ -70,19 +70,18 @@ const RecentDevicesTable: React.FC = () => {
 
   useEffect(() => {
     const fetchHistory = async () => {
-      console.error('Fetching login history')
-      debugger
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('access_token='))
-        ?.split('=')[1]
-      if (token) {
-        const userId = getUserIdFromToken(token)
-        if (userId) {
-          const data = await fetchLoginHistory(userId)
-          setLoginHistory(data)
-        }
+      const token = localStorage.getItem('access_token')
+      if (!token) {
+        console.error('No token found')
+        return
       }
+      const userId = getUserIdFromToken(token)
+      if (!userId) {
+        console.error('No user ID found')
+        return
+      }
+      const data = await fetchLoginHistory(userId)
+      setLoginHistory(data)
       setLoading(false)
     }
 

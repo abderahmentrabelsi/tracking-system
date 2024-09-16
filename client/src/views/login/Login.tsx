@@ -83,6 +83,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
 
       document.cookie = `access_token=${access_token}; path=/`
       localStorage.setItem('userRole', userRole)
+      localStorage.setItem('accessToken', access_token)
       localStorage.setItem('departmentId', departmentId.toString())
       localStorage.setItem('userID', UserID.toString())
 
