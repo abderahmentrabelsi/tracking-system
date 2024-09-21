@@ -79,7 +79,7 @@ const AccountDetails = () => {
   }, [userDetails])
 
   const getUserIdFromToken = () => {
-    const token = Cookies.get('access_token')
+    const token = localStorage.get('accessToken')
     if (token) {
       const decodedToken = JSON.parse(atob(token.split('.')[1]))
       return decodedToken.UserID
