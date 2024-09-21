@@ -82,7 +82,7 @@ const fetchRoles = async (): Promise<RoleType[]> => {
 }
 
 const fetchClients = async (): Promise<ClientType[]> => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/client/`, { withCredentials: true })
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/client`, { withCredentials: true })
   if (response.status !== 200) throw new Error('Failed to fetch clients')
   return response.data.data
 }

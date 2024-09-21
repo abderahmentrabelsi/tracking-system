@@ -6,9 +6,11 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { IVpc } from 'aws-cdk-lib/aws-ec2'
 import * as ssm from 'aws-cdk-lib/aws-ssm'
 import { Secret } from '@aws-cdk/aws-apprunner-alpha'
+import { Secret as smSecret} from 'aws-cdk-lib/aws-secretsmanager';
 
 export interface ApiStackProps extends cdk.StackProps {
   vpc?: IVpc;
+  s3BucketCredentials: smSecret;
 }
 
 export class ApiStack extends cdk.Stack {
@@ -17,7 +19,7 @@ export class ApiStack extends cdk.Stack {
   public database: RdsDatabaseConstruct
   public vpc: IVpc
 
-  constructor(scope: cdk.App, id: string, props?: ApiStackProps) {
+  constructor(scope: cdk.App, id: string, props: ApiStackProps) {
     super(scope, id, props)
 
     this.ecrRepo = new EcrRepoWithPushAccess(this, 'EcrRepoWithPushAccess', {
@@ -75,7 +77,8 @@ export class ApiStack extends cdk.Stack {
           PORT: ssm.StringParameter.valueForStringParameter(this, '/app/env/PORT'),
           UPLOAD_PATH: ssm.StringParameter.valueForStringParameter(this, '/app/env/UPLOAD_PATH'),
           MEASUREMENT_ID: ssm.StringParameter.valueForStringParameter(this, '/app/env/MEASUREMENT_ID'),
-          PROPERTY_ID: ssm.StringParameter.valueForStringParameter(this, '/app/env/PROPERTY_ID')
+          PROPERTY_ID: ssm.StringParameter.valueForStringParameter(this, '/app/env/PROPERTY_ID'),
+          S3_BUCKET_REGION: this.region
         },
         environmentSecrets: {
           DB_HOST: Secret.fromSecretsManager(dbSecret, 'host'),
@@ -83,6 +86,10 @@ export class ApiStack extends cdk.Stack {
           DB_PASSWORD: Secret.fromSecretsManager(dbSecret, 'password'),
           DB_DATABASE: Secret.fromSecretsManager(dbSecret, 'dbname'),
           DB_PORT: Secret.fromSecretsManager(dbSecret, 'port'),
+          S3_AWS_ACCESS_KEY_ID: Secret.fromSecretsManager(props.s3BucketCredentials, 'AccessKeyId'),
+          S3_AWS_SECRET_ACCESS_KEY: Secret.fromSecretsManager(props.s3BucketCredentials, 'SecretAccessKey'),
+          S3_BUCKET_URL: Secret.fromSecretsManager(props.s3BucketCredentials, 'BucketUrl'),
+          S3_BUCKET_NAME: Secret.fromSecretsManager(props.s3BucketCredentials, 'BucketName'),
           JWT_SECRET: Secret.fromSsmParameter(jwtParameter),
           IPINFO_TOKEN: Secret.fromSsmParameter(ipInfoTokenParameter)
         }

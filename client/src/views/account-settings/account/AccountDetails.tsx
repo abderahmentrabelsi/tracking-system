@@ -1,12 +1,12 @@
 'use client'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Grid, Card, CardContent, Button, Typography, MenuItem, Chip, SelectChangeEvent } from '@mui/material'
+import { Button, Card, CardContent, Chip, Grid, MenuItem, SelectChangeEvent, Typography } from '@mui/material'
 import Avatar from 'react-avatar'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import CustomTextField from '@core/components/mui/TextField'
 import ProgressLinearWithLabel from '@/components/ProgressLinearWithLabel'
-import { fetchUserDetailsByUsername, UserDetails, updateUserProfile } from '@/utils/userUtils'
+import { fetchUserDetailsByUsername, updateUserProfile, UserDetails } from '@/utils/userUtils'
 import { stringToColor } from '@/utils/colorUtils'
 import { Upload } from 'tus-js-client'
 import Cookies from 'js-cookie'
@@ -123,7 +123,6 @@ const AccountDetails = () => {
       console.error('Invalid user ID:', userId)
       return
     }
-
     console.log('Starting upload with user ID:', userId) // Debug log
     const upload = new Upload(file, {
       endpoint: `${process.env.NEXT_PUBLIC_GO_APP_SERVER_URL}/files/`,
@@ -142,6 +141,8 @@ const AccountDetails = () => {
         console.log(bytesUploaded, bytesTotal, percentage + '%')
       },
       onSuccess: async () => {
+        console.log("WE ARE HERE")
+        console.table(upload)
         console.log('Upload finished:', upload.url)
         setIsUploading(false)
         const newImageUrl = upload.url
@@ -179,32 +180,32 @@ const AccountDetails = () => {
 
   return (
     <Card>
-      <CardContent className='mbe-4'>
-        <div className='flex max-sm:flex-col items-center gap-6'>
+      <CardContent className="mbe-4">
+        <div className="flex max-sm:flex-col items-center gap-6">
           {formData.picture ? (
             <img
               src={imgSrc}
-              alt='Uploaded Avatar'
-              className='rounded-full'
+              alt="Uploaded Avatar"
+              className="rounded-full"
               style={{ width: '100px', height: '100px' }}
             />
           ) : (
-            <Avatar name={`${formData.firstName} ${formData.lastName}`} round size='100' color={avatarColor} />
+            <Avatar name={`${formData.firstName} ${formData.lastName}`} round size="100" color={avatarColor} />
           )}
-          <div className='flex flex-grow flex-col gap-4'>
-            <div className='flex flex-col sm:flex-row gap-4'>
-              <Button component='label' variant='contained' htmlFor='account-settings-upload-image'>
+          <div className="flex flex-grow flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button component="label" variant="contained" htmlFor="account-settings-upload-image">
                 Upload New Photo
                 <input
                   hidden
-                  type='file'
+                  type="file"
                   value={fileInput}
-                  accept='image/png, image/jpeg'
+                  accept="image/png, image/jpeg"
                   onChange={handleFileInputChange}
-                  id='account-settings-upload-image'
+                  id="account-settings-upload-image"
                 />
               </Button>
-              <Button variant='tonal' color='secondary' onClick={handleFileInputReset}>
+              <Button variant="tonal" color="secondary" onClick={handleFileInputReset}>
                 Reset
               </Button>
             </div>
@@ -230,19 +231,19 @@ const AccountDetails = () => {
               <CustomTextField
                 select
                 fullWidth
-                label='Language'
+                label="Language"
                 value={language}
                 SelectProps={{
                   multiple: true,
                   onChange: handleChange,
                   renderValue: selected => (
-                    <div className='flex flex-wrap gap-2'>
+                    <div className="flex flex-wrap gap-2">
                       {(selected as string[]).map(value => (
                         <Chip
                           key={value}
                           clickable
                           onMouseDown={event => event.stopPropagation()}
-                          size='small'
+                          size="small"
                           label={value}
                           onDelete={() => handleDelete(value)}
                         />
@@ -258,11 +259,11 @@ const AccountDetails = () => {
                 ))}
               </CustomTextField>
             </Grid>
-            <Grid item xs={12} className='flex gap-4 flex-wrap'>
-              <Button variant='contained' onClick={handleSubmit} disabled={isUploading}>
+            <Grid item xs={12} className="flex gap-4 flex-wrap">
+              <Button variant="contained" onClick={handleSubmit} disabled={isUploading}>
                 {isUploading ? 'Uploading...' : 'Save Changes'}
               </Button>
-              <Button variant='tonal' type='reset' color='secondary' onClick={() => setFormData(userDetails as Data)}>
+              <Button variant="tonal" type="reset" color="secondary" onClick={() => setFormData(userDetails as Data)}>
                 Reset
               </Button>
             </Grid>
